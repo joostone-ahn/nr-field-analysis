@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 metrics = [
     "RSRP",
-    # "RSRQ",
+    "RSRQ",
     "SINR",
     # "SINR_SSB",
     # "SINR_TRS",
@@ -102,8 +102,9 @@ def kpi_each_test(df, out_dir, rb_min):
         plt.tight_layout(rect=[0, 0, 1, 0.97])
         fig.suptitle(f"[{target_no}] KPI trends over time (n26 vs n28)", fontsize=14, y=0.995)
 
-        os.makedirs(os.path.join(out_dir, "kpi_each_test"), exist_ok=True)
-        out_path = os.path.join(out_dir, "kpi_each_test", f"kpi_{target_no}.png")
+        date = target_no.split("_")[0]
+        os.makedirs(os.path.join(out_dir, "kpi_each_test", date), exist_ok=True)
+        out_path = os.path.join(out_dir, "kpi_each_test", date, f"kpi_{target_no}.png")
         plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
         plt.close(fig)
         print(f"Saved: {out_path}")

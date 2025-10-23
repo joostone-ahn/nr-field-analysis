@@ -1,6 +1,4 @@
 import os
-from imghdr import test_tiff
-
 import pandas as pd
 
 band_map = {
@@ -135,9 +133,10 @@ def analyze_kpi(fname, date_list, rb_min):
     }
     df = df[list(col_map.keys())].rename(columns=col_map)
 
-    df["date"] = df["date"].astype(str)
-    df = df[df["date"].isin(date_list)].reset_index(drop=True)
-    # display(df)
+    if date_list:
+        df["date"] = df["date"].astype(str)
+        df = df[df["date"].isin(date_list)].reset_index(drop=True)
+        # display(df)
 
     df["Band"] = df["Freq"].map(band_map)
     df.drop(columns=["Freq"], inplace=True)

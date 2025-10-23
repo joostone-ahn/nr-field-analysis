@@ -15,7 +15,8 @@ ul { list-style-type: none; padding-left: 20px; }
 li { margin: 6px 0; }
 a { text-decoration: none; color: #0066cc; }
 a:hover { text-decoration: underline; color: #003366; }
-.folder { font-weight: bold; color: #222; margin-top: 10px; }
+summary { font-weight: bold; color: #222; cursor: pointer; margin-top: 8px; }
+.folder { margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -25,25 +26,36 @@ a:hover { text-decoration: underline; color: #003366; }
 
 html_footer = "</body></html>"
 
-def generate_list_html(root_dir):
+def generate_list_html(root_dir, parent_dir=None):
+    items = sorted(os.listdir(root_dir))
     html = "<ul>"
-    for item in sorted(os.listdir(root_dir)):
+
+    for item in items:
         path = os.path.join(root_dir, item)
         rel_path = os.path.relpath(path, base_dir).replace("\\", "/")
 
         if os.path.isdir(path):
-            html += f'<li class="folder">{item}/</li>'
-            html += generate_list_html(path)
+            # ✅ 접힘 조건: 상위 폴더가 kpi_each_test인 경우만 닫기
+            if os.path.basename(parent_dir or "") == "kpi_each_test":
+                fold_state = ""   # 접힘 (open 속성 없음)
+            else:
+                fold_state = " open"  # 기본 펼침
+
+            html += f'<li class="folder"><details{fold_state}><summary>{item}/</summary>'
+            html += generate_list_html(path, parent_dir=item)
+            html += "</details></li>"
 
         elif item.endswith(".html") or item.endswith(".png"):
-            html += f'<li><a href="{rel_path}" target="_blank">{rel_path}</a></li>'
+            html += f'<li><a href="{rel_path}" target="_blank">{os.path.basename(rel_path)}</a></li>'
 
     html += "</ul>"
     return html
+
+os.makedirs(base_dir, exist_ok=True)
 
 with open(index_path, "w", encoding="utf-8") as f:
     f.write(html_header)
     f.write(generate_list_html(base_dir))
     f.write(html_footer)
 
-print(f"✅ index.html (HTML + PNG link version) generated at: {index_path}")
+print(f"✅ index.html generated (date folders collapsed) at: {index_path}")
