@@ -1,0 +1,47 @@
+VIAVI Solutions,JD785B,PLM21190,3.110.023
+
+<Mode>
+Spectrum / OTA Route Map
+ 
+Latitude:,37'33"14.84N
+Longitude:,126'58"51.53E
+Time:,2025-10-21 11:50:15 
+ 
+<Setup>
+Center Frequency:,765.000000,MHz
+Span:,20.000000,MHz
+Start Frequency:,755.000000,MHz
+Stop Frequency:,775.000000,MHz
+Channel :,5350 FWD
+Channel Standard :,Band Global
+Preamp:,Off
+Attenuation:,15,dB
+External Offset:,On,0.000000,dB
+Freq Reference:,GPS
+Trigger Source:,Internal
+Trigger:,Free Run
+Mode:,Sweep
+Detector:,RMS
+RBW [A]:,100 kHz
+VBW [A]:,100 kHz
+Sweep Time:,10.73 ms
+Average:,1
+ 
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+0,-72.29,dBm,-32.86,dBm,-51.92,dB,19.75,dB,N,37,33,15.135077,E,126,58,51.702160,2025-10-21-11:48:2
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+1,-71.74,dBm,-33.32,dBm,-52.38,dB,14.77,dB,N,37,33,14.645028,E,126,58,51.393211,2025-10-21-11:48:11
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+2,-66.54,dBm,-32.22,dBm,-51.28,dB,20.50,dB,N,37,33,14.154981,E,126,58,51.161499,2025-10-21-11:48:19
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+3,-78.80,dBm,-43.35,dBm,-62.41,dB,-7.59,dB,N,37,33,13.726189,E,126,58,51.779396,2025-10-21-11:48:52
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+4,-74.88,dBm,-37.68,dBm,-56.74,dB,9.96,dB,N,37,33,13.848701,E,126,58,52.397293,2025-10-21-11:49:33
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+5,-77.68,dBm,-41.35,dBm,-60.41,dB,-3.97,dB,N,37,33,14.338748,E,126,58,52.706242,2025-10-21-11:49:40
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+6,-78.41,dBm,-38.88,dBm,-57.94,dB,5.59,dB,N,37,33,14.828796,E,126,58,53.015194,2025-10-21-11:49:47
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+7,-87.43,dBm,-36.37,dBm,-55.43,dB,11.85,dB,N,37,33,15.318845,E,126,58,52.397293,2025-10-21-11:49:58
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+8,-72.84,dBm,-31.61,dBm,-50.67,dB,21.34,dB,N,37,33,15.318845,E,126,58,51.779396,2025-10-21-11:50:7

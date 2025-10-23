@@ -1,0 +1,141 @@
+VIAVI Solutions,JD785B,PLM21190,3.110.023
+
+<Mode>
+Spectrum / OTA Route Map
+ 
+Latitude:,37'32"49.76N
+Longitude:,126'58"54.87E
+Time:,2025-10-22 16:21:19 
+ 
+<Setup>
+Center Frequency:,765.000000,MHz
+Span:,20.000000,MHz
+Start Frequency:,755.000000,MHz
+Stop Frequency:,775.000000,MHz
+Channel :,5350 FWD
+Channel Standard :,Band Global
+Preamp:,Off
+Attenuation:,15,dB
+External Offset:,On,0.000000,dB
+Freq Reference:,GPS
+Trigger Source:,Internal
+Trigger:,Free Run
+Mode:,Sweep
+Detector:,RMS
+RBW [A]:,100 kHz
+VBW [A]:,100 kHz
+Sweep Time:,10.73 ms
+Average:,1
+ 
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+0,-70.72,dBm,-28.21,dBm,34.53,dB,25.79,dB,N,37,32,49.836346,E,126,58,54.946121,2025-10-22-16:16:27
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+1,-78.29,dBm,-38.34,dBm,28.41,dB,28.14,dB,N,37,32,49.652576,E,126,58,55.641258,2025-10-22-16:16:36
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+2,-70.96,dBm,-36.46,dBm,22.61,dB,27.68,dB,N,37,32,49.468811,E,126,58,56.336391,2025-10-22-16:16:42
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+3,-73.94,dBm,-36.71,dBm,29.29,dB,22.81,dB,N,37,32,49.407555,E,126,58,56.954288,2025-10-22-16:16:50
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+4,-67.17,dBm,-30.47,dBm,32.89,dB,20.22,dB,N,37,32,49.652576,E,126,58,57.649426,2025-10-22-16:16:57
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+5,-85.88,dBm,-32.99,dBm,38.94,dB,33.00,dB,N,37,32,49.836346,E,126,58,58.267323,2025-10-22-16:17:2
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+6,-77.95,dBm,-39.22,dBm,29.93,dB,21.92,dB,N,37,32,49.713833,E,126,58,58.885220,2025-10-22-16:17:8
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+7,-71.34,dBm,-40.69,dBm,37.48,dB,17.90,dB,N,37,32,49.468811,E,126,58,59.503117,2025-10-22-16:17:13
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+8,-85.19,dBm,-37.47,dBm,40.33,dB,22.16,dB,N,37,32,49.162529,E,126,59,0.121016,2025-10-22-16:17:19
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+9,-83.12,dBm,-43.94,dBm,34.28,dB,26.32,dB,N,37,32,48.672482,E,126,59,0.738914,2025-10-22-16:17:25
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+10,-82.11,dBm,-43.37,dBm,35.84,dB,28.07,dB,N,37,32,48.182434,E,126,59,1.279574,2025-10-22-16:17:29
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+11,-80.29,dBm,-50.15,dBm,26.97,dB,17.09,dB,N,37,32,47.631130,E,126,59,1.665760,2025-10-22-16:17:35
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+12,-86.38,dBm,-44.58,dBm,26.24,dB,29.40,dB,N,37,32,47.141083,E,126,59,1.820235,2025-10-22-16:17:41
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+13,-85.30,dBm,-46.96,dBm,36.75,dB,19.70,dB,N,37,32,46.651031,E,126,59,2.283658,2025-10-22-16:17:49
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+14,-75.53,dBm,-42.16,dBm,36.26,dB,24.58,dB,N,37,32,46.099728,E,126,59,2.978793,2025-10-22-16:17:55
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+15,-89.55,dBm,-46.33,dBm,30.57,dB,25.93,dB,N,37,32,45.609680,E,126,59,3.596691,2025-10-22-16:18:1
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+16,-85.35,dBm,-46.95,dBm,30.55,dB,18.58,dB,N,37,32,45.119633,E,126,59,4.214589,2025-10-22-16:18:7
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+17,-81.98,dBm,-41.03,dBm,28.75,dB,20.89,dB,N,37,32,44.629585,E,126,59,4.755249,2025-10-22-16:18:12
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+18,-77.00,dBm,-44.57,dBm,29.10,dB,25.79,dB,N,37,32,44.200794,E,126,59,5.373147,2025-10-22-16:18:18
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+19,-79.66,dBm,-43.65,dBm,30.41,dB,30.52,dB,N,37,32,43.710743,E,126,59,5.373147,2025-10-22-16:18:31
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+20,-79.67,dBm,-36.42,dBm,27.32,dB,29.45,dB,N,37,32,43.220695,E,126,59,5.064198,2025-10-22-16:18:35
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+21,-79.79,dBm,-39.94,dBm,20.80,dB,20.71,dB,N,37,32,42.669392,E,126,59,4.832486,2025-10-22-16:18:44
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+22,-75.22,dBm,-38.93,dBm,33.46,dB,34.89,dB,N,37,32,42.179344,E,126,59,4.291826,2025-10-22-16:18:49
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+23,-79.42,dBm,-39.42,dBm,31.56,dB,38.56,dB,N,37,32,41.995575,E,126,59,3.673928,2025-10-22-16:18:52
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+24,-70.95,dBm,-32.58,dBm,25.70,dB,27.94,dB,N,37,32,41.811810,E,126,59,3.056030,2025-10-22-16:18:55
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+25,-83.52,dBm,-44.32,dBm,23.83,dB,33.21,dB,N,37,32,41.566784,E,126,59,2.283658,2025-10-22-16:18:59
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+26,-79.71,dBm,-45.52,dBm,16.92,dB,29.37,dB,N,37,32,41.383015,E,126,59,1.511286,2025-10-22-16:19:3
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+27,-82.76,dBm,-46.54,dBm,25.45,dB,38.04,dB,N,37,32,41.137993,E,126,59,0.738914,2025-10-22-16:19:7
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+28,-78.42,dBm,-49.47,dBm,16.21,dB,29.16,dB,N,37,32,41.137993,E,126,59,0.121016,2025-10-22-16:19:11
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+29,-73.62,dBm,-45.80,dBm,18.67,dB,31.17,dB,N,37,32,41.260506,E,126,58,59.425880,2025-10-22-16:19:15
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+30,-72.91,dBm,-41.79,dBm,27.58,dB,29.72,dB,N,37,32,41.321762,E,126,58,58.730747,2025-10-22-16:19:20
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+31,-77.27,dBm,-38.37,dBm,24.51,dB,31.91,dB,N,37,32,41.137993,E,126,58,58.112850,2025-10-22-16:19:24
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+32,-69.45,dBm,-35.16,dBm,20.44,dB,34.65,dB,N,37,32,40.892967,E,126,58,57.494949,2025-10-22-16:19:28
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+33,-85.48,dBm,-42.75,dBm,27.02,dB,37.25,dB,N,37,32,40.586689,E,126,58,56.877052,2025-10-22-16:19:32
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+34,-78.12,dBm,-47.48,dBm,32.78,dB,33.26,dB,N,37,32,40.341663,E,126,58,56.259155,2025-10-22-16:19:37
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+35,-83.31,dBm,-44.86,dBm,25.56,dB,30.27,dB,N,37,32,40.219151,E,126,58,55.564022,2025-10-22-16:19:41
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+36,-77.02,dBm,-36.27,dBm,24.28,dB,29.43,dB,N,37,32,40.709202,E,126,58,55.023361,2025-10-22-16:19:45
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+37,-78.03,dBm,-49.49,dBm,39.87,dB,23.54,dB,N,37,32,41.321762,E,126,58,54.868885,2025-10-22-16:19:49
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+38,-84.32,dBm,-49.64,dBm,30.04,dB,39.39,dB,N,37,32,41.811810,E,126,58,54.868885,2025-10-22-16:19:52
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+39,-84.17,dBm,-46.78,dBm,28.23,dB,29.76,dB,N,37,32,42.301857,E,126,58,54.868885,2025-10-22-16:19:56
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+40,-74.65,dBm,-43.14,dBm,24.51,dB,27.52,dB,N,37,32,42.791904,E,126,58,54.791649,2025-10-22-16:20:1
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+41,-79.31,dBm,-42.78,dBm,26.43,dB,26.34,dB,N,37,32,43.404465,E,126,58,54.637173,2025-10-22-16:20:6
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+42,-73.04,dBm,-38.18,dBm,27.45,dB,31.47,dB,N,37,32,43.894512,E,126,58,54.637173,2025-10-22-16:20:9
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+43,-77.63,dBm,-41.92,dBm,27.02,dB,29.67,dB,N,37,32,44.445816,E,126,58,54.637173,2025-10-22-16:20:13
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+44,-81.19,dBm,-47.27,dBm,33.56,dB,24.16,dB,N,37,32,44.935863,E,126,58,54.559937,2025-10-22-16:20:20
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+45,-86.48,dBm,-45.41,dBm,30.63,dB,23.66,dB,N,37,32,45.487167,E,126,58,54.405460,2025-10-22-16:20:24
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+46,-79.77,dBm,-40.72,dBm,25.21,dB,23.56,dB,N,37,32,45.977219,E,126,58,54.328224,2025-10-22-16:20:28
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+47,-88.77,dBm,-41.94,dBm,32.26,dB,17.10,dB,N,37,32,46.467266,E,126,58,54.250988,2025-10-22-16:20:31
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+48,-79.82,dBm,-41.04,dBm,35.75,dB,27.47,dB,N,37,32,47.018570,E,126,58,54.173752,2025-10-22-16:20:35
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+49,-80.48,dBm,-47.52,dBm,23.85,dB,21.81,dB,N,37,32,47.508617,E,126,58,53.555851,2025-10-22-16:20:39
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+50,-80.18,dBm,-45.91,dBm,35.63,dB,32.53,dB,N,37,32,47.998665,E,126,58,52.860718,2025-10-22-16:20:43
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+51,-75.49,dBm,-35.15,dBm,31.21,dB,24.08,dB,N,37,32,48.488712,E,126,58,52.397293,2025-10-22-16:20:47
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+52,-77.51,dBm,-33.99,dBm,41.09,dB,25.50,dB,N,37,32,48.978760,E,126,58,52.783482,2025-10-22-16:20:52
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+53,-78.44,dBm,-34.97,dBm,28.20,dB,17.21,dB,N,37,32,49.468811,E,126,58,53.478615,2025-10-22-16:20:57
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+54,-74.80,dBm,-39.05,dBm,36.35,dB,31.16,dB,N,37,32,49.958858,E,126,58,54.096512,2025-10-22-16:21:3
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+55,-79.43,dBm,-30.24,dBm,35.69,dB,28.80,dB,N,37,32,49.836346,E,126,58,54.714413,2025-10-22-16:21:12

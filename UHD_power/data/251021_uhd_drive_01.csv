@@ -1,0 +1,45 @@
+VIAVI Solutions,JD785B,PLM21190,3.110.023
+
+<Mode>
+Spectrum / OTA Route Map
+ 
+Latitude:,37'33"13.74N
+Longitude:,126'58"52.25E
+Time:,2025-10-21 11:42:05 
+ 
+<Setup>
+Center Frequency:,765.000000,MHz
+Span:,20.000000,MHz
+Start Frequency:,755.000000,MHz
+Stop Frequency:,775.000000,MHz
+Channel :,5350 FWD
+Channel Standard :,Band Global
+Preamp:,Off
+Attenuation:,15,dB
+External Offset:,On,0.000000,dB
+Freq Reference:,GPS
+Trigger Source:,Internal
+Trigger:,Free Run
+Mode:,Sweep
+Detector:,RMS
+RBW [A]:,100 kHz
+VBW [A]:,100 kHz
+Sweep Time:,10.73 ms
+Average:,1
+ 
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+0,-72.97,dBm,-32.74,dBm,-51.80,dB,5.35,dB,N,37,33,14.461261,E,126,58,51.393211,2025-10-21-11:40:40
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+1,-73.10,dBm,-36.71,dBm,-55.77,dB,1.70,dB,N,37,33,13.971212,E,126,58,51.393211,2025-10-21-11:40:49
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+2,-71.55,dBm,-43.51,dBm,-62.57,dB,6.93,dB,N,37,33,13.726189,E,126,58,52.088345,2025-10-21-11:40:57
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+3,-69.59,dBm,-33.12,dBm,-52.18,dB,11.36,dB,N,37,33,14.277493,E,126,58,52.706242,2025-10-21-11:41:8
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+4,-74.12,dBm,-34.04,dBm,-53.10,dB,23.60,dB,N,37,33,14.828796,E,126,58,53.015194,2025-10-21-11:41:18
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+5,-67.72,dBm,-36.17,dBm,-55.23,dB,24.00,dB,N,37,33,15.257588,E,126,58,52.397293,2025-10-21-11:41:26
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+6,-66.68,dBm,-32.32,dBm,-51.38,dB,7.90,dB,N,37,33,15.318845,E,126,58,51.779396,2025-10-21-11:41:33
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+7,-69.83,dBm,-34.89,dBm,-53.95,dB,16.05,dB,N,37,33,14.828796,E,126,58,51.470448,2025-10-21-11:41:40

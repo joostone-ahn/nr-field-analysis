@@ -1,0 +1,61 @@
+VIAVI Solutions,JD785B,PLM21190,3.110.023
+
+<Mode>
+Spectrum / OTA Route Map
+ 
+Latitude:,37'33"5.05N
+Longitude:,126'59"24.93E
+Time:,2025-10-21 15:56:19 
+ 
+<Setup>
+Center Frequency:,765.000000,MHz
+Span:,20.000000,MHz
+Start Frequency:,755.000000,MHz
+Stop Frequency:,775.000000,MHz
+Channel :,5350 FWD
+Channel Standard :,Band Global
+Preamp:,Off
+Attenuation:,15,dB
+External Offset:,On,0.000000,dB
+Freq Reference:,GPS
+Trigger Source:,Internal
+Trigger:,Free Run
+Mode:,Sweep
+Detector:,RMS
+RBW [A]:,100 kHz
+VBW [A]:,100 kHz
+Sweep Time:,10.73 ms
+Average:,1
+ 
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+0,-65.96,dBm,-15.92,dBm,-34.98,dB,33.33,dB,N,37,33,6.314211,E,126,59,15.568460,2025-10-21-15:51:25
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+1,-59.01,dBm,-19.96,dBm,-39.03,dB,35.33,dB,N,37,33,6.191700,E,126,59,16.186357,2025-10-21-15:51:45
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+2,-52.90,dBm,-20.29,dBm,-39.35,dB,39.96,dB,N,37,33,6.252955,E,126,59,16.804255,2025-10-21-15:52:4
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+3,-49.16,dBm,-13.33,dBm,-32.39,dB,40.15,dB,N,37,33,6.314211,E,126,59,17.422152,2025-10-21-15:52:19
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+4,-51.08,dBm,-16.57,dBm,-35.63,dB,41.01,dB,N,37,33,6.436723,E,126,59,18.040051,2025-10-21-15:52:36
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+5,-55.49,dBm,-21.93,dBm,-40.99,dB,40.06,dB,N,37,33,6.497980,E,126,59,18.657948,2025-10-21-15:52:49
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+6,-68.78,dBm,-26.21,dBm,-45.27,dB,31.15,dB,N,37,33,6.314211,E,126,59,19.275846,2025-10-21-15:53:4
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+7,-57.64,dBm,-25.75,dBm,-44.81,dB,31.11,dB,N,37,33,6.069187,E,126,59,19.893744,2025-10-21-15:53:25
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+8,-58.86,dBm,-24.18,dBm,-43.24,dB,35.38,dB,N,37,33,5.762908,E,126,59,20.511641,2025-10-21-15:53:44
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+9,-72.70,dBm,-30.53,dBm,-49.59,dB,23.07,dB,N,37,33,5.579139,E,126,59,21.129539,2025-10-21-15:54:1
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+10,-59.59,dBm,-23.25,dBm,-42.31,dB,38.77,dB,N,37,33,5.517883,E,126,59,21.747437,2025-10-21-15:54:19
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+11,-64.36,dBm,-29.03,dBm,-48.09,dB,31.08,dB,N,37,33,5.334116,E,126,59,22.365334,2025-10-21-15:54:39
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+12,-55.83,dBm,-23.78,dBm,-42.84,dB,28.42,dB,N,37,33,5.272859,E,126,59,22.983232,2025-10-21-15:54:59
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+13,-62.59,dBm,-25.53,dBm,-44.60,dB,29.35,dB,N,37,33,5.211603,E,126,59,23.601130,2025-10-21-15:55:15
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+14,-74.60,dBm,-40.14,dBm,-59.20,dB,17.82,dB,N,37,33,5.150347,E,126,59,24.219027,2025-10-21-15:55:33
+Number,RSSI,,Lower,,Upper,,ACP,Latitude,,,,Longitude,,,,Time
+15,-79.52,dBm,-42.33,dBm,-61.39,dB,19.54,dB,N,37,33,5.150347,E,126,59,24.836926,2025-10-21-15:55:49
