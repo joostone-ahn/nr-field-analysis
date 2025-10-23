@@ -16,7 +16,6 @@ li { margin: 6px 0; }
 a { text-decoration: none; color: #0066cc; }
 a:hover { text-decoration: underline; color: #003366; }
 .folder { font-weight: bold; color: #222; margin-top: 10px; }
-img.thumb { border:1px solid #ccc; border-radius:4px; margin:4px; width:200px; display:block; }
 </style>
 </head>
 <body>
@@ -36,22 +35,15 @@ def generate_list_html(root_dir):
             html += f'<li class="folder">{item}/</li>'
             html += generate_list_html(path)
 
-        elif item.endswith(".html"):
+        elif item.endswith(".html") or item.endswith(".png"):
             html += f'<li><a href="{rel_path}" target="_blank">{rel_path}</a></li>'
-
-        elif item.endswith(".png"):
-            html += (
-                f'<li><a href="{rel_path}" target="_blank">{rel_path}</a>'
-                f'<br><img src="{rel_path}" class="thumb" alt="{item}"></li>'
-            )
 
     html += "</ul>"
     return html
-
 
 with open(index_path, "w", encoding="utf-8") as f:
     f.write(html_header)
     f.write(generate_list_html(base_dir))
     f.write(html_footer)
 
-print(f"✅ index.html with image thumbnails generated at: {index_path}")
+print(f"✅ index.html (HTML + PNG link version) generated at: {index_path}")
