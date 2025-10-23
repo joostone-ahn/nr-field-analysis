@@ -100,7 +100,7 @@ def analyze_kpi(fname, date_list, rb_min):
     df= pd.read_excel(fname)
     # print(df.info())
     # display(df)
-    print("✅ Read Complete")
+    print(f"✅ Read Complete : {len(df)} lines")
 
     unique_values = df["5G KPI PCell Chip Type"].dropna().drop_duplicates().tolist()
     if len(unique_values) > 1:
@@ -132,11 +132,13 @@ def analyze_kpi(fname, date_list, rb_min):
         "route": "route",
     }
     df = df[list(col_map.keys())].rename(columns=col_map)
+    # print(len(df))
 
     if date_list:
         df["date"] = df["date"].astype(str)
         df = df[df["date"].isin(date_list)].reset_index(drop=True)
         # display(df)
+    # print(len(df))
 
     df["Band"] = df["Freq"].map(band_map)
     df.drop(columns=["Freq"], inplace=True)
@@ -211,7 +213,7 @@ def grid_kpi(df, grid_size):
     # lon_offset_deg = lon_offset_m / lon_factor  # 약 0.0001136도
     
     df_grid = df.copy()
-    
+
     df_grid["lat_bin"] = (df_grid["Lat"] * lat_factor // grid_size).astype(int)
     df_grid["lon_bin"] = (df_grid["Lon"] * lon_factor // grid_size).astype(int)
     # df_grid["lon_bin"] = ((df_grid["Lon"] + lon_offset_deg) * lon_factor // grid_size).astype(int)

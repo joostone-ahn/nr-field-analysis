@@ -121,21 +121,26 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
 
         border_weight = 0
         border_color = None
-        border_dash = None
+        # border_dash = None
         if "uhd_max" in df_pair.columns:
             uhd = df_pair.iloc[idx]["uhd_max"]
             sinr_n26 = df_pair.iloc[idx]["SINR_n26"]
             sinr_n28 = df_pair.iloc[idx]["SINR_n28"]
+            sinr_diff = sinr_n28 - sinr_n26
+            rsrp_n26 = df_pair.iloc[idx]["RSRP_n26"]
+            rsrp_n28 = df_pair.iloc[idx]["RSRP_n28"]
+            rsrp_diff_abs = abs(rsrp_n26 - rsrp_n28)
 
             if pd.notna(uhd) and uhd > uhd_th:
-                border_color = "red"
-                border_weight = 2
-                border_dash = "3,3"
+                border_color = "blue"
+                border_weight = 3
+                # border_dash = "4,4"
 
                 if metric == "DL_Tput":
-                    if val < -5 and (sinr_n28-sinr_n26) < 0:
+                    if val < -5 and sinr_diff < -1 and rsrp_diff_abs < 1:
+                        border_color = "red"
                         border_weight = 3
-                        border_dash = None
+                        # border_dash = None
 
         bounds = [
             [lat_c - dlat, lon_c - dlon],  # 남서(SW)
@@ -145,7 +150,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
             bounds=bounds,
             weight=border_weight,
             color=border_color,
-            dash_array=border_dash,
+            # dash_array=border_dash,
             fill=True,
             fill_color=color,
             fill_opacity=0.4,
