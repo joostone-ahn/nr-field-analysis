@@ -324,7 +324,7 @@ def map_pct(df, out_dir, grid_size, sample_min=0):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_pct}.html")
+        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_pct}_ratio.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
             df_pair=df_pair,
@@ -374,7 +374,7 @@ def map_db(df, out_dir, grid_size, sample_min=0):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_db}.html")
+        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_db}_diff.html")
         caption = f"{metric_db} Δ(n28-n26) [dB]"
         render_step_map(
             df_pair=df_pair,
@@ -390,8 +390,6 @@ def map_db(df, out_dir, grid_size, sample_min=0):
         )
 
 def map_coverage(df, out_dir, grid_size, sample_min=0):
-    temp_dir = os.path.join(out_dir, "temp")
-    os.makedirs(temp_dir, exist_ok=True)
     
     df_pair = _common.grid_kpi(df, grid_size=grid_size)
     df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
@@ -402,122 +400,27 @@ def map_coverage(df, out_dir, grid_size, sample_min=0):
 
     metrics = [
         "RSRP",
-        # "RSRQ",
-        # "SINR",
-        # "SINR_TRS",
-        # "CQI",
-        # "DL_RB",
-        # "DL_Tput",
-        # "DL_Tput_full_RB",
     ]
 
     for metric in metrics:
-        n26_val = df_pair[f"{metric}_n26"].astype(float)
-        n28_val = df_pair[f"{metric}_n28"].astype(float)
+        n28 = df_pair[f"{metric}_n28"].astype(float)
 
-        vmin = np.floor(min(n26_val.min(), n28_val.min()))
-        vmax = np.ceil(max(n26_val.max(), n28_val.max()))
+        vmin = np.floor(n28.min())
+        vmax = np.ceil(n28.max())
         cmap = make_step_cmap(vmin, vmax)
 
-        if metric in ["RSRQ", "SINR", "SINR_TRS"]:
-            caption = f"{metric} [dB]"
-        elif metric in ["RSRP"]:
-            caption = f"{metric} [dBm]"
-        elif metric in ["DL_Tput_full_RB", "DL_Tput"]:
-            caption = f"{metric} [Mbps]"
-        else:
-            caption = metric
 
-        # -------------------
-        # n26 지도
-        # -------------------
-        n26_file = os.path.join(temp_dir, f"{metric}_n26.html")
+        caption = f"n28 {metric} [dBm]"
+        out_file = os.path.join(out_dir, f"{grid_size}m_{metric}_n28.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
-            values=n26_val,
+            values=n28,
             metric=metric,
-            popup_func=lambda idx, val, df_pair, metric: (
-                f"<b>n26 {metric}</b><br>"
-                f"Average: {val:.1f}<br>"
-                f"Samples: {int(df_pair.loc[idx, 'sample_count_n26'])}"
-            ),
+            popup_func=popup_table,
             cmap=cmap,
-            out_file=n26_file,
+            out_file=out_file,
             caption=caption,
         )
-
-        # -------------------
-        # n28 지도
-        # -------------------
-        n28_file = os.path.join(temp_dir, f"{metric}_n28.html")
-        render_step_map(
-            df_pair=df_pair,
-            grid_size=grid_size,
-            lat=lat,
-            lon=lon,
-            values=n28_val,
-            metric=metric,
-            popup_func=lambda idx, val, df_pair, metric: (
-                f"<b>n28 {metric}</b><br>"
-                f"Average: {val:.1f}<br>"
-                f"Samples: {int(df_pair.loc[idx, 'sample_count_n28'])}"
-            ),
-            cmap=cmap,
-            out_file=n28_file,
-            caption=caption,
-        )
-
-        # -------------------
-        # 비교 HTML 생성
-        # -------------------
-        html_code = f"""
-        <html>
-        <head><title>{metric} Coverage Compare</title>
-        <style>
-        .container {{
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-start;
-        }}
-        .map-box {{
-            width: 49%;
-            text-align: center;
-        }}
-        iframe {{
-            width: 100%;
-            height: 800px;
-            border: none;
-        }}
-        h2 {{
-            margin-bottom: 10px;
-        }}
-        h4 {{
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }}
-        </style>
-        </head>
-        <body>
-        <h2 style="text-align:center;">{metric} Coverage</h2>
-        <div class="container">
-            <div class="map-box">
-                <h4>n26 (800MHz)</h4>
-                <iframe src="temp/{os.path.basename(n26_file)}"></iframe>
-            </div>
-            <div class="map-box">
-                <h4>n28 (700MHz)</h4>
-                <iframe src="temp/{os.path.basename(n28_file)}"></iframe>
-            </div>
-        </div>
-        </body>
-        </html>
-        """
-
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric}_cmpr.html")
-        with open(out_file, "w", encoding="utf-8") as f:
-            f.write(html_code)
-        print(f"Saved: {out_file}")
