@@ -129,7 +129,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
             sinr_diff = sinr_n28 - sinr_n26
             rsrp_n26 = df_pair.iloc[idx]["RSRP_n26"]
             rsrp_n28 = df_pair.iloc[idx]["RSRP_n28"]
-            rsrp_diff_abs = abs(rsrp_n26 - rsrp_n28)
+            rsrp_diff = rsrp_n26 - rsrp_n28
 
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
@@ -137,10 +137,9 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
                 # border_dash = "4,4"
 
                 if metric == "DL_Tput":
-                    if val < -5 and sinr_diff < -1 and rsrp_diff_abs < 1:
+                    if val < -5 and sinr_diff < -1 and abs(rsrp_diff) < 1:
                         border_color = "red"
                         border_weight = 2
-                        # border_dash = None
 
         bounds = [
             [lat_c - dlat, lon_c - dlon],  # 남서(SW)

@@ -52,7 +52,6 @@ def generate_list_html(root_dir, parent_dir=None):
     html += "</ul>"
     return html
 
-
 os.makedirs(base_dir, exist_ok=True)
 
 with open(index_path, "w", encoding="utf-8") as f:
