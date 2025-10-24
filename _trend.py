@@ -1,5 +1,7 @@
 import os
+import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 metrics = [
     "RSRP",
@@ -85,19 +87,26 @@ def kpi_each_test(df, out_dir, rb_min):
                       .dropna()
                       .reset_index()
             )
-            df_pivot["idx"] = range(len(df_pivot))
+            # df_pivot["idx"] = range(len(df_pivot))
             ax = axes[i]
 
             # n26 / n28 plot
-            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
-            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["TIME"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["TIME"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
 
             ax.set_ylim(ymin, ymax)
             ax.legend(fontsize=8, loc="upper right")
-            ax.set_title(metric, fontsize=11, pad=5)
-            ax.set_xlabel("Time Index")
-            ax.set_ylabel(metric)
+            ax.set_ylabel(metric, fontsize=12)
+
+            t_min = df_pivot["TIME"].min().floor("10s")
+            t_max = df_pivot["TIME"].max().ceil("10s")
+            tick_times = pd.date_range(start=t_min, end=t_max, freq='10s')
+            ax.set_xticks(tick_times)
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
+            ax.tick_params(axis='x', rotation=90)
+
             ax.grid(True, linestyle="--", alpha=0.5)
+            ax.minorticks_on()
 
         plt.tight_layout(rect=[0, 0, 1, 0.97])
         fig.suptitle(f"[{target_no}] KPI trends over time (n26 vs n28)", fontsize=14, y=0.995)
