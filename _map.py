@@ -133,13 +133,13 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
 
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
-                border_weight = 3
+                border_weight = 2
                 # border_dash = "4,4"
 
                 if metric == "DL_Tput":
                     if val < -5 and sinr_diff < -1 and rsrp_diff_abs < 1:
                         border_color = "red"
-                        border_weight = 3
+                        border_weight = 2
                         # border_dash = None
 
         bounds = [
@@ -410,8 +410,9 @@ def map_coverage(df, out_dir, grid_size, sample_min=0):
     for metric in metrics:
         n28 = df_pair[f"{metric}_n28"].astype(float)
 
-        vmin = np.floor(n28.min())
-        vmax = np.ceil(n28.max())
+        # vmin = np.floor(n28.min())
+        # vmax = np.ceil(n28.max())
+        vmin, vmax = -120, -60
         cmap = make_step_cmap(vmin, vmax)
 
 
