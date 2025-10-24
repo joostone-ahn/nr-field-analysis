@@ -140,14 +140,14 @@ def analyze_kpi(fname, date_list, rb_min):
         # display(df)
     # print(len(df))
 
+    df["test_no"] = df["date"].astype(str) + "_" + df['route'].astype(str) + "_" + df["test_no"].astype(str).str.replace("TEST","")
+    df = df.drop(columns=["date"])
+
     df["Band"] = df["Freq"].map(band_map)
     df.drop(columns=["Freq"], inplace=True)
 
     df['DL_Tput_per_RB'] = df['DL_Tput']/df['DL_RB']
     df['DL_Tput_full_RB'] = df['DL_Tput_per_RB'] * 52
-
-    df["test_no"] = df["date"].astype(str) + "_" + df["test_no"].astype(str).str.replace("TEST","")
-    df = df.drop(columns=["date"])
     
     new_order = [
         "TIME",

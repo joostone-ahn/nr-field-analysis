@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 
 metrics = [
     "RSRP",
-    "RSRQ",
     "SINR",
+    "RSRQ",
     # "SINR_SSB",
     # "SINR_TRS",
     "DL_Tput",
@@ -21,7 +21,7 @@ def kpi_by_test(df, out_dir):
           .reset_index()
     )
     
-    fig = plt.figure(figsize=(14, 4 * len(metrics)))
+    fig = plt.figure(figsize=(15, 4 * len(metrics)))
     
     for i, metric in enumerate(metrics, 1):
         plt.subplot(len(metrics), 1, i)
@@ -71,7 +71,7 @@ def kpi_each_test(df, out_dir, rb_min):
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no]
 
-        fig, axes = plt.subplots(len(metrics), 1, figsize=(12, 16), sharex=False)
+        fig, axes = plt.subplots(len(metrics), 1, figsize=(15, 4 * len(metrics)), sharex=False)
 
         for i, metric in enumerate(metrics):
             ymin = df_sub[metric].min()
@@ -103,8 +103,9 @@ def kpi_each_test(df, out_dir, rb_min):
         fig.suptitle(f"[{target_no}] KPI trends over time (n26 vs n28)", fontsize=14, y=0.995)
 
         date = target_no.split("_")[0]
-        os.makedirs(os.path.join(out_dir, "kpi_each_test", date), exist_ok=True)
-        out_path = os.path.join(out_dir, "kpi_each_test", date, f"kpi_{target_no}.png")
+        route = target_no.split("_")[1]
+        os.makedirs(os.path.join(out_dir, "kpi_each_test", date, route), exist_ok=True)
+        out_path = os.path.join(out_dir, "kpi_each_test", date, route, f"kpi_{target_no}.png")
         plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
         plt.close(fig)
         print(f"Saved: {out_path}")
@@ -112,44 +113,48 @@ def kpi_each_test(df, out_dir, rb_min):
 def rb_each_test(df, out_dir, rb_min):
     metric = "DL_RB"
     test_list = sorted(df["test_no"].unique())
-    fig, axes = plt.subplots(len(test_list), 1, figsize=(12, 3.5 * len(test_list)), sharex=False)
-    
-    if len(test_list) == 1:
-        axes = [axes]
-    
-    for i, target_no in enumerate(test_list):
-        ax = axes[i]
-        df_sub = df[df["test_no"] == target_no]
-    
-        # pivot: Band별 DL_RB
-        df_pivot = (
-            df_sub.pivot_table(index="TIME", columns="Band", values=metric)
-                  .dropna()
-                  .reset_index()
-        )
-        df_pivot["idx"] = range(len(df_pivot))
-    
-        ymin = df_pivot[[ "n26", "n28" ]].min().min()
-        ymax = df_pivot[[ "n26", "n28" ]].max().max()
-        if metric == 'DL_RB':
-            ymax = 50
-            ymin = rb_min
+    date_list = sorted(set([t.split("_")[0] for t in test_list]))
 
-        # n26 / n28 plot
-        ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
-        ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
-    
-        ax.set_ylim(ymin, ymax)
-        ax.legend(fontsize=8, loc="upper right")
-        ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
-        ax.set_xlabel("Time Index")
-        ax.set_ylabel("DL_RB")
-        ax.grid(True, linestyle="--", alpha=0.5)
-    
-    plt.tight_layout(rect=[0, 0, 1, 0.97])
-    fig.suptitle(f"DL RB num by Test (n26 vs n28)", fontsize=14, y=0.95)
-    out_path = os.path.join(out_dir, "RB_each_test.png")
-    plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
-    plt.close(fig)
-    # plt.show()
-    print(f"Saved: {out_path}")
+    for date in date_list:
+        date_tests = [t for t in test_list if t.startswith(date)]
+        fig, axes = plt.subplots(len(date_tests), 1, figsize=(15, 4 * len(date_tests)), sharex=False)
+
+        if len(date_tests) == 1:
+            axes = [axes]
+
+        for i, target_no in enumerate(date_tests):
+            ax = axes[i]
+            df_sub = df[df["test_no"] == target_no]
+
+            # pivot: Band별 DL_RB
+            df_pivot = (
+                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
+                      .dropna()
+                      .reset_index()
+            )
+            df_pivot["idx"] = range(len(df_pivot))
+
+            ymin = df_pivot[[ "n26", "n28" ]].min().min()
+            ymax = df_pivot[[ "n26", "n28" ]].max().max()
+            if metric == 'DL_RB':
+                ymax = 50
+                ymin = rb_min
+
+            # n26 / n28 plot
+            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
+
+            ax.set_ylim(ymin, ymax)
+            ax.legend(fontsize=8, loc="upper right")
+            ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
+            ax.set_xlabel("Time Index")
+            ax.set_ylabel("DL_RB")
+            ax.grid(True, linestyle="--", alpha=0.5)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        os.makedirs(os.path.join(out_dir, "RB_each_test"), exist_ok=True)
+        out_path = os.path.join(out_dir, "RB_each_test", f"{date}.png")
+        plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
+        plt.close(fig)
+        # plt.show()
+        print(f"Saved: {out_path}")
