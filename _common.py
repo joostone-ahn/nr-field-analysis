@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 band_map = {
     868.85: "n26",
@@ -148,24 +149,7 @@ def analyze_kpi(fname, date_list, rb_min):
 
     df['DL_Tput_per_RB'] = df['DL_Tput']/df['DL_RB']
     df['DL_Tput_full_RB'] = df['DL_Tput_per_RB'] * 52
-    
-    new_order = [
-        "TIME",
-        "test_no",
-        "Lon", "Lat",
-        "Band", "PCI", 
-        "RSRP", "RSRQ", 
-        "SINR",
-        "SINR_SSB",
-        "SINR_TRS",
-        "CQI", "RI", "DL_MCS", 
-        "DL_BLER", "UL_BLER",         
-        "DL_RB", "DL_Tput",
-        "DL_Tput_per_RB",
-        "DL_Tput_full_RB",
-    ]
-    
-    df = df[new_order]
+
     df = df.sort_values(by="TIME", ascending=True)
     df.reset_index(drop=True, inplace=True)
     # print(len(df))
@@ -199,8 +183,40 @@ def analyze_kpi(fname, date_list, rb_min):
         
     df = df.dropna()
     # print(len(df))
-    
+
+    uhd_lat, uhd_lon = 37.551179, 126.987671
+    R = 6371000  # 지구 반지름 (m)
+    lat1 = np.radians(uhd_lat)
+    lon1 = np.radians(uhd_lon)
+    lat2 = np.radians(df["Lat"])
+    lon2 = np.radians(df["Lon"])
+    df["Distance"] = R * 2 * np.arcsin(
+        np.sqrt(
+            np.sin((lat2 - lat1) / 2) ** 2 +
+            np.cos(lat1) * np.cos(lat2) * np.sin((lon2 - lon1) / 2) ** 2
+        )
+    )
+
     df.reset_index(drop=True, inplace=True)
+
+    new_order = [
+        "TIME",
+        "test_no",
+        "Lon", "Lat",
+        "Distance",
+        "Band",
+        "RSRP", "RSRQ",
+        "SINR",
+        "SINR_SSB",
+        "SINR_TRS",
+        "CQI", "RI", "DL_MCS",
+        "DL_BLER", "UL_BLER",
+        "DL_RB", "DL_Tput",
+        "DL_Tput_per_RB",
+        "DL_Tput_full_RB",
+    ]
+
+    df = df[new_order]
 
     return df
 
