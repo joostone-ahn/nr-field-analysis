@@ -355,7 +355,7 @@ def map_db(df, out_dir, grid_size, sample_min=0):
     
     metrics_db = [
         "RSRP",
-        "SINR", 
+        # "SINR",
         # "SINR_TRS", 
         # "RSRQ",
     ]
