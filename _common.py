@@ -246,8 +246,20 @@ def grid_kpi(df, grid_size):
           .size()
           .reset_index(name="sample_count")
     )
+    df_tests = (
+        df_grid.groupby(["lat_bin", "lon_bin", "Band"])
+        .agg({"test_no": lambda x: list(x.unique())})
+        .reset_index()
+        .rename(columns={"test_no": "test_list"})
+    )
     
-    df_grid = pd.merge(df_mean, df_count, on=["lat_bin", "lon_bin", "Band"])
+    # df_grid = pd.merge(df_mean, df_count, on=["lat_bin", "lon_bin", "Band"])
+
+    df_grid = (
+        df_mean
+        .merge(df_count, on=["lat_bin", "lon_bin", "Band"], how="left")
+        .merge(df_tests, on=["lat_bin", "lon_bin", "Band"], how="left")
+    )
 
     df_grid["loc_id"] = df_grid.groupby(["lat_bin", "lon_bin"]).ngroup()
     df_grid = df_grid[df_grid.groupby("loc_id")["loc_id"].transform("count") == 2]
@@ -270,7 +282,7 @@ def grid_kpi(df, grid_size):
     ]
     
     df_pair = (
-        df_grid.pivot(index=["loc_id", "lat_bin", "lon_bin"], columns="Band", values=[*kpi_cols, "sample_count"])
+        df_grid.pivot(index=["loc_id", "lat_bin", "lon_bin"], columns="Band", values=[*kpi_cols, "sample_count", "test_list"])
         .reset_index()
     )
     df_pair.columns = [
@@ -279,6 +291,9 @@ def grid_kpi(df, grid_size):
     ]
     df_pair = df_pair.reset_index(drop=True)
     # display(df_pair)
+
+    df_pair["test_list"] = df_pair["test_list_n26"]  # 하나만 선택
+    df_pair = df_pair.drop(columns=["test_list_n26", "test_list_n28"], errors="ignore")
 
     df_uhd = read_UHD(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)

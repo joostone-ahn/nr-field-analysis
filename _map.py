@@ -217,9 +217,11 @@ def popup_table(idx, val, df_pair, metric):
 
     table_items = [
         "DL_Tput", 
-        "DL_RB",
-        "RSRP", "SINR", "SINR_TRS", "RSRQ",
-        "CQI", "RI",
+        # "DL_RB",
+        "RSRP", "RSRQ",
+        "SINR", "SINR_TRS",
+        "CQI",
+        "RI",
         "DL_BLER", "UL_BLER",
         "uhd_cnt", "uhd_avg", "uhd_max", "uhd_min",
     ]
@@ -290,6 +292,45 @@ def popup_table(idx, val, df_pair, metric):
         </div>
         """
         table_html += uhd_table
+
+    # --- Test List 섹션 ---
+    test_list = row.get("test_list", [])
+
+    if isinstance(test_list, list) and len(test_list) > 0:
+        test_html = """
+        <div style="margin-top:10px; font-size:12px;">
+            <div style="font-weight:bold; color:#000; margin-bottom:2px;">
+                View Test Results
+            </div>
+            <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
+                <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
+                    click to expand
+                </summary>
+                <div style="margin-top:6px; padding-left:10px;">
+        """
+        base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/trends/kpi_each_test"
+
+        for test in test_list:
+            parts = test.split("_")
+            date = parts[0]
+            folder = parts[1]
+            filename = test
+            url = f"{base_url}/{date}/{folder}/kpi_{filename}.png"
+            title = f"kpi_{test}"
+            test_html += f"""
+                <div style="margin:2px 0;">
+                    <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">
+                        {title}
+                    </a>
+                </div>
+            """
+        test_html += """
+                </div>
+            </details>
+        </div>
+        """
+
+        table_html += test_html
 
     return header_html + table_html
 
