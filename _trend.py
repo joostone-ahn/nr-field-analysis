@@ -23,7 +23,7 @@ def kpi_by_test(df, out_dir):
           .reset_index()
     )
     
-    fig = plt.figure(figsize=(15, 4 * len(metrics)))
+    fig = plt.figure(figsize=(16, 4 * len(metrics)))
     
     for i, metric in enumerate(metrics, 1):
         plt.subplot(len(metrics), 1, i)
@@ -73,7 +73,7 @@ def kpi_each_test(df, out_dir, rb_min):
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no]
 
-        fig, axes = plt.subplots(len(metrics), 1, figsize=(15, 4 * len(metrics)), sharex=False)
+        fig, axes = plt.subplots(len(metrics), 1, figsize=(16, 4 * len(metrics)), sharex=False)
 
         for i, metric in enumerate(metrics):
             ymin = df_sub[metric].min()
@@ -91,8 +91,8 @@ def kpi_each_test(df, out_dir, rb_min):
             ax = axes[i]
 
             # n26 / n28 plot
-            ax.plot(df_pivot["TIME"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
-            ax.plot(df_pivot["TIME"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["TIME"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7, marker="o", markersize=1)
+            ax.plot(df_pivot["TIME"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7, marker="o", markersize=1)
 
             ax.set_ylim(ymin, ymax)
             ax.legend(fontsize=8, loc="upper right")
@@ -100,12 +100,17 @@ def kpi_each_test(df, out_dir, rb_min):
 
             t_min = df_pivot["TIME"].min().floor("10s")
             t_max = df_pivot["TIME"].max().ceil("10s")
-            tick_times = pd.date_range(start=t_min, end=t_max, freq='10s')
-            ax.set_xticks(tick_times)
+
+            tick_times_major = pd.date_range(start=t_min, end=t_max, freq="10s")
+            ax.set_xticks(tick_times_major)
+            tick_times_minor = pd.date_range(start=t_min, end=t_max, freq="1s")
+            ax.set_xticks(tick_times_minor, minor=True)
+
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
             ax.tick_params(axis='x', rotation=90)
 
             ax.grid(True, linestyle="--", alpha=0.5)
+            ax.grid(True, which="minor", linestyle=":", alpha=0.3)
             ax.minorticks_on()
 
         plt.tight_layout(rect=[0, 0, 1, 0.97])
@@ -126,7 +131,7 @@ def rb_each_test(df, out_dir, rb_min):
 
     for date in date_list:
         date_tests = [t for t in test_list if t.startswith(date)]
-        fig, axes = plt.subplots(len(date_tests), 1, figsize=(15, 4 * len(date_tests)), sharex=False)
+        fig, axes = plt.subplots(len(date_tests), 1, figsize=(16, 4 * len(date_tests)), sharex=False)
 
         if len(date_tests) == 1:
             axes = [axes]

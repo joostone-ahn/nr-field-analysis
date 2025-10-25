@@ -261,6 +261,7 @@ def grid_kpi(df, grid_size):
         .merge(df_tests, on=["lat_bin", "lon_bin", "Band"], how="left")
     )
 
+    df_grid = df_grid.sort_values(["lat_bin", "lon_bin"], ascending=[True, True]).reset_index(drop=True)
     df_grid["loc_id"] = df_grid.groupby(["lat_bin", "lon_bin"]).ngroup()
     df_grid = df_grid[df_grid.groupby("loc_id")["loc_id"].transform("count") == 2]
     

@@ -320,7 +320,7 @@ def popup_table(idx, val, df_pair, metric):
             test_html += f"""
                 <div style="margin:2px 0;">
                     <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">
-                        {title}
+                        <span style="font-size:11px;">{title}</span>
                     </a>
                 </div>
             """
