@@ -207,8 +207,8 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
             uirevision=True
         )
 
-        date, route = target_no.split("_")[0], target_no.split("_")[2]
-        save_dir = os.path.join(out_dir, f"plot_kpi_each_test", date, route)
+        date = target_no.split("_")[0]
+        save_dir = os.path.join(out_dir, f"plot_kpi_each_test", date)
         os.makedirs(save_dir, exist_ok=True)
         out_path_html = os.path.join(save_dir, f"{target_no}.html")
 

@@ -316,9 +316,9 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file):
         for test in test_list:
             parts = test.split("_")
             date = parts[0]
-            site = parts[2]
+            # site = parts[2]
             filename = test
-            url = f"{base_url}/{date}/{site}/{filename}.html"
+            url = f"{base_url}/{date}/{filename}.html"
             title = f"{test}"
             test_html += f"""
                 <div style="margin:2px 0;">
