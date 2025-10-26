@@ -310,15 +310,15 @@ def popup_table(idx, val, df_pair, metric, grid_size):
                 </summary>
                 <div style="margin-top:6px; padding-left:10px;">
         """
-        base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/trends/kpi_each_test"
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot/kpi_each_test_{grid_size}m"
 
         for test in test_list:
             parts = test.split("_")
             date = parts[0]
-            folder = parts[1]
+            site = parts[1]
             filename = test
-            url = f"{base_url}/{date}/{folder}/kpi_{filename}.png"
-            title = f"kpi_{test}"
+            url = f"{base_url}/{date}/{site}/{filename}.html"
+            title = f"{test}"
             test_html += f"""
                 <div style="margin:2px 0;">
                     <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">

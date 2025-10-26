@@ -26,7 +26,8 @@ summary { font-weight: bold; color: #222; cursor: pointer; margin-top: 8px; }
 
 html_footer = "</body></html>"
 
-def generate_list_html(root_dir, parent_dir=None):
+
+def generate_list_html(root_dir, depth=0):
     items = sorted(os.listdir(root_dir))
     html = "<ul>"
 
@@ -35,15 +36,23 @@ def generate_list_html(root_dir, parent_dir=None):
         rel_path = os.path.relpath(path, base_dir).replace("\\", "/")
 
         if os.path.isdir(path):
-            # ✅ 접힘 조건: 상위 폴더 이름이 kpi_each_test 또는 map_으로 시작할 경우
-            parent_name = os.path.basename(parent_dir or "")
-            if parent_name == "kpi_each_test" or os.path.basename(root_dir).startswith("map_"):
-                fold_state = ""  # 접힘
-            else:
-                fold_state = " open"  # 펼침
+            # ✅ 기본 접힘
+            fold_state = ""
+
+            # ✅ map_ 폴더는 펼침
+            if item.startswith("map_"):
+                fold_state = " open"
+
+            # ✅ plot 폴더는 펼침
+            elif os.path.basename(root_dir) == base_dir and item == "plot":
+                fold_state = " open"
+
+            # ✅ plot 하위 폴더는 접힘
+            elif os.path.basename(root_dir) == "plot":
+                fold_state = ""
 
             html += f'<li class="folder"><details{fold_state}><summary>{item}/</summary>'
-            html += generate_list_html(path, parent_dir=path)  # <-- 수정된 부분
+            html += generate_list_html(path, depth + 1)
             html += "</details></li>"
 
         elif item.endswith(".html") or item.endswith(".png"):
@@ -52,6 +61,8 @@ def generate_list_html(root_dir, parent_dir=None):
     html += "</ul>"
     return html
 
+
+# ✅ index.html 생성
 os.makedirs(base_dir, exist_ok=True)
 
 with open(index_path, "w", encoding="utf-8") as f:
@@ -59,4 +70,4 @@ with open(index_path, "w", encoding="utf-8") as f:
     f.write(generate_list_html(base_dir))
     f.write(html_footer)
 
-print(f"✅ index.html generated (map/date folders collapsed) at: {index_path}")
+print(f"✅ index.html generated (map_ and plot expanded, others folded) at: {index_path}")
