@@ -90,7 +90,7 @@ def read_logs():
         merged.to_excel(merge_path, index=False)
         print(f"✅ Saved: {merge_path}")
 
-def analyze_kpi(fname, date_list, rb_min):
+def analyze_kpi(fname, date_list):
     print(f"Reading {fname}")
     df= pd.read_excel(fname)
     # print(df.info())
@@ -164,19 +164,6 @@ def analyze_kpi(fname, date_list, rb_min):
     df = df[df["TIME"].isin(valid_times)].drop(columns=["PCI"])
     # print(len(df))
 
-    # rb_check = (
-    #     df.groupby("TIME")["DL_RB"]
-    #       .apply(lambda s: (s >= rb_min).all())
-    # )
-    # df = df[df["TIME"].isin(rb_check[rb_check].index)]
-    # print(len(df))
-
-    df = df[df['DL_RB'] >= rb_min]
-    # print(len(df))
-        
-    df = df.dropna()
-    # print(len(df))
-
     uhd_lat, uhd_lon = 37.551179, 126.987671
     R = 6371000  # 지구 반지름 (m)
     lat1 = np.radians(uhd_lat)
@@ -190,7 +177,9 @@ def analyze_kpi(fname, date_list, rb_min):
         )
     )
 
+    df = df.dropna()
     df.reset_index(drop=True, inplace=True)
+    # print("dropna", len(df))
 
     new_order = [
         "TIME",
@@ -210,12 +199,11 @@ def analyze_kpi(fname, date_list, rb_min):
         "DL_Tput_per_RB",
         "DL_Tput_full_RB",
     ]
-
     df = df[new_order]
 
     return df
 
-def grid_kpi(df, grid_size):
+def grid_kpi(df, grid_size, rb_min, sample_min):
 
     lat_factor, lon_factor = 111320, 88000
 
@@ -223,7 +211,7 @@ def grid_kpi(df, grid_size):
     # lon_offset_m = 10  # 10m 이동
     # lon_offset_deg = lon_offset_m / lon_factor  # 약 0.0001136도
     
-    df_grid = df.copy()
+    df_grid = df[df["DL_RB"]>rb_min].copy()
 
     df_grid["lat_bin"] = (df_grid["Lat"] * lat_factor // grid_size).astype(int)
     df_grid["lon_bin"] = (df_grid["Lon"] * lon_factor // grid_size).astype(int)
@@ -247,25 +235,11 @@ def grid_kpi(df, grid_size):
         .reset_index()
         .rename(columns={"test_no": "test_list"})
     )
-    
-    # df_grid = pd.merge(df_mean, df_count, on=["lat_bin", "lon_bin", "Band"])
-
     df_grid = (
         df_mean
         .merge(df_count, on=["lat_bin", "lon_bin", "Band"], how="left")
         .merge(df_tests, on=["lat_bin", "lon_bin", "Band"], how="left")
     )
-
-    df_grid = df_grid.sort_values(["lat_bin", "lon_bin"], ascending=[True, True]).reset_index(drop=True)
-    df_grid["loc_id"] = df_grid.groupby(["lat_bin", "lon_bin"]).ngroup()
-    df_grid = df_grid[df_grid.groupby("loc_id")["loc_id"].transform("count") == 2]
-    
-    cols = ["loc_id", "lat_bin", "lon_bin", "Band"]
-    others = [c for c in df_grid.columns if c not in cols]
-    df_grid = df_grid[cols+others]
-
-    df_grid = df_grid.reset_index(drop=True)
-    # display(df_grid)
 
     kpi_cols = [
         "RSRP", "RSRQ", 
@@ -278,22 +252,29 @@ def grid_kpi(df, grid_size):
     ]
     
     df_pair = (
-        df_grid.pivot(index=["loc_id", "lat_bin", "lon_bin"], columns="Band", values=[*kpi_cols, "sample_count", "test_list"])
+        df_grid.pivot(index=["lat_bin", "lon_bin"], columns="Band", values=[*kpi_cols, "sample_count", "test_list"])
         .reset_index()
     )
     df_pair.columns = [
         f"{col[0]}_{col[1]}" if col[1] != "" else col[0]
         for col in df_pair.columns.to_flat_index()
     ]
-    df_pair = df_pair.reset_index(drop=True)
-    # display(df_pair)
+    # print(len(df_pair))
+    # display(df_pair[df_pair.isna().any(axis=1)])
+    df_pair = df_pair.dropna()
+    # print(len(df_pair))
 
-    df_pair["test_list"] = df_pair["test_list_n26"]  # 하나만 선택
+    df_pair["test_list"] = df_pair["test_list_n26"]
     df_pair = df_pair.drop(columns=["test_list_n26", "test_list_n28"], errors="ignore")
 
     df_uhd = read_UHD(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
     df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
 
+    df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
+    df_pair = df_pair.sort_values(["lat_bin", "lon_bin"], ascending=[True, True])
+    df_pair = df_pair.reset_index().rename(columns={"index": "loc_id"})
+
     # display(df_pair)
+    # print(len(df_pair))
     return df_pair

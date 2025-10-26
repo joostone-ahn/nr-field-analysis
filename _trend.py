@@ -68,116 +68,12 @@ def kpi_by_test(df, out_dir):
     # plt.show()
     print(f"Saved: {out_path}")
 
-# def kpi_each_test(df, out_dir, rb_min):
-#     lat_factor, lon_factor = 111320, 88000
-#     grid_list = [5, 25]
-#
-#     for grid_size in grid_list:
-#         df[f"lat_bin_{grid_size}m"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-#         df[f"lon_bin_{grid_size}m"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-#         df_grid = _common.grid_kpi(df=df, grid_size=grid_size)
-#         df_grid = df_grid.rename(columns={
-#             "lat_bin": f"lat_bin_{grid_size}m",
-#             "lon_bin": f"lon_bin_{grid_size}m",
-#             "loc_id": f"loc_id_{grid_size}m"
-#         })
-#         df = df.merge(
-#             df_grid[[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m", f"loc_id_{grid_size}m"]],
-#             on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
-#             how="left"
-#         )
-#         df = df.dropna(subset=[f"loc_id_{grid_size}m"])
-#         df.drop(columns=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"], inplace=True)
-#         df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype(int)
-#
-#     test_list = sorted(df["test_no"].unique())
-#
-#     for target_no in test_list:
-#         df_sub = df[df["test_no"] == target_no]
-#         fig, axes = plt.subplots(len(metrics) + 1, 1, figsize=(16, 4 * (len(metrics) + 1)), sharex=False)
-#
-#         t_min = df_sub["TIME"].min().floor("10s")
-#         t_max = df_sub["TIME"].max().ceil("10s")
-#         tick_times_major = pd.date_range(start=t_min, end=t_max, freq="10s")
-#         tick_times_minor = pd.date_range(start=t_min, end=t_max, freq="1s")
-#
-#         ax0 = axes[0]
-#         ax0.plot(
-#             df_sub["TIME"], df_sub["loc_id_25m"],
-#             color="black", linewidth=0.8, linestyle="-", alpha=0.7, marker="o", markersize=1, label="loc_id_25m"
-#         )
-#         ax0.set_ylabel("loc_id_25m", fontsize=12, color="black")
-#         ax0.tick_params(axis='y', labelcolor="black")
-#         ax1 = ax0.twinx()
-#         ax1.plot(
-#             df_sub["TIME"], df_sub["loc_id_5m"],
-#             color="gray", linewidth=0.8, linestyle="--", alpha=0.7, marker="o", markersize=1, label="loc_id_5m"
-#         )
-#         ax1.set_ylabel("loc_id_5m", fontsize=12, color="black")
-#         ax1.tick_params(axis='y', labelcolor="black")
-#         lines, labels = ax0.get_legend_handles_labels()
-#         lines2, labels2 = ax1.get_legend_handles_labels()
-#         ax0.legend(lines + lines2, labels + labels2, fontsize=8, loc="upper right")
-#
-#         ax0.set_xticks(tick_times_major)
-#         ax0.set_xticks(tick_times_minor, minor=True)
-#         ax0.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
-#         ax0.tick_params(axis='x', rotation=90)
-#         ax0.grid(True, linestyle="--", alpha=0.5)
-#         ax0.grid(True, which="minor", linestyle=":", alpha=0.3)
-#         ax0.minorticks_on()
-#         ax0.set_xlim(t_min, t_max)
-#
-#         for i, metric in enumerate(metrics, start=1):
-#             ax = axes[i]
-#             df_pivot = (
-#                 df_sub.pivot_table(index="TIME", columns="Band", values=metric)
-#                       .dropna()
-#                       .reset_index()
-#             )
-#
-#             ymin = df_pivot[["n26", "n28"]].min().min()
-#             ymax = df_pivot[["n26", "n28"]].max().max()
-#             if metric == "DL_RB":
-#                 ymax = 50
-#                 ymin = rb_min
-#
-#             ax.plot(df_pivot["TIME"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7, marker="o", markersize=1)
-#             ax.plot(df_pivot["TIME"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7, marker="o", markersize=1)
-#
-#             ax.set_ylim(ymin, ymax)
-#             ax.legend(fontsize=8, loc="upper right")
-#             ax.set_ylabel(metric, fontsize=12)
-#
-#             ax.set_xticks(tick_times_major)
-#             ax.set_xticks(tick_times_minor, minor=True)
-#             ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
-#             ax.tick_params(axis='x', rotation=90)
-#             ax.grid(True, linestyle="--", alpha=0.5)
-#             ax.grid(True, which="minor", linestyle=":", alpha=0.3)
-#             ax.minorticks_on()
-#             ax.set_xlim(t_min, t_max)
-#
-#         plt.tight_layout(rect=[0, 0, 1, 0.97])
-#         fig.suptitle(f"[{target_no}] KPI trends over time (n26 vs n28)", fontsize=14, y=0.995)
-#
-#         date = target_no.split("_")[0]
-#         route = target_no.split("_")[1]
-#         save_dir = os.path.join(out_dir, "kpi_each_test", date, route)
-#         os.makedirs(save_dir, exist_ok=True)
-#
-#         out_path_png = os.path.join(save_dir, f"kpi_{target_no}.png")
-#         plt.savefig(out_path_png, dpi=150, bbox_inches="tight", pad_inches=0.3)
-#
-#         # plt.show()
-#         plt.close(fig)
-#         print(f"Saved PNG:  {out_path_png}")
-
-def kpi_each_test(df, out_dir, grid_size=25):
+def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
     lat_factor, lon_factor = 111320, 88000
     df[f"lat_bin_{grid_size}m"] = (df["Lat"] * lat_factor // grid_size).astype(int)
     df[f"lon_bin_{grid_size}m"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-    df_grid = _common.grid_kpi(df=df, grid_size=grid_size)
+
+    df_grid = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_grid = df_grid.rename(columns={
         "lat_bin": f"lat_bin_{grid_size}m",
         "lon_bin": f"lon_bin_{grid_size}m",
@@ -188,8 +84,8 @@ def kpi_each_test(df, out_dir, grid_size=25):
         on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
         how="left"
     )
-    test_list = sorted(df["test_no"].unique())
 
+    test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no].copy()
         total_rows = len(metrics)

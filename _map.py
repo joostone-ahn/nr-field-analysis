@@ -337,10 +337,9 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file):
 
     return header_html + table_html
 
-def map_pct(df, out_dir, grid_size, sample_min=0):
+def map_pct(df, out_dir, grid_size, rb_min, sample_min):
 
-    df_pair = _common.grid_kpi(df, grid_size=grid_size)
-    df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
+    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
 
     lat_factor, lon_factor = 111320, 88000
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
@@ -387,11 +386,10 @@ def map_pct(df, out_dir, grid_size, sample_min=0):
             caption=caption
         )
 
-def map_db(df, out_dir, grid_size, sample_min=0):
+def map_db(df, out_dir, grid_size, rb_min, sample_min):
 
-    df_pair = _common.grid_kpi(df, grid_size=grid_size)
-    df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
-    
+    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+
     lat_factor, lon_factor = 111320, 88000
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
@@ -437,10 +435,9 @@ def map_db(df, out_dir, grid_size, sample_min=0):
             caption=caption
         )
 
-def map_coverage(df, out_dir, grid_size, sample_min=0):
+def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
     
-    df_pair = _common.grid_kpi(df, grid_size=grid_size)
-    df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
+    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
 
     lat_factor, lon_factor = 111320, 88000
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
