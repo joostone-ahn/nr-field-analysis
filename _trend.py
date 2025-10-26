@@ -174,7 +174,6 @@ def kpi_by_test(df, out_dir):
 #         print(f"Saved PNG:  {out_path_png}")
 
 def kpi_each_test(df, out_dir, grid_size=25):
-
     lat_factor, lon_factor = 111320, 88000
     df[f"lat_bin_{grid_size}m"] = (df["Lat"] * lat_factor // grid_size).astype(int)
     df[f"lon_bin_{grid_size}m"] = (df["Lon"] * lon_factor // grid_size).astype(int)
@@ -190,28 +189,22 @@ def kpi_each_test(df, out_dir, grid_size=25):
         how="left"
     )
     df = df.dropna(subset=[f"loc_id_{grid_size}m"])
-    df.drop(columns=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"], inplace=True)
     df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype(int)
 
     test_list = sorted(df["test_no"].unique())
+
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no].copy()
+        total_rows = len(metrics)
 
-        total_rows = len(metrics) + 1
-        fig = make_subplots(rows=total_rows, cols=1, shared_xaxes=True, vertical_spacing=0.02)
+        fig = make_subplots(
+            rows=total_rows, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.02,
+            specs=[[{"secondary_y": True}] for _ in range(total_rows)]
+        )
 
-        fig.add_trace(go.Scatter(
-            x=df_sub["TIME"],
-            y=df_sub[f"loc_id_{grid_size}m"],
-            mode="lines+markers",
-            line=dict(color="gray", width=1, dash="dot"),
-            marker=dict(size=3),
-            name=f"loc_id_{grid_size}m"
-        ), row=1, col=1)
-
-        fig.update_yaxes(title_text=f"loc_id_{grid_size}m", row=1, col=1)
-
-        for i, metric in enumerate(metrics, start=2):
+        for i, metric in enumerate(metrics, start=1):
             df_pivot = (
                 df_sub.pivot_table(index="TIME", columns="Band", values=metric)
                       .dropna()
@@ -224,23 +217,36 @@ def kpi_each_test(df, out_dir, grid_size=25):
                 x=df_pivot["TIME"], y=df_pivot["n26"],
                 mode="lines+markers",
                 line=dict(color="blue", width=1),
-                marker=dict(size=3, symbol="circle"),
+                marker=dict(size=3),
                 name="n26",
-                legendgroup="n26",
-                showlegend=(i == 2)
-            ), row=i, col=1)
+                legendgroup="n26_group",
+                showlegend=(i == 1)
+            ), row=i, col=1, secondary_y=False)
 
             fig.add_trace(go.Scatter(
                 x=df_pivot["TIME"], y=df_pivot["n28"],
                 mode="lines+markers",
                 line=dict(color="red", width=1),
-                marker=dict(size=3, symbol="circle"),
+                marker=dict(size=3),
                 name="n28",
-                legendgroup="n28",
-                showlegend=(i == 2)
-            ), row=i, col=1)
+                legendgroup="n28_group",
+                showlegend=(i == 1)
+            ), row=i, col=1, secondary_y=False)
+
+            fig.add_trace(go.Scatter(
+                x=df_sub["TIME"], y=df_sub[f"loc_id_{grid_size}m"],
+                mode="lines+markers",
+                line=dict(color="gray", width=0.8),
+                marker=dict(size=2),
+                name=f"loc_id_{grid_size}m",
+                legendgroup="loc_id_group",
+                showlegend=(i == 1)
+            ), row=i, col=1, secondary_y=True)
 
             fig.update_yaxes(title_text=metric, row=i, col=1)
+            fig.update_yaxes(title_text=f"loc_id_{grid_size}m", color="gray", row=i, col=1, secondary_y=True)
+
+        fig.for_each_trace(lambda t: t.update(legendgroup=t.name))
 
         fig.update_layout(
             title=f"[{target_no}] KPI trends (n26 vs n28)",
@@ -249,22 +255,19 @@ def kpi_each_test(df, out_dir, grid_size=25):
             template="plotly_white",
             legend=dict(
                 orientation="h",
-                yanchor="bottom",
+                yanchor="top",
                 y=1.02,
-                xanchor="right",
-                x=1
-            )
+                xanchor="center",
+                x=0.5,
+                font=dict(size=11),
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor="rgba(200,200,200,0.4)",
+                borderwidth=1,
+                itemsizing="constant"
+            ),
+            margin=dict(t=150, b=60),
+            uirevision=True
         )
-
-        fig.update_xaxes(
-            showspikes=True,
-            spikemode="across",
-            spikecolor="black",
-            spikesnap="cursor",
-            spikethickness=1
-        )
-        fig.update_layout(spikedistance=-1)
-
         date, route = target_no.split("_")[0], target_no.split("_")[2]
         save_dir = os.path.join(out_dir, f"plot_kpi_each_test", date, route)
         os.makedirs(save_dir, exist_ok=True)
