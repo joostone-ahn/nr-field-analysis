@@ -114,7 +114,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
             continue
 
         color = cmap(val)
-        popup = folium.Popup(popup_func(idx, val, df_pair, metric), max_width=300)
+        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size), max_width=300)
 
         lat_c = lat.iloc[idx]
         lon_c = lon.iloc[idx]
@@ -166,7 +166,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
     print(f"Saved: {out_file} (rows={len(values)})")
 
 
-def popup_table(idx, val, df_pair, metric):
+def popup_table(idx, val, df_pair, metric, grid_size):
     row = df_pair.iloc[idx]
 
     cell_padding = "padding:2px 6px;"
@@ -295,12 +295,14 @@ def popup_table(idx, val, df_pair, metric):
 
     # --- Test List 섹션 ---
     test_list = row.get("test_list", [])
+    loc_id = row.get("loc_id", np.nan)
 
     if isinstance(test_list, list) and len(test_list) > 0:
-        test_html = """
+        test_html = f"""
         <div style="margin-top:10px; font-size:12px;">
             <div style="font-weight:bold; color:#000; margin-bottom:2px;">
                 View Test Results
+                <span style="font-size:11px; font-weight:normal;">(loc_id_{grid_size}m: {loc_id})</span>
             </div>
             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
