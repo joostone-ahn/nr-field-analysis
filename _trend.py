@@ -188,7 +188,7 @@ def kpi_each_test(df, out_dir, grid_size=25):
         on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
         how="left"
     )
-    df = df.dropna(subset=[f"loc_id_{grid_size}m"])
+    df = df.dropna()
     df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype(int)
 
     test_list = sorted(df["test_no"].unique())
@@ -206,47 +206,92 @@ def kpi_each_test(df, out_dir, grid_size=25):
 
         for i, metric in enumerate(metrics, start=1):
             df_pivot = (
-                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
+                df_sub.pivot_table(index="TIME", columns="Band", values=metrics)
                       .dropna()
                       .reset_index()
             )
-            if not {"n26", "n28"}.issubset(df_pivot.columns):
-                continue
 
-            fig.add_trace(go.Scatter(
-                x=df_pivot["TIME"], y=df_pivot["n26"],
-                mode="lines+markers",
-                line=dict(color="blue", width=1),
-                marker=dict(size=3),
-                name="n26",
-                legendgroup="n26_group",
-                showlegend=(i == 1)
-            ), row=i, col=1, secondary_y=False)
+            df_pivot.columns = [
+                f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0]
+                for col in df_pivot.columns
+            ]
+            df_pivot = df_pivot.merge(
+                df_sub[["TIME", f"loc_id_{grid_size}m"]],
+                on="TIME",
+                how="left"
+            )
+            for m in metrics:
+                df_pivot[f"{m}_delta"] = df_pivot[f"{m}_n28"] - df_pivot[f"{m}_n26"]
 
-            fig.add_trace(go.Scatter(
-                x=df_pivot["TIME"], y=df_pivot["n28"],
-                mode="lines+markers",
-                line=dict(color="red", width=1),
-                marker=dict(size=3),
-                name="n28",
-                legendgroup="n28_group",
-                showlegend=(i == 1)
-            ), row=i, col=1, secondary_y=False)
+            hover_texts = []
+            for _, row in df_pivot.iterrows():
+                time_val = row["TIME"].strftime("%H:%M:%S")
+                loc_id_val = int(row[f"loc_id_{grid_size}m"])
+                f"<b>loc_id_{grid_size}m:</b> {loc_id_val} "
+
+                lines = [
+                    f"<b>time:</b> {time_val}<br>"
+                    f"<b>loc_id_{grid_size}m:</b> {loc_id_val}<br>",
+                    "<b>Metric</b> | <b>n26</b> | <b>n28</b> | <b>Δ(n28−n26)</b>",
+                    "--------------------------------------------"
+                ]
+                for m in metrics:
+                    color = "#009900" if m == metric else "#000000"
+                    delta_val = row[f"{m}_delta"]
+                    delta_color = "blue" if delta_val > 0 else "red" if delta_val < 0 else "black"
+                    line = (
+                        f"<span style='color:{color};'>{m}</span> | "
+                        f"{row[f'{m}_n26']:.2f} | {row[f'{m}_n28']:.2f} | "
+                        f"<span style='color:{delta_color};'>{delta_val:+.2f}</span>"
+                    )
+                    lines.append(line)
+                hover_texts.append("<br>".join(lines))
 
             fig.add_trace(go.Scatter(
                 x=df_sub["TIME"], y=df_sub[f"loc_id_{grid_size}m"],
                 mode="lines+markers",
                 line=dict(color="gray", width=0.8),
-                marker=dict(size=2),
+                marker=dict(size=3),
                 name=f"loc_id_{grid_size}m",
                 legendgroup="loc_id_group",
-                showlegend=(i == 1)
+                showlegend=(i == 1),
+                hoverinfo="skip"
             ), row=i, col=1, secondary_y=True)
 
-            fig.update_yaxes(title_text=metric, row=i, col=1)
-            fig.update_yaxes(title_text=f"loc_id_{grid_size}m", color="gray", row=i, col=1, secondary_y=True)
+            for band, color in zip(["n26", "n28"], ["blue", "red"]):
+                fig.add_trace(go.Scatter(
+                    x=df_pivot["TIME"],
+                    y=df_pivot[f"{metric}_{band}"],
+                    mode="lines+markers",
+                    line=dict(color=color, width=1),
+                    marker=dict(size=3),
+                    name=band,
+                    legendgroup=f"{band}_group",
+                    showlegend=(i == 1),
+                    hoverinfo="text" if band == "n28" else "skip",
+                    text=hover_texts if band == "n28" else None
+                ), row=i, col=1, secondary_y=False)
 
-        fig.for_each_trace(lambda t: t.update(legendgroup=t.name))
+            fig.update_yaxes(
+                title_text=metric,
+                row=i, col=1,
+                secondary_y=False,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.5)",
+                gridwidth=0.8,
+            )
+            fig.update_yaxes(
+                title_text=f"loc_id_{grid_size}m",
+                color="gray",
+                row=i, col=1,
+                secondary_y=True,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.4)",
+                gridwidth=0.8,
+                griddash="dot"
+            )
 
         fig.update_layout(
             title=f"[{target_no}] KPI trends (n26 vs n28)",
@@ -255,19 +300,17 @@ def kpi_each_test(df, out_dir, grid_size=25):
             template="plotly_white",
             legend=dict(
                 orientation="h",
-                yanchor="top",
-                y=1.02,
-                xanchor="center",
-                x=0.5,
+                yanchor="top", y=1.02,
+                xanchor="center", x=0.5,
                 font=dict(size=11),
                 bgcolor="rgba(255,255,255,0.7)",
                 bordercolor="rgba(200,200,200,0.4)",
-                borderwidth=1,
-                itemsizing="constant"
+                borderwidth=1
             ),
             margin=dict(t=150, b=60),
             uirevision=True
         )
+
         date, route = target_no.split("_")[0], target_no.split("_")[2]
         save_dir = os.path.join(out_dir, f"plot_kpi_each_test", date, route)
         os.makedirs(save_dir, exist_ok=True)
