@@ -1,10 +1,9 @@
-import os
 from datetime import datetime
+import os
 
 base_dir = "results"
 index_path = os.path.join(base_dir, "index.html")
 
-# 현재 날짜/시간 포맷
 updated_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 html_header = f"""<!DOCTYPE html>
@@ -14,8 +13,19 @@ html_header = f"""<!DOCTYPE html>
 <title>NR Field Analysis Results</title>
 <style>
 body {{ font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }}
-h1 {{ color: #333; }}
-h1 span.updated {{ font-size: 0.6em; color: #666; margin-left: 10px; }}
+.header {{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}}
+.header h1 {{
+    color: #333;
+    margin: 0;
+}}
+.header span.updated {{
+    font-size: 0.9em;
+    color: #666;
+}}
 h2 {{ color: #333; }}
 ul {{ list-style-type: none; padding-left: 20px; }}
 li {{ margin: 6px 0; }}
@@ -26,7 +36,10 @@ summary {{ font-weight: bold; color: #222; cursor: pointer; margin-top: 8px; }}
 </style>
 </head>
 <body>
-<h1>NR Field Analysis Results (n26/n28)<span class="updated">Updated: {updated_str}</span></h1>
+<div class="header">
+  <h1>NR Field Analysis Results (n26/n28)</h1>
+  <span class="updated">Updated: {updated_str} </span>
+</div>
 <hr>
 """
 
