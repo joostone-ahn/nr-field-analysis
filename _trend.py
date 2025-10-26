@@ -188,7 +188,6 @@ def kpi_each_test(df, out_dir, grid_size=25):
         on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
         how="left"
     )
-
     test_list = sorted(df["test_no"].unique())
 
     for target_no in test_list:
@@ -218,6 +217,7 @@ def kpi_each_test(df, out_dir, grid_size=25):
                 on="TIME",
                 how="left"
             )
+
             for m in metrics:
                 df_pivot[f"{m}_delta"] = df_pivot[f"{m}_n28"] - df_pivot[f"{m}_n26"]
 
@@ -246,7 +246,8 @@ def kpi_each_test(df, out_dir, grid_size=25):
                 hover_texts.append("<br>".join(lines))
 
             fig.add_trace(go.Scatter(
-                x=df_sub["TIME"], y=df_sub[f"loc_id_{grid_size}m"],
+                x=df_pivot["TIME"],
+                y=df_pivot[f"loc_id_{grid_size}m"],
                 mode="lines+markers",
                 line=dict(color="gray", width=0.8),
                 marker=dict(size=3),
