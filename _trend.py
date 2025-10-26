@@ -84,6 +84,7 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
         on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
         how="left"
     )
+    df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype("Int64")
 
     test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
@@ -120,7 +121,7 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
             hover_texts = []
             for _, row in df_pivot.iterrows():
                 time_val = row["TIME"].strftime("%H:%M:%S")
-                loc_id_val = int(row[f"loc_id_{grid_size}m"])
+                loc_id_val = row[f"loc_id_{grid_size}m"]
                 f"<b>loc_id_{grid_size}m:</b> {loc_id_val} "
 
                 lines = [
