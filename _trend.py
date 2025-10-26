@@ -265,13 +265,13 @@ def kpi_each_test(df, out_dir, grid_size=25):
         )
         fig.update_layout(spikedistance=-1)
 
-        date, route = target_no.split("_")[0], target_no.split("_")[1]
-        save_dir = os.path.join(out_dir, f"kpi_each_test_{grid_size}m", date, route)
+        date, route = target_no.split("_")[0], target_no.split("_")[2]
+        save_dir = os.path.join(out_dir, f"plot_kpi_each_test", date, route)
         os.makedirs(save_dir, exist_ok=True)
         out_path_html = os.path.join(save_dir, f"{target_no}.html")
 
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
-        print(f"✅ Saved HTML: {out_path_html}")
+        print(f"Saved HTML: {out_path_html}")
 
 def rb_each_test(df, out_dir, rb_min):
     metric = "DL_RB"
@@ -315,8 +315,9 @@ def rb_each_test(df, out_dir, rb_min):
             ax.grid(True, linestyle="--", alpha=0.5)
 
         plt.tight_layout(rect=[0, 0, 1, 0.97])
-        os.makedirs(os.path.join(out_dir, "RB_each_test"), exist_ok=True)
-        out_path = os.path.join(out_dir, "RB_each_test", f"{date}.png")
+        save_dir = os.path.join(out_dir, f"plot_RB_each_test")
+        os.makedirs(save_dir, exist_ok=True)
+        out_path = os.path.join(save_dir, f"{date}.png")
         plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
         plt.close(fig)
         # plt.show()

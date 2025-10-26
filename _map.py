@@ -114,7 +114,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
             continue
 
         color = cmap(val)
-        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size), max_width=300)
+        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size, out_file), max_width=300)
 
         lat_c = lat.iloc[idx]
         lon_c = lon.iloc[idx]
@@ -163,10 +163,10 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
     )
     add_basestation(m)
     m.save(out_file)
-    print(f"Saved: {out_file} (rows={len(values)})")
+    print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
-def popup_table(idx, val, df_pair, metric, grid_size):
+def popup_table(idx, val, df_pair, metric, grid_size, out_file):
     row = df_pair.iloc[idx]
 
     cell_padding = "padding:2px 6px;"
@@ -297,6 +297,7 @@ def popup_table(idx, val, df_pair, metric, grid_size):
     test_list = row.get("test_list", [])
     loc_id = row.get("loc_id", np.nan)
 
+    out_dir = '/'.join(out_file.split('/')[0:2])
     if isinstance(test_list, list) and len(test_list) > 0:
         test_html = f"""
         <div style="margin-top:10px; font-size:12px;">
@@ -310,12 +311,12 @@ def popup_table(idx, val, df_pair, metric, grid_size):
                 </summary>
                 <div style="margin-top:6px; padding-left:10px;">
         """
-        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot/kpi_each_test_{grid_size}m"
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/{out_dir}/plot_kpi_each_test"
 
         for test in test_list:
             parts = test.split("_")
             date = parts[0]
-            site = parts[1]
+            site = parts[2]
             filename = test
             url = f"{base_url}/{date}/{site}/{filename}.html"
             title = f"{test}"
@@ -371,7 +372,7 @@ def map_pct(df, out_dir, grid_size, sample_min=0):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_pct}_ratio.html")
+        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_pct}_ratio.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
             df_pair=df_pair,
@@ -421,7 +422,7 @@ def map_db(df, out_dir, grid_size, sample_min=0):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric_db}_diff.html")
+        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_db}_diff.html")
         caption = f"{metric_db} Δ(n28-n26) [dB]"
         render_step_map(
             df_pair=df_pair,
@@ -459,7 +460,7 @@ def map_coverage(df, out_dir, grid_size, sample_min=0):
 
 
         caption = f"n28 {metric} [dBm]"
-        out_file = os.path.join(out_dir, f"{grid_size}m_{metric}_n28.html")
+        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric}_n28.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,

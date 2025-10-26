@@ -90,12 +90,6 @@ def read_logs():
         merged.to_excel(merge_path, index=False)
         print(f"✅ Saved: {merge_path}")
 
-        for route in route_list:
-            filtered = merged[merged["route"] == route]
-            filtered_path = os.path.join(log_dir, f"{device}_{route}.xlsx")
-            filtered.to_excel(filtered_path, index=False)
-            print(f"✅ Saved: {filtered_path}")
-
 def analyze_kpi(fname, date_list, rb_min):
     print(f"Reading {fname}")
     df= pd.read_excel(fname)
@@ -141,8 +135,7 @@ def analyze_kpi(fname, date_list, rb_min):
         # display(df)
     # print(len(df))
 
-    df["test_no"] = df["date"].astype(str) + "_" + df['route'].astype(str) + "_" + df["test_no"].astype(str).str.replace("TEST","")
-    df = df.drop(columns=["date"])
+    df["test_no"] = df["date"].astype(str) + "_" + df["test_no"].astype(str).str.replace("TEST","") + "_" + df['route'].astype(str)
 
     df["Band"] = df["Freq"].map(band_map)
     df.drop(columns=["Freq"], inplace=True)
@@ -201,6 +194,8 @@ def analyze_kpi(fname, date_list, rb_min):
 
     new_order = [
         "TIME",
+        "date",
+        "route",
         "test_no",
         "Lon", "Lat",
         "Distance",
@@ -223,7 +218,7 @@ def analyze_kpi(fname, date_list, rb_min):
 def grid_kpi(df, grid_size):
 
     lat_factor, lon_factor = 111320, 88000
-    
+
     # # --- ① 기준 offset 설정 (동쪽으로 10m 이동) ---
     # lon_offset_m = 10  # 10m 이동
     # lon_offset_deg = lon_offset_m / lon_factor  # 약 0.0001136도

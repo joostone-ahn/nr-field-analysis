@@ -32,24 +32,20 @@ def generate_list_html(root_dir, depth=0):
     html = "<ul>"
 
     for item in items:
+        # ✅ index.html 제외
+        if item == "index.html":
+            continue
+
         path = os.path.join(root_dir, item)
         rel_path = os.path.relpath(path, base_dir).replace("\\", "/")
 
         if os.path.isdir(path):
-            # ✅ 기본 접힘
+            # 기본 접힘 상태
             fold_state = ""
 
-            # ✅ map_ 폴더는 펼침
-            if item.startswith("map_"):
+            # ✅ depth == 0 → 항상 펼침 (All, Huam 등)
+            if depth == 0:
                 fold_state = " open"
-
-            # ✅ plot 폴더는 펼침
-            elif os.path.basename(root_dir) == base_dir and item == "plot":
-                fold_state = " open"
-
-            # ✅ plot 하위 폴더는 접힘
-            elif os.path.basename(root_dir) == "plot":
-                fold_state = ""
 
             html += f'<li class="folder"><details{fold_state}><summary>{item}/</summary>'
             html += generate_list_html(path, depth + 1)
@@ -70,4 +66,4 @@ with open(index_path, "w", encoding="utf-8") as f:
     f.write(generate_list_html(base_dir))
     f.write(html_footer)
 
-print(f"✅ index.html generated (map_ and plot expanded, others folded) at: {index_path}")
+print(f"✅ index.html generated (top-level folders open, map_ & plot expanded) at: {index_path}")
