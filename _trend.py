@@ -188,8 +188,6 @@ def kpi_each_test(df, out_dir, grid_size=25):
         on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
         how="left"
     )
-    df = df.dropna()
-    df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype(int)
 
     test_list = sorted(df["test_no"].unique())
 
