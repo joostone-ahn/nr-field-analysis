@@ -32,7 +32,6 @@ def generate_list_html(root_dir, depth=0):
     html = "<ul>"
 
     for item in items:
-        # ✅ index.html 제외
         if item == "index.html":
             continue
 
@@ -43,7 +42,6 @@ def generate_list_html(root_dir, depth=0):
             # 기본 접힘 상태
             fold_state = ""
 
-            # ✅ depth == 0 → 항상 펼침 (All, Huam 등)
             if depth == 0:
                 fold_state = " open"
 
@@ -57,8 +55,6 @@ def generate_list_html(root_dir, depth=0):
     html += "</ul>"
     return html
 
-
-# ✅ index.html 생성
 os.makedirs(base_dir, exist_ok=True)
 
 with open(index_path, "w", encoding="utf-8") as f:
