@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_4486d9b84cbcdde71b9e79a606779ec3 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_4486d9b84cbcdde71b9e79a606779ec3" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_4486d9b84cbcdde71b9e79a606779ec3 = L.map(
+                "map_4486d9b84cbcdde71b9e79a606779ec3",
+                {
+                    center: [37.5518100970176, 126.98038068181818],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 17,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_9cbca0eaa805f4d70bb7714a88c0d73f = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_9cbca0eaa805f4d70bb7714a88c0d73f.addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+            var rectangle_52351d103ad41364b837e63d32208f9d = L.rectangle(
+                [[37.55174272367948, 126.9803409090909], [37.55178763923823, 126.98039772727273]],
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff0000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+        var popup_cdade8ab604d2ac03cda4fea0bb600f7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6e1ae922c82406718a15f6b8ecf81119 = $(`<div id="html_6e1ae922c82406718a15f6b8ecf81119" style="width: 100.0%; height: 100.0%;">         <div style="text-align:left; font-size:12px; margin-bottom:6px;">             <span style="font-weight:bold;">DL Tput Δ</span>             <span style="font-weight:normal; font-size:11px;">(n28/n26-100)</span> :             <span style="color:#C00000;">-62.2 %</span>         </div>                  <table style="border-collapse:collapse; font-size:12px;">         <tr style="background-color:#cfd8dc;">             <th style="text-align:left; padding:2px 6px;">Metric</th>             <th style="text-align:right; padding:2px 6px;">n26</th>             <th style="text-align:right; padding:2px 6px;">n28</th>             <th style="text-align:right; padding:2px 6px;; vertical-align:middle;">                 <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">                     <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>                     <span style='font-size:8px; color:#555;'>(±95% CI)</span>                 </div>             </th>         </tr>         <tr style="background-color:#f2f2f2;">             <td style="text-align:left; padding:2px 6px;">counts</td>             <td style="text-align:right; padding:2px 6px;">2</td>             <td style="text-align:right; padding:2px 6px;">2</td>             <td style="text-align:right; padding:2px 6px;">2</td>         </tr>                      <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-104.0</td>                 <td style="text-align:right; padding:2px 6px;">-105.3</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.3                     <span style="font-size:10px; color:#555;">(±0.5)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.4</td>                 <td style="text-align:right; padding:2px 6px;">-12.6</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.2                     <span style="font-size:10px; color:#555;">(±1.4)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">6.5</td>                 <td style="text-align:right; padding:2px 6px;">6.3</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.1                     <span style="font-size:10px; color:#555;">(±0.3)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">26.0</td>                 <td style="text-align:right; padding:2px 6px;">14.5</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -11.6                     <span style="font-size:10px; color:#555;">(±3.2)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">12.0</td>                 <td style="text-align:right; padding:2px 6px;">8.1</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -3.9                     <span style="font-size:10px; color:#555;">(±0.2)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px; color:#000000;">                     +0.0                     <span style="font-size:10px; color:#555;">(±0.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">19.6</td>                 <td style="text-align:right; padding:2px 6px;">7.0</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -12.5                     <span style="font-size:10px; color:#555;">(±2.2)</span>                 </td>             </tr>                          <tr style="background-color:#ffe6e6;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">39.8</td>                 <td style="text-align:right; padding:2px 6px;">15.1</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -24.8                     <span style="font-size:10px; color:#555;">(±5.5)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">8.9</td>                 <td style="text-align:right; padding:2px 6px;">8.9</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.1                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">12.3</td>                 <td style="text-align:right; padding:2px 6px;">13.9</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +1.7                     <span style="font-size:10px; color:#555;">(±3.7)</span>                 </td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="margin-bottom:4px; text-align:left; font-size:12px;">                 <span style="font-weight:bold;">UHD Power</span>                 <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>             </div>             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">                 <tr style="background-color:#cfd8dc;">                     <th style="text-align:right; padding:2px 6px;">max</th>                     <th style="text-align:right; padding:2px 6px;">min</th>                     <th style="text-align:right; padding:2px 6px;">avg</th>                     <th style="text-align:right; padding:2px 6px;">cnt</th>                 </tr>                 <tr style="background-color:#f2f2f2;">                     <td style="text-align:right; padding:2px 6px;">-35.7</td>                     <td style="text-align:right; padding:2px 6px;">-35.7</td>                     <td style="text-align:right; padding:2px 6px;">-35.7</td>                     <td style="text-align:right; padding:2px 6px;">1</td>                 </tr>             </table>         </div>                  <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id_5m: 0)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_25_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_26_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">26</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
+                popup_cdade8ab604d2ac03cda4fea0bb600f7.setContent(html_6e1ae922c82406718a15f6b8ecf81119);
+            
+        
+
+        rectangle_52351d103ad41364b837e63d32208f9d.bindPopup(popup_cdade8ab604d2ac03cda4fea0bb600f7)
+        ;
+
+        
+    
+    
+            var rectangle_0218043e6d565d9f42bcc8751f9fc465 = L.rectangle(
+                [[37.55174272367948, 126.98039772727272], [37.55178763923823, 126.98045454545455]],
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff0000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+        var popup_227b90dae04cdea3af9bfbe452f46c05 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_17ce1599c2ff28590af0f1eeefeea34f = $(`<div id="html_17ce1599c2ff28590af0f1eeefeea34f" style="width: 100.0%; height: 100.0%;">         <div style="text-align:left; font-size:12px; margin-bottom:6px;">             <span style="font-weight:bold;">DL Tput Δ</span>             <span style="font-weight:normal; font-size:11px;">(n28/n26-100)</span> :             <span style="color:#C00000;">-59.4 %</span>         </div>                  <table style="border-collapse:collapse; font-size:12px;">         <tr style="background-color:#cfd8dc;">             <th style="text-align:left; padding:2px 6px;">Metric</th>             <th style="text-align:right; padding:2px 6px;">n26</th>             <th style="text-align:right; padding:2px 6px;">n28</th>             <th style="text-align:right; padding:2px 6px;; vertical-align:middle;">                 <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">                     <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>                     <span style='font-size:8px; color:#555;'>(±95% CI)</span>                 </div>             </th>         </tr>         <tr style="background-color:#f2f2f2;">             <td style="text-align:left; padding:2px 6px;">counts</td>             <td style="text-align:right; padding:2px 6px;">720</td>             <td style="text-align:right; padding:2px 6px;">713</td>             <td style="text-align:right; padding:2px 6px;">705</td>         </tr>                      <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-104.4</td>                 <td style="text-align:right; padding:2px 6px;">-106.1</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.7                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.6</td>                 <td style="text-align:right; padding:2px 6px;">-12.8</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.2                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">5.3</td>                 <td style="text-align:right; padding:2px 6px;">5.2</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.2                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">25.7</td>                 <td style="text-align:right; padding:2px 6px;">15.2</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -10.7                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">10.7</td>                 <td style="text-align:right; padding:2px 6px;">7.3</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -3.3                     <span style="font-size:10px; color:#555;">(±0.2)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">1.1</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.1                     <span style="font-size:10px; color:#555;">(±0.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">16.3</td>                 <td style="text-align:right; padding:2px 6px;">6.8</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -9.4                     <span style="font-size:10px; color:#555;">(±0.4)</span>                 </td>             </tr>                          <tr style="background-color:#ffe6e6;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">37.5</td>                 <td style="text-align:right; padding:2px 6px;">15.2</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -22.3                     <span style="font-size:10px; color:#555;">(±0.4)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">9.0</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.1                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">21.7</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +12.7                     <span style="font-size:10px; color:#555;">(±0.5)</span>                 </td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id_5m: 1)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_25_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_26_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">26</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
+                popup_227b90dae04cdea3af9bfbe452f46c05.setContent(html_17ce1599c2ff28590af0f1eeefeea34f);
+            
+        
+
+        rectangle_0218043e6d565d9f42bcc8751f9fc465.bindPopup(popup_227b90dae04cdea3af9bfbe452f46c05)
+        ;
+
+        
+    
+    
+            var rectangle_ee60308160744ad8dadeb75b01078c77 = L.rectangle(
+                [[37.551787639238235, 126.98028409090908], [37.55183255479698, 126.98034090909091]],
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff8000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+        var popup_4da32618ff820837353b1f4c1dbf06c2 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_d6e1e71cb8340925310408d3a27df2bc = $(`<div id="html_d6e1e71cb8340925310408d3a27df2bc" style="width: 100.0%; height: 100.0%;">         <div style="text-align:left; font-size:12px; margin-bottom:6px;">             <span style="font-weight:bold;">DL Tput Δ</span>             <span style="font-weight:normal; font-size:11px;">(n28/n26-100)</span> :             <span style="color:#C00000;">-56.7 %</span>         </div>                  <table style="border-collapse:collapse; font-size:12px;">         <tr style="background-color:#cfd8dc;">             <th style="text-align:left; padding:2px 6px;">Metric</th>             <th style="text-align:right; padding:2px 6px;">n26</th>             <th style="text-align:right; padding:2px 6px;">n28</th>             <th style="text-align:right; padding:2px 6px;; vertical-align:middle;">                 <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">                     <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>                     <span style='font-size:8px; color:#555;'>(±95% CI)</span>                 </div>             </th>         </tr>         <tr style="background-color:#f2f2f2;">             <td style="text-align:left; padding:2px 6px;">counts</td>             <td style="text-align:right; padding:2px 6px;">2</td>             <td style="text-align:right; padding:2px 6px;">2</td>             <td style="text-align:right; padding:2px 6px;">2</td>         </tr>                      <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-103.6</td>                 <td style="text-align:right; padding:2px 6px;">-105.6</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -2.1                     <span style="font-size:10px; color:#555;">(±2.7)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.4</td>                 <td style="text-align:right; padding:2px 6px;">-11.7</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.3                     <span style="font-size:10px; color:#555;">(±0.5)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">6.8</td>                 <td style="text-align:right; padding:2px 6px;">5.4</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.5                     <span style="font-size:10px; color:#555;">(±2.5)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">25.6</td>                 <td style="text-align:right; padding:2px 6px;">16.8</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -8.8                     <span style="font-size:10px; color:#555;">(±4.6)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">9.5</td>                 <td style="text-align:right; padding:2px 6px;">8.8</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.7                     <span style="font-size:10px; color:#555;">(±3.3)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.5</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.5                     <span style="font-size:10px; color:#555;">(±1.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">15.4</td>                 <td style="text-align:right; padding:2px 6px;">8.7</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -6.7                     <span style="font-size:10px; color:#555;">(±9.0)</span>                 </td>             </tr>                          <tr style="background-color:#ffe6e6;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">40.9</td>                 <td style="text-align:right; padding:2px 6px;">17.7</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -23.2                     <span style="font-size:10px; color:#555;">(±1.6)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.2</td>                 <td style="text-align:right; padding:2px 6px;">9.3</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +0.1                     <span style="font-size:10px; color:#555;">(±0.7)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">6.6</td>                 <td style="text-align:right; padding:2px 6px;">17.1</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +10.5                     <span style="font-size:10px; color:#555;">(±13.6)</span>                 </td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id_5m: 2)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_25_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
+                popup_4da32618ff820837353b1f4c1dbf06c2.setContent(html_d6e1e71cb8340925310408d3a27df2bc);
+            
+        
+
+        rectangle_ee60308160744ad8dadeb75b01078c77.bindPopup(popup_4da32618ff820837353b1f4c1dbf06c2)
+        ;
+
+        
+    
+    
+            var rectangle_0da0fb4daf4f62d19fe4b18c4a2e8c00 = L.rectangle(
+                [[37.551787639238235, 126.9803409090909], [37.55183255479698, 126.98039772727273]],
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff0000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+        var popup_71cd8fd08a9a00a3ed71a6007c83c046 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_12918b58fc3fbce2d9adee9a10c491e4 = $(`<div id="html_12918b58fc3fbce2d9adee9a10c491e4" style="width: 100.0%; height: 100.0%;">         <div style="text-align:left; font-size:12px; margin-bottom:6px;">             <span style="font-weight:bold;">DL Tput Δ</span>             <span style="font-weight:normal; font-size:11px;">(n28/n26-100)</span> :             <span style="color:#C00000;">-60.6 %</span>         </div>                  <table style="border-collapse:collapse; font-size:12px;">         <tr style="background-color:#cfd8dc;">             <th style="text-align:left; padding:2px 6px;">Metric</th>             <th style="text-align:right; padding:2px 6px;">n26</th>             <th style="text-align:right; padding:2px 6px;">n28</th>             <th style="text-align:right; padding:2px 6px;; vertical-align:middle;">                 <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">                     <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>                     <span style='font-size:8px; color:#555;'>(±95% CI)</span>                 </div>             </th>         </tr>         <tr style="background-color:#f2f2f2;">             <td style="text-align:left; padding:2px 6px;">counts</td>             <td style="text-align:right; padding:2px 6px;">3</td>             <td style="text-align:right; padding:2px 6px;">3</td>             <td style="text-align:right; padding:2px 6px;">3</td>         </tr>                      <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-105.0</td>                 <td style="text-align:right; padding:2px 6px;">-105.2</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.2                     <span style="font-size:10px; color:#555;">(±1.4)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.6</td>                 <td style="text-align:right; padding:2px 6px;">-13.2</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -1.6                     <span style="font-size:10px; color:#555;">(±1.2)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">5.1</td>                 <td style="text-align:right; padding:2px 6px;">5.2</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +0.1                     <span style="font-size:10px; color:#555;">(±1.3)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">25.8</td>                 <td style="text-align:right; padding:2px 6px;">13.1</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -12.7                     <span style="font-size:10px; color:#555;">(±0.8)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">6.7</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -2.4                     <span style="font-size:10px; color:#555;">(±2.8)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.7</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.7                     <span style="font-size:10px; color:#555;">(±0.7)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">11.6</td>                 <td style="text-align:right; padding:2px 6px;">6.5</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -5.1                     <span style="font-size:10px; color:#555;">(±3.8)</span>                 </td>             </tr>                          <tr style="background-color:#ffe6e6;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">35.3</td>                 <td style="text-align:right; padding:2px 6px;">13.9</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -21.4                     <span style="font-size:10px; color:#555;">(±4.9)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">8.9</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.2                     <span style="font-size:10px; color:#555;">(±1.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">11.7</td>                 <td style="text-align:right; padding:2px 6px;">26.8</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +15.1                     <span style="font-size:10px; color:#555;">(±7.5)</span>                 </td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id_5m: 3)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_26_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">26</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
+                popup_71cd8fd08a9a00a3ed71a6007c83c046.setContent(html_12918b58fc3fbce2d9adee9a10c491e4);
+            
+        
+
+        rectangle_0da0fb4daf4f62d19fe4b18c4a2e8c00.bindPopup(popup_71cd8fd08a9a00a3ed71a6007c83c046)
+        ;
+
+        
+    
+    
+            var rectangle_c9e0523bf56f407023a61b863111aa0d = L.rectangle(
+                [[37.551877470355734, 126.98039772727272], [37.55192238591448, 126.98045454545455]],
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#adff2fff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+        var popup_e91f7b49755a91663e1c4a94c2a28fd1 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_71b9b72f2f42a70657a177e308314335 = $(`<div id="html_71b9b72f2f42a70657a177e308314335" style="width: 100.0%; height: 100.0%;">         <div style="text-align:left; font-size:12px; margin-bottom:6px;">             <span style="font-weight:bold;">DL Tput Δ</span>             <span style="font-weight:normal; font-size:11px;">(n28/n26-100)</span> :             <span style="color:#C00000;">-14.9 %</span>         </div>                  <table style="border-collapse:collapse; font-size:12px;">         <tr style="background-color:#cfd8dc;">             <th style="text-align:left; padding:2px 6px;">Metric</th>             <th style="text-align:right; padding:2px 6px;">n26</th>             <th style="text-align:right; padding:2px 6px;">n28</th>             <th style="text-align:right; padding:2px 6px;; vertical-align:middle;">                 <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">                     <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>                     <span style='font-size:8px; color:#555;'>(±95% CI)</span>                 </div>             </th>         </tr>         <tr style="background-color:#f2f2f2;">             <td style="text-align:left; padding:2px 6px;">counts</td>             <td style="text-align:right; padding:2px 6px;">593</td>             <td style="text-align:right; padding:2px 6px;">594</td>             <td style="text-align:right; padding:2px 6px;">593</td>         </tr>                      <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-94.1</td>                 <td style="text-align:right; padding:2px 6px;">-93.3</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +0.7                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-13.3</td>                 <td style="text-align:right; padding:2px 6px;">-10.8</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +2.5                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">-0.1</td>                 <td style="text-align:right; padding:2px 6px;">8.2</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +8.4                     <span style="font-size:10px; color:#555;">(±0.3)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">27.9</td>                 <td style="text-align:right; padding:2px 6px;">32.3</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +4.4                     <span style="font-size:10px; color:#555;">(±0.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">9.2</td>                 <td style="text-align:right; padding:2px 6px;">10.3</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +1.1                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">2.0</td>                 <td style="text-align:right; padding:2px 6px;">2.0</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -0.0                     <span style="font-size:10px; color:#555;">(±0.0)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">17.6</td>                 <td style="text-align:right; padding:2px 6px;">15.5</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -2.1                     <span style="font-size:10px; color:#555;">(±0.2)</span>                 </td>             </tr>                          <tr style="background-color:#ffe6e6;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">72.7</td>                 <td style="text-align:right; padding:2px 6px;">61.9</td>                 <td style="text-align:right; padding:2px 6px; color:#C00000;">                     -10.8                     <span style="font-size:10px; color:#555;">(±0.8)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">9.5</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +0.4                     <span style="font-size:10px; color:#555;">(±0.1)</span>                 </td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">0.9</td>                 <td style="text-align:right; padding:2px 6px;">0.9</td>                 <td style="text-align:right; padding:2px 6px; color:#0070C0;">                     +0.1                     <span style="font-size:10px; color:#555;">(±0.2)</span>                 </td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id_5m: 4)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/Fixed/plot_kpi_each_test/251024/251024_27_Fixed.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">27</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
+                popup_e91f7b49755a91663e1c4a94c2a28fd1.setContent(html_71b9b72f2f42a70657a177e308314335);
+            
+        
+
+        rectangle_c9e0523bf56f407023a61b863111aa0d.bindPopup(popup_e91f7b49755a91663e1c4a94c2a28fd1)
+        ;
+
+        
+    
+    
+    var color_map_d6ab95186de1e29ce4e00153f07709d2 = {};
+
+    
+    color_map_d6ab95186de1e29ce4e00153f07709d2.color = d3.scale.threshold()
+              .domain([-73.80841216941855, -73.51258687014231, -73.2167615708661, -72.92093627158987, -72.62511097231364, -72.32928567303742, -72.03346037376119, -71.73763507448496, -71.44180977520874, -71.14598447593251, -70.85015917665628, -70.55433387738005, -70.25850857810383, -69.9626832788276, -69.66685797955137, -69.37103268027515, -69.07520738099892, -68.77938208172269, -68.48355678244647, -68.18773148317024, -67.89190618389401, -67.59608088461779, -67.30025558534156, -67.00443028606533, -66.70860498678911, -66.41277968751288, -66.11695438823665, -65.82112908896043, -65.5253037896842, -65.22947849040797, -64.93365319113175, -64.63782789185552, -64.34200259257929, -64.04617729330306, -63.75035199402684, -63.45452669475061, -63.15870139547439, -62.862876096198164, -62.56705079692193, -62.27122549764571, -61.97540019836948, -61.679574899093254, -61.38374959981703, -61.0879243005408, -60.792099001264575, -60.49627370198834, -60.20044840271212, -59.904623103435895, -59.608797804159664, -59.31297250488344, -59.017147205607216, -58.721321906330985, -58.42549660705476, -58.12967130777854, -57.833846008502306, -57.53802070922608, -57.24219540994985, -56.94637011067363, -56.6505448113974, -56.35471951212118, -56.05889421284495, -55.763068913568716, -55.4672436142925, -55.17141831501627, -54.87559301574004, -54.57976771646382, -54.28394241718759, -53.98811711791136, -53.692291818635134, -53.39646651935891, -53.10064122008268, -52.804815920806455, -52.50899062153023, -52.213165322254, -51.917340022977776, -51.62151472370155, -51.32568942442532, -51.029864125149096, -50.73403882587287, -50.43821352659664, -50.14238822732041, -49.84656292804419, -49.55073762876796, -49.25491232949173, -48.959087030215514, -48.66326173093928, -48.36743643166305, -48.07161113238683, -47.775785833110604, -47.47996053383437, -47.18413523455815, -46.888309935281924, -46.59248463600569, -46.29665933672947, -46.000834037453245, -45.705008738177014, -45.40918343890079, -45.113358139624566, -44.817532840348335, -44.521707541072104, -44.22588224179589, -43.930056942519656, -43.634231643243425, -43.33840634396721, -43.04258104469098, -42.746755745414745, -42.45093044613852, -42.1551051468623, -41.859279847586066, -41.56345454830984, -41.26762924903362, -40.97180394975739, -40.675978650481156, -40.38015335120494, -40.08432805192871, -39.788502752652484, -39.49267745337626, -39.19685215410003, -38.901026854823805, -38.60520155554757, -38.30937625627135, -38.013550956995125, -37.717725657718894, -37.42190035844267, -37.126075059166446, -36.830249759890215, -36.534424460613984, -36.23859916133777, -35.942773862061536, -35.646948562785305, -35.35112326350909, -35.05529796423286, -34.759472664956625, -34.46364736568041, -34.16782206640418, -33.871996767127946, -33.57617146785172, -33.2803461685755, -32.98452086929927, -32.68869557002304, -32.39287027074682, -32.09704497147059, -31.801219672194364, -31.505394372918133, -31.209569073641916, -30.913743774365685, -30.617918475089454, -30.322093175813237, -30.026267876537005, -29.730442577260774, -29.43461727798455, -29.138791978708326, -28.842966679432095, -28.54714138015587, -28.251316080879647, -27.955490781603416, -27.659665482327192, -27.36384018305096, -27.068014883774737, -26.772189584498513, -26.47636428522228, -26.180538985946058, -25.884713686669834, -25.588888387393602, -25.29306308811737, -24.997237788841154, -24.701412489564923, -24.405587190288692, -24.109761891012475, -23.813936591736244, -23.518111292460013, -23.222285993183796, -22.926460693907565, -22.630635394631334, -22.33481009535511, -22.038984796078886, -21.743159496802654, -21.44733419752643, -21.151508898250206, -20.855683598973982, -20.55985829969775, -20.26403300042152, -19.968207701145303, -19.672382401869072, -19.37655710259284, -19.080731803316624, -18.784906504040393, -18.48908120476416, -18.193255905487938, -17.897430606211714, -17.601605306935483, -17.30578000765926, -17.009954708383034, -16.714129409106803, -16.41830410983058, -16.122478810554348, -15.826653511278124, -15.5308282120019, -15.235002912725669, -14.939177613449445, -14.643352314173221, -14.34752701489699, -14.051701715620759, -13.755876416344542, -13.46005111706831, -13.16422581779208, -12.868400518515863, -12.572575219239631, -12.276749919963407, -11.980924620687183, -11.685099321410952, -11.389274022134728, -11.093448722858497, -10.797623423582273, -10.501798124306049, -10.205972825029818, -9.910147525753594, -9.61432222647737, -9.318496927201139, -9.022671627924908, -8.72684632864869, -8.43102102937246, -8.135195730096228, -7.839370430819997, -7.543545131543766, -7.247719832267563, -6.951894532991332, -6.656069233715101, -6.36024393443887, -6.064418635162639, -5.768593335886422, -5.472768036610191, -5.176942737333974, -4.881117438057743, -4.5852921387815115, -4.28946683950528, -3.9936415402290635, -3.6978162409528323, -3.401990941676601, -3.1061656424003843, -2.810340343124153, -2.514515043847922, -2.218689744571705, -1.922864445295474, -1.6270391460192428, -1.3312138467430117, -1.0353885474667948, -0.7395632481905636, -0.4437379489143467, -0.14791264963811557, 0.14791264963811557, 0.4437379489143467, 0.7395632481905778, 1.0353885474667948, 1.3312138467430117, 1.6270391460192428, 1.922864445295474, 2.218689744571705, 2.5145150438479362, 2.810340343124139, 3.10616564240037, 3.401990941676601, 3.6978162409528323, 3.9936415402290635, 4.289466839505295, 4.5852921387815115, 4.8811174380577285, 5.17694273733396, 5.472768036610191, 5.768593335886422, 6.064418635162653, 6.36024393443887, 6.656069233715101, 6.951894532991318, 7.247719832267549, 7.54354513154378, 7.839370430820011, 8.135195730096228, 8.43102102937246, 8.72684632864869, 9.022671627924908, 9.318496927201139, 9.61432222647737, 9.910147525753587, 10.205972825029818, 10.501798124306049, 10.79762342358228, 11.093448722858497, 11.389274022134714, 11.685099321410945, 11.980924620687176, 12.276749919963407, 12.572575219239638, 12.86840051851587, 13.164225817792072, 13.460051117068303, 13.755876416344535, 14.051701715620766, 14.347527014896997, 14.643352314173228, 14.939177613449445, 15.235002912725662, 15.530828212001893, 15.826653511278124, 16.122478810554355, 16.418304109830586, 16.714129409106803, 17.009954708383034, 17.30578000765925, 17.601605306935483, 17.897430606211714, 18.193255905487945, 18.48908120476416, 18.784906504040393, 19.080731803316624, 19.37655710259284, 19.672382401869072, 19.968207701145303, 20.26403300042152, 20.55985829969775, 20.855683598973982, 21.151508898250214, 21.44733419752643, 21.743159496802647, 22.03898479607888, 22.33481009535511, 22.63063539463134, 22.926460693907572, 23.222285993183803, 23.518111292460006, 23.813936591736237, 24.109761891012468, 24.4055871902887, 24.70141248956493, 24.99723778884116, 25.293063088117364, 25.588888387393595, 25.884713686669826, 26.180538985946058, 26.47636428522229, 26.77218958449852, 27.068014883774737, 27.363840183050954, 27.659665482327185, 27.955490781603416, 28.251316080879647, 28.547141380155878, 28.842966679432095, 29.138791978708326, 29.434617277984543, 29.730442577260774, 30.026267876537005, 30.322093175813237, 30.617918475089454, 30.913743774365685, 31.209569073641916, 31.505394372918133, 31.801219672194364, 32.09704497147058, 32.39287027074681, 32.68869557002304, 32.984520869299274, 33.280346168575505, 33.57617146785172, 33.87199676712794, 34.16782206640417, 34.4636473656804, 34.75947266495663, 35.055297964232864, 35.351123263509095, 35.6469485627853, 35.94277386206153, 36.23859916133776, 36.53442446061399, 36.83024975989022, 37.12607505916645, 37.42190035844267, 37.71772565771889, 38.01355095699512, 38.30937625627135, 38.60520155554758, 38.90102685482381, 39.19685215410003, 39.49267745337626, 39.78850275265248, 40.08432805192871, 40.38015335120494, 40.675978650481156, 40.97180394975739, 41.26762924903362, 41.56345454830985, 41.859279847586066, 42.1551051468623, 42.450930446138514, 42.746755745414745, 43.04258104469098, 43.33840634396721, 43.63423164324344, 43.930056942519656, 44.22588224179587, 44.521707541072104, 44.817532840348335, 45.113358139624566, 45.4091834389008, 45.70500873817703, 46.00083403745323, 46.29665933672946, 46.59248463600569, 46.888309935281924, 47.184135234558156, 47.47996053383439, 47.77578583311059, 48.07161113238682, 48.36743643166305, 48.66326173093928, 48.959087030215514, 49.25491232949173, 49.55073762876796, 49.84656292804418, 50.14238822732041, 50.43821352659664, 50.73403882587287, 51.02986412514909, 51.32568942442532, 51.62151472370155, 51.91734002297777, 52.213165322254, 52.50899062153023, 52.80481592080645, 53.10064122008268, 53.39646651935891, 53.69229181863514, 53.98811711791136, 54.2839424171876, 54.579767716463806, 54.87559301574004, 55.17141831501627, 55.4672436142925, 55.76306891356873, 56.05889421284496, 56.354719512121164, 56.650544811397396, 56.94637011067363, 57.24219540994986, 57.53802070922609, 57.83384600850232, 58.12967130777855, 58.42549660705478, 58.72132190633101, 59.01714720560719, 59.31297250488342, 59.60879780415965, 59.90462310343588, 60.20044840271211, 60.49627370198834, 60.792099001264575, 61.087924300540806, 61.38374959981704, 61.67957489909327, 61.9754001983695, 62.2712254976457, 62.56705079692193, 62.862876096198164, 63.15870139547437, 63.4545266947506, 63.75035199402683, 64.04617729330306, 64.34200259257929, 64.63782789185552, 64.93365319113175, 65.22947849040798, 65.52530378968422, 65.82112908896042, 66.11695438823665, 66.41277968751288, 66.70860498678911, 67.00443028606534, 67.30025558534155, 67.59608088461778, 67.89190618389401, 68.18773148317024, 68.48355678244647, 68.7793820817227, 69.0752073809989, 69.37103268027514, 69.66685797955137, 69.9626832788276, 70.25850857810383, 70.55433387738006, 70.85015917665629, 71.14598447593252, 71.44180977520872, 71.73763507448496, 72.03346037376119, 72.32928567303742, 72.62511097231362, 72.92093627158985, 73.21676157086608, 73.51258687014231, 73.80841216941855])
+              .range(['#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff']);
+    
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.x = d3.scale.linear()
+              .domain([-73.80841216941855, 73.80841216941855])
+              .range([0, 450 - 50]);
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.legend = L.control({position: 'topright'});
+    color_map_d6ab95186de1e29ce4e00153f07709d2.legend.onAdd = function (map) {var div = L.DomUtil.create('div', 'legend'); return div};
+    color_map_d6ab95186de1e29ce4e00153f07709d2.legend.addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.xAxis = d3.svg.axis()
+        .scale(color_map_d6ab95186de1e29ce4e00153f07709d2.x)
+        .orient("top")
+        .tickSize(1)
+        .tickValues(['-73.8', '-59.0', '-44.3', '-29.5', '-14.8', '0.0', '14.8', '29.5', '44.3', '59.0', '73.8']);
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.svg = d3.select(".legend.leaflet-control").append("svg")
+        .attr("id", 'legend')
+        .attr("width", 450)
+        .attr("height", 40);
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.g = color_map_d6ab95186de1e29ce4e00153f07709d2.svg.append("g")
+        .attr("class", "key")
+        .attr("fill", "black")
+        .attr("transform", "translate(25,16)");
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.g.selectAll("rect")
+        .data(color_map_d6ab95186de1e29ce4e00153f07709d2.color.range().map(function(d, i) {
+          return {
+            x0: i ? color_map_d6ab95186de1e29ce4e00153f07709d2.x(color_map_d6ab95186de1e29ce4e00153f07709d2.color.domain()[i - 1]) : color_map_d6ab95186de1e29ce4e00153f07709d2.x.range()[0],
+            x1: i < color_map_d6ab95186de1e29ce4e00153f07709d2.color.domain().length ? color_map_d6ab95186de1e29ce4e00153f07709d2.x(color_map_d6ab95186de1e29ce4e00153f07709d2.color.domain()[i]) : color_map_d6ab95186de1e29ce4e00153f07709d2.x.range()[1],
+            z: d
+          };
+        }))
+      .enter().append("rect")
+        .attr("height", 40 - 30)
+        .attr("x", function(d) { return d.x0; })
+        .attr("width", function(d) { return d.x1 - d.x0; })
+        .style("fill", function(d) { return d.z; });
+
+    color_map_d6ab95186de1e29ce4e00153f07709d2.g.call(color_map_d6ab95186de1e29ce4e00153f07709d2.xAxis).append("text")
+        .attr("class", "caption")
+        .attr("y", 21)
+        .attr("fill", "black")
+        .text("DL_Tput \u0394(n28/n26) [%-100]");
+    
+            var marker_c2b685c16cc6f529ea4eb9b57723815d = L.marker(
+                [37.5472288, 126.9815217],
+                {
+}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+            var icon_659c88855beedbeaf6d1643472c781ab = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "signal",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1888415ea83dd525aace6100472bbcc9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_f807c8eb6fd39492374f8296f6741558 = $(`<div id="html_f807c8eb6fd39492374f8296f6741558" style="width: 100.0%; height: 100.0%;">Huam 415-1</div>`)[0];
+                popup_1888415ea83dd525aace6100472bbcc9.setContent(html_f807c8eb6fd39492374f8296f6741558);
+            
+        
+
+        marker_c2b685c16cc6f529ea4eb9b57723815d.bindPopup(popup_1888415ea83dd525aace6100472bbcc9)
+        ;
+
+        
+    
+    
+                marker_c2b685c16cc6f529ea4eb9b57723815d.setIcon(icon_659c88855beedbeaf6d1643472c781ab);
+            
+    
+            var marker_ff159c2168a48bce977da30cd1ba6c82 = L.marker(
+                [37.549636, 126.981512],
+                {
+}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+            var icon_470a2802d38ff11ed96ed0ed29a6e3a8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "signal",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d00255683faf2c55cec057e9c07b3d23 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4e12935af174b90a315d6046fe36a347 = $(`<div id="html_4e12935af174b90a315d6046fe36a347" style="width: 100.0%; height: 100.0%;">Huam 345-5</div>`)[0];
+                popup_d00255683faf2c55cec057e9c07b3d23.setContent(html_4e12935af174b90a315d6046fe36a347);
+            
+        
+
+        marker_ff159c2168a48bce977da30cd1ba6c82.bindPopup(popup_d00255683faf2c55cec057e9c07b3d23)
+        ;
+
+        
+    
+    
+                marker_ff159c2168a48bce977da30cd1ba6c82.setIcon(icon_470a2802d38ff11ed96ed0ed29a6e3a8);
+            
+    
+            var marker_56b77187620815e717ed05a308f36eac = L.marker(
+                [37.552596, 126.987184],
+                {
+}
+            ).addTo(map_4486d9b84cbcdde71b9e79a606779ec3);
+        
+    
+            var icon_97872640fd4a76ffbc286ac66ab04216 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "black",
+  "iconColor": "white",
+  "icon": "signal",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b02066afd7b31192c4fd77e4fa99db95 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_d6be376ddc82908f25ca30932ad0a4e2 = $(`<div id="html_d6be376ddc82908f25ca30932ad0a4e2" style="width: 100.0%; height: 100.0%;">NamsanTower</div>`)[0];
+                popup_b02066afd7b31192c4fd77e4fa99db95.setContent(html_d6be376ddc82908f25ca30932ad0a4e2);
+            
+        
+
+        marker_56b77187620815e717ed05a308f36eac.bindPopup(popup_b02066afd7b31192c4fd77e4fa99db95)
+        ;
+
+        
+    
+    
+                marker_56b77187620815e717ed05a308f36eac.setIcon(icon_97872640fd4a76ffbc286ac66ab04216);
+            
+</script>
+</html>
