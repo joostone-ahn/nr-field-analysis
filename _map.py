@@ -33,48 +33,10 @@ def make_step_cmap(vmin, vmax):
         "#FF66CC",  # 17 핑크보라 (마무리)
     ]
 
-    # warm_start = "#FF0000"  # 빨강
-    # warm_mid = "#FFD700"  # 노랑
-    # warm_end = "#008000"  # 초록
-    # colors_warm_1 = mcolors.LinearSegmentedColormap.from_list("warm_1", [warm_start, warm_mid])(np.linspace(0, 1, 3))
-    # colors_warm_2 = mcolors.LinearSegmentedColormap.from_list("warm_2", [warm_mid, warm_end])(np.linspace(0, 1, 3))
-    # warm = np.vstack((colors_warm_1[:-1], colors_warm_2))  # mid 중복 제거
-    # warm = [mcolors.to_hex(c) for c in warm]
-    #
-    # cool_start = "#00FFFF"  # 하늘
-    # cool_mid = "#3399FF"  # 중간 파랑
-    # cool_end = "#8B00FF"  # 진파랑
-    # colors_cool_1 = mcolors.LinearSegmentedColormap.from_list("cool_1", [cool_start, cool_mid])(np.linspace(0, 1, 3))
-    # colors_cool_2 = mcolors.LinearSegmentedColormap.from_list("cool_2", [cool_mid, cool_end])(np.linspace(0, 1, 3))
-    # cool = np.vstack((colors_cool_1[:-1], colors_cool_2))  # mid 중복 제거
-    # cool = [mcolors.to_hex(c) for c in cool]
-    #
-    # base_colors = warm + cool
-
     extended_colors = []
     for c in base_colors:
         extended_colors.append(c)
-    step = (vmax - vmin) / len(extended_colors)
     bins = np.linspace(vmin, vmax, len(extended_colors)+1)
-
-    # # step = round(step, 1) if step < 1 else math.floor(step)
-    # if step >= 1:
-    #     step = math.floor(step)
-    # else:
-    #     step = math.floor(step * 10) / 10
-    # neg = np.arange(vmin, -step, step)
-    # rem = (vmax-vmin) - 2*(len(extended_colors)//2 * step)
-    # half_rem = rem/2
-    # mid_neg, mid_pos = -half_rem, half_rem
-    # pos = np.arange(mid_pos, vmax+step, step)
-    # bins = np.concatenate([neg, [mid_neg, mid_pos], pos])
-    # bins = np.unique(np.round(bins, 6))
-
-    # print("vmin","vmax","step", vmin, vmax, step)
-    # # print("bins", bins)
-    # print([f"{b:.1f}" for b in bins])
-    # print("bins num", len(bins)-1)
-    # print("colors num", len(extended_colors))
 
     cmap = StepColormap(
         colors=extended_colors,
@@ -102,7 +64,7 @@ def add_basestation(map_name):
             popup=f"{site['name']}"
         ).add_to(map_name)
 
-def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cmap, out_file, caption):
+def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n28_only, cmap, out_file, caption):
     m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=17, tiles="cartodbpositron")
 
     lat_factor, lon_factor = 111320, 88000
@@ -114,7 +76,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
             continue
 
         color = cmap(val)
-        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size, out_file), max_width=300)
+        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size, out_file, n28_only), max_width=300)
 
         lat_c = lat.iloc[idx]
         lon_c = lon.iloc[idx]
@@ -124,11 +86,11 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
         # border_dash = None
         if "uhd_max" in df_pair.columns:
             uhd = df_pair.iloc[idx]["uhd_max"]
-            sinr_n26 = df_pair.iloc[idx]["SINR_n26"]
-            sinr_n28 = df_pair.iloc[idx]["SINR_n28"]
+            sinr_n26 = df_pair.iloc[idx]["SINR_mean_n26"]
+            sinr_n28 = df_pair.iloc[idx]["SINR_mean_n28"]
             sinr_diff = sinr_n28 - sinr_n26
-            rsrp_n26 = df_pair.iloc[idx]["RSRP_n26"]
-            rsrp_n28 = df_pair.iloc[idx]["RSRP_n28"]
+            rsrp_n26 = df_pair.iloc[idx]["RSRP_mean_n26"]
+            rsrp_n28 = df_pair.iloc[idx]["RSRP_mean_n28"]
             rsrp_diff = rsrp_n26 - rsrp_n28
 
             if pd.notna(uhd) and uhd > uhd_th:
@@ -166,7 +128,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, cm
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
-def popup_table(idx, val, df_pair, metric, grid_size, out_file):
+def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
     row = df_pair.iloc[idx]
 
     cell_padding = "padding:2px 6px;"
@@ -198,64 +160,126 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file):
     else:
         header_html = ""
 
-    # --- 표 본문 생성 ---
-    table_html = f"""
-    <table style="border-collapse:collapse; font-size:12px;">
-    <tr style="background-color:#cfd8dc;">
-        <th style="{align_left}">Metric</th>
-        <th style="{align_right}">n26</th>
-        <th style="{align_right}">n28</th>
-        <th style="{align_right}">Δ<span style='font-size:8px;'>(n28−n26)</span></th>
-    </tr>
-    <tr style="background-color:#f2f2f2;">
-        <td style="{align_left}">counts</td>
-        <td style="{align_right}">{int(row.get("sample_count_n26", 0))}</td>
-        <td style="{align_right}">{int(row.get("sample_count_n28", 0))}</td>
-        <td style="{align_right}"></td>
-    </tr>
-    """
-
     table_items = [
-        "DL_Tput", 
-        # "DL_RB",
         "RSRP", "RSRQ",
         "SINR", "SINR_TRS",
-        "CQI",
-        "RI",
+        "CQI", "RI", "DL_MCS",
+        "DL_Tput",
+        # "DL_RB",
         "DL_BLER", "UL_BLER",
-        "uhd_cnt", "uhd_avg", "uhd_max", "uhd_min",
     ]
-    
-    for item in table_items:
-        c26, c28 = f"{item}_n26", f"{item}_n28"
-        if c26 not in df_pair.columns or c28 not in df_pair.columns:
-            continue
+    if not n28_only:
+        n26 = int(row.get("sample_count_n26", 0))
+        n28 = int(row.get("sample_count_n28", 0))
+        n_diff = int(row.get("sample_count_diff", 0))
 
-        v26, v28 = row[c26], row[c28]
-        if pd.isna(v26) or pd.isna(v28):
-            continue
-
-        diff = v28 - v26
-        if diff > 0:
-            diff_color = "color:#0070C0;"
-            highlight = 'background-color:#d6eaff;' if item == metric else ''
-        elif diff < 0:
-            diff_color = "color:#C00000;"
-            highlight = 'background-color:#ffe6e6;' if item == metric else ''
-        else:
-            diff_color = "color:#000000;"
-            highlight = 'background-color:#f2f2f2;' if item == metric else ''
-
-        table_html += f"""
-        <tr style="{highlight}">
-            <td style="{align_left}">{item}</td>
-            <td style="{align_right}">{v26:.1f}</td>
-            <td style="{align_right}">{v28:.1f}</td>
-            <td style="{align_right} {diff_color}">{diff:+.1f}</td>
+        table_html = f"""
+        <table style="border-collapse:collapse; font-size:12px;">
+        <tr style="background-color:#cfd8dc;">
+            <th style="{align_left}">Metric</th>
+            <th style="{align_right}">n26</th>
+            <th style="{align_right}">n28</th>
+            <th style="{align_right}; vertical-align:middle;">
+                <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">
+                    <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>
+                    <span style='font-size:8px; color:#555;'>(±95% CI)</span>
+                </div>
+            </th>
+        </tr>
+        <tr style="background-color:#f2f2f2;">
+            <td style="{align_left}">counts</td>
+            <td style="{align_right}">{n26}</td>
+            <td style="{align_right}">{n28}</td>
+            <td style="{align_right}">{n_diff}</td>
         </tr>
         """
 
-    table_html += "</table>"
+        for metric_name in table_items:
+            c26_mean = f"{metric_name}_mean_n26"
+            c28_mean = f"{metric_name}_mean_n28"
+            c_diff_mean = f"{metric_name}_mean_diff"
+            c_diff_std = f"{metric_name}_std_diff"
+
+            if not all(c in df_pair.columns for c in [c26_mean, c28_mean, c_diff_mean, c_diff_std]):
+                continue
+
+            v26 = row[c26_mean]
+            v28 = row[c28_mean]
+            diff_mean = row[c_diff_mean]
+            diff_std = row[c_diff_std]
+
+            if any(pd.isna(x) for x in [v26, v28, diff_mean, diff_std]) or n_diff <= 1:
+                continue
+
+            # 95% CI 계산
+            se_diff = diff_std / np.sqrt(n_diff)
+            ci_delta = 1.96 * se_diff
+
+            # 색상 처리
+            if diff_mean > 0:
+                diff_color = "color:#0070C0;"
+                highlight = 'background-color:#d6eaff;' if metric_name == metric else ''
+            elif diff_mean < 0:
+                diff_color = "color:#C00000;"
+                highlight = 'background-color:#ffe6e6;' if metric_name == metric else ''
+            else:
+                diff_color = "color:#000000;"
+                highlight = 'background-color:#f2f2f2;' if metric_name == metric else ''
+
+            table_html += f"""
+            <tr style="{highlight}">
+                <td style="{align_left}">{metric_name}</td>
+                <td style="{align_right}">{v26:.1f}</td>
+                <td style="{align_right}">{v28:.1f}</td>
+                <td style="{align_right} {diff_color}">
+                    {diff_mean:+.1f}
+                    <span style="font-size:10px; color:#555;">(±{ci_delta:.1f})</span>
+                </td>
+            </tr>
+            """
+        table_html += "</table>"
+
+    else:
+        n_count = int(row.get("sample_count_n28", 0))
+        table_html = f"""
+        <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">
+            Metric Stats <span style="font-weight:normal; font-size:11px;">(n28, n={n_count})</span>
+        </div>
+        """
+        table_html += f"""
+        <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">
+        <tr style="background-color:#e0e0e0;">
+            <th style="{align_left};">Metric</th>
+            <th style="{align_right};">Mean</th>
+            <th style="{align_right};">
+                95% CI <span style="font-weight:normal;">(±Δ)</span>
+        </tr>
+        """
+
+        for metric_name in table_items:
+            mean_col = f"{metric_name}_mean_n28"
+            std_col  = f"{metric_name}_std_n28"
+
+            if mean_col not in df_pair.columns or std_col not in df_pair.columns:
+                continue
+
+            mean_val = row[mean_col]
+            std_val  = row[std_col]
+
+            if pd.isna(mean_val) or pd.isna(std_val) or n_count <= 1:
+                continue
+
+            se = std_val / np.sqrt(n_count)
+            ci_delta = 1.96 * se  # ±Δ
+
+            table_html += f"""
+            <tr>
+                <td style="{align_left}">{metric_name}</td>
+                <td style="{align_right}">{mean_val:.2f}</td>
+                <td style="{align_right}">{ci_delta:.2f}</td>
+            </tr>
+            """
+        table_html += "</table>"
 
     # --- UHD Power 섹션 ---
     uhd_cnt = row.get("uhd_cnt", np.nan)
@@ -353,8 +377,8 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
     ]
 
     for metric_pct in metrics_pct:
-        n26 = df_pair[f"{metric_pct}_n26"].astype(float)
-        n28 = df_pair[f"{metric_pct}_n28"].astype(float)
+        n26 = df_pair[f"{metric_pct}_mean_n26"].astype(float)
+        n28 = df_pair[f"{metric_pct}_mean_n28"].astype(float)
 
         ratio = (n28 / n26.replace(0, np.nan)) * 100.0
         ratio = ratio.replace([np.inf, -np.inf], np.nan).dropna()
@@ -381,6 +405,7 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
             values=ratio_diff,
             metric=metric_pct,
             popup_func=popup_table,
+            n28_only=False,
             cmap=cmap,
             out_file=out_file,
             caption=caption
@@ -402,8 +427,8 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
     ]
 
     for metric_db in metrics_db:
-        n26 = df_pair[f"{metric_db}_n26"].astype(float)
-        n28 = df_pair[f"{metric_db}_n28"].astype(float)
+        n26 = df_pair[f"{metric_db}_mean_n26"].astype(float)
+        n28 = df_pair[f"{metric_db}_mean_n28"].astype(float)
 
         diff = n28 - n26
 
@@ -430,6 +455,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
             values=diff,
             metric=metric_db,
             popup_func=popup_table,
+            n28_only=False,
             cmap=cmap,
             out_file=out_file,
             caption=caption
@@ -448,7 +474,7 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
     ]
 
     for metric in metrics:
-        n28 = df_pair[f"{metric}_n28"].astype(float)
+        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
 
         # vmin = np.floor(n28.min())
         # vmax = np.ceil(n28.max())
@@ -466,6 +492,7 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
             values=n28,
             metric=metric,
             popup_func=popup_table,
+            n28_only=True,
             cmap=cmap,
             out_file=out_file,
             caption=caption,

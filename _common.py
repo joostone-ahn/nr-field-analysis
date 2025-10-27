@@ -205,76 +205,208 @@ def analyze_kpi(fname, date_list):
 
 def grid_kpi(df, grid_size, rb_min, sample_min):
 
-    lat_factor, lon_factor = 111320, 88000
-
-    # # --- ① 기준 offset 설정 (동쪽으로 10m 이동) ---
-    # lon_offset_m = 10  # 10m 이동
-    # lon_offset_deg = lon_offset_m / lon_factor  # 약 0.0001136도
-    
-    df_grid = df[df["DL_RB"]>rb_min].copy()
-
-    df_grid["lat_bin"] = (df_grid["Lat"] * lat_factor // grid_size).astype(int)
-    df_grid["lon_bin"] = (df_grid["Lon"] * lon_factor // grid_size).astype(int)
-    # df_grid["lon_bin"] = ((df_grid["Lon"] + lon_offset_deg) * lon_factor // grid_size).astype(int)
-    
-    df_grid = df_grid.drop(columns=["Lat", "Lon"])
-
-    df_mean = (
-        df_grid.groupby(["lat_bin", "lon_bin", "Band"])
-          .mean(numeric_only=True)
-          .reset_index()
-    )
-    df_count = (
-        df_grid.groupby(["lat_bin", "lon_bin", "Band"])
-          .size()
-          .reset_index(name="sample_count")
-    )
-    df_tests = (
-        df_grid.groupby(["lat_bin", "lon_bin", "Band"])
-        .agg({"test_no": lambda x: list(x.unique())})
-        .reset_index()
-        .rename(columns={"test_no": "test_list"})
-    )
-    df_grid = (
-        df_mean
-        .merge(df_count, on=["lat_bin", "lon_bin", "Band"], how="left")
-        .merge(df_tests, on=["lat_bin", "lon_bin", "Band"], how="left")
-    )
-
     kpi_cols = [
-        "RSRP", "RSRQ", 
+        "RSRP", "RSRQ",
         "SINR", "SINR_TRS",
-        "CQI", "RI", "DL_MCS", 
-        "DL_BLER", "UL_BLER", 
-        "DL_RB", "DL_Tput", 
-        "DL_Tput_per_RB", 
-        "DL_Tput_full_RB",
+        "CQI", "RI", "DL_MCS",
+        "DL_BLER", "UL_BLER",
+        "DL_RB", "DL_Tput",
+        # "DL_Tput_per_RB",
+        # "DL_Tput_full_RB",
     ]
-    
-    df_pair = (
-        df_grid.pivot(index=["lat_bin", "lon_bin"], columns="Band", values=[*kpi_cols, "sample_count", "test_list"])
-        .reset_index()
-    )
-    df_pair.columns = [
-        f"{col[0]}_{col[1]}" if col[1] != "" else col[0]
-        for col in df_pair.columns.to_flat_index()
-    ]
-    # print(len(df_pair))
-    # display(df_pair[df_pair.isna().any(axis=1)])
-    df_pair = df_pair.dropna()
-    # print(len(df_pair))
+    df = df[df["DL_RB"]>rb_min].copy()
+    df = df.dropna(subset=["Lat", "Lon", "Band"])
 
-    df_pair["test_list"] = df_pair["test_list_n26"]
+    lat_factor, lon_factor = 111320, 88000
+    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df = df.drop(columns=["Lat", "Lon"])
+
+    df_n26 = df[df["Band"] == "n26"].copy()
+    df_n28 = df[df["Band"] == "n28"].copy()
+
+    df_diff = pd.merge(
+        df_n26,
+        df_n28,
+        on=["TIME", "lat_bin", "lon_bin"],
+        suffixes=("_n26", "_n28"),
+        how="inner",
+    )
+    diff_records = []
+    for _, row in df_diff.iterrows():
+        record = {
+            "TIME": row["TIME"],
+            "lat_bin": row["lat_bin"],
+            "lon_bin": row["lon_bin"],
+        }
+        for kpi in kpi_cols:
+            c26, c28 = f"{kpi}_n26", f"{kpi}_n28"
+            if (
+                    c26 in row
+                    and c28 in row
+                    and not pd.isna(row[c26])
+                    and not pd.isna(row[c28])
+            ):
+                record[kpi] = row[c28] - row[c26]
+        diff_records.append(record)
+    df_diff = pd.DataFrame(diff_records)
+
+    def grid_stats(df, suffix):
+        df_stat = (
+            df.groupby(["lat_bin", "lon_bin"])[kpi_cols]
+            .agg(["mean", "std"])
+            .reset_index()
+        )
+        df_stat.columns = [
+            f"{col[0]}_{col[1]}_{suffix}" if col[1] else col[0]
+            for col in df_stat.columns.to_flat_index()
+        ]
+        df_count = (
+            df.groupby(["lat_bin", "lon_bin"])["TIME"]
+            .count()
+            .reset_index()
+            .rename(columns={"TIME": f"sample_count_{suffix}"})
+        )
+        df_stat = pd.merge(df_stat, df_count, on=["lat_bin", "lon_bin"], how="left")
+        if "test_no" in df.columns:
+            df_tests = (
+                df.groupby(["lat_bin", "lon_bin"])
+                .agg({"test_no": lambda x: list(x.unique())})
+                .reset_index()
+                .rename(columns={"test_no": f"test_list_{suffix}"})
+            )
+            df_stat = pd.merge(df_stat, df_tests, on=["lat_bin", "lon_bin"], how="left")
+        return df_stat
+
+    df_n26_stat = grid_stats(df_n26, "n26")
+    df_n28_stat = grid_stats(df_n28, "n28")
+    df_diff_stat = grid_stats(df_diff, "diff")
+
+    df_pair = df_n26_stat.merge(df_n28_stat, on=["lat_bin", "lon_bin"], how="outer")
+    df_pair = df_pair.merge(df_diff_stat, on=["lat_bin", "lon_bin"], how="outer")
+
+    def merge_test_lists(row):
+        list1 = row.get("test_list_n26", [])
+        if not isinstance(list1, list):
+            list1 = []
+        list2 = row.get("test_list_n28", [])
+        if not isinstance(list2, list):
+            list2 = []
+        merged = sorted(set(list1) | set(list2))
+        return merged
+    df_pair["test_list"] = df_pair.apply(merge_test_lists, axis=1)
     df_pair = df_pair.drop(columns=["test_list_n26", "test_list_n28"], errors="ignore")
 
     df_uhd = read_UHD(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
     df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
 
-    df_pair = df_pair[(df_pair["sample_count_n26"] >= sample_min) & (df_pair["sample_count_n28"] >= sample_min)].reset_index(drop=True)
+    df_pair = df_pair[
+        (df_pair["sample_count_n26"] >= sample_min)
+        & (df_pair["sample_count_n28"] >= sample_min)
+    ].reset_index(drop=True)
+
     df_pair = df_pair.sort_values(["lat_bin", "lon_bin"], ascending=[True, True])
     df_pair = df_pair.reset_index().rename(columns={"index": "loc_id"})
 
-    # display(df_pair)
+    common_cols = ["loc_id", "lat_bin", "lon_bin", "test_list"]
+    sample_cols = [c for c in ["sample_count_n26", "sample_count_n28", "sample_count_diff"] if c in df_pair.columns]
+    metric_cols = []
+    for kpi in kpi_cols:
+        for stat in ["mean", "std"]:
+            for band in ["n26", "n28", "diff"]:
+                col = f"{kpi}_{stat}_{band}"
+                if col in df_pair.columns:
+                    metric_cols.append(col)
+    uhd_cols = [c for c in ["uhd_cnt", "uhd_avg", "uhd_max", "uhd_min"] if c in df_pair.columns]
+    ordered_cols = common_cols + sample_cols + metric_cols + uhd_cols
+    df_pair = df_pair[[c for c in ordered_cols if c in df_pair.columns]]
+
     # print(len(df_pair))
+    # print(df_pair.info())
+    # display(df_pair)
+
     return df_pair
+
+# def grid_kpi(df, grid_size, rb_min, sample_min):
+#
+#     lat_factor, lon_factor = 111320, 88000
+#
+#     df_grid = df[df["DL_RB"]>rb_min].copy()
+#
+#     df_grid["lat_bin"] = (df_grid["Lat"] * lat_factor // grid_size).astype(int)
+#     df_grid["lon_bin"] = (df_grid["Lon"] * lon_factor // grid_size).astype(int)
+#     df_grid = df_grid.drop(columns=["Lat", "Lon"])
+#
+#     kpi_cols = [
+#         "RSRP", "RSRQ",
+#         "SINR", "SINR_TRS",
+#         "CQI", "RI", "DL_MCS",
+#         "DL_BLER", "UL_BLER",
+#         "DL_RB", "DL_Tput",
+#         "DL_Tput_per_RB",
+#         "DL_Tput_full_RB",
+#     ]
+#
+#     df_stats = (
+#         df_grid.groupby(["lat_bin", "lon_bin", "Band"])[kpi_cols]
+#         .agg(["mean", "std"])
+#         .reset_index()
+#     )
+#     df_stats.columns = [
+#         f"{col}_{stat}" if stat else col
+#         for col, stat in df_stats.columns.to_flat_index()
+#     ]
+#
+#     df_count = (
+#         df_grid.groupby(["lat_bin", "lon_bin", "Band"])
+#           .size()
+#           .reset_index(name="sample_count")
+#     )
+#     df_tests = (
+#         df_grid.groupby(["lat_bin", "lon_bin", "Band"])
+#         .agg({"test_no": lambda x: list(x.unique())})
+#         .reset_index()
+#         .rename(columns={"test_no": "test_list"})
+#     )
+#
+#     df_grid = (
+#         df_stats
+#         .merge(df_count, on=["lat_bin", "lon_bin", "Band"], how="left")
+#         .merge(df_tests, on=["lat_bin", "lon_bin", "Band"], how="left")
+#     )
+#
+#     df_pair = (
+#         df_grid.pivot(
+#             index=["lat_bin", "lon_bin"],
+#             columns="Band",
+#             values=df_grid.columns.drop(["lat_bin", "lon_bin", "Band"])
+#         ).reset_index()
+#     )
+#
+#     df_pair.columns = [
+#         f"{col[0]}_{col[1]}" if col[1] != "" else col[0]
+#         for col in df_pair.columns.to_flat_index()
+#     ]
+#     # print(len(df_pair))
+#     # display(df_pair[df_pair.isna().any(axis=1)])
+#     df_pair = df_pair.dropna()
+#     # print(len(df_pair))
+#
+#     df_pair["test_list"] = df_pair["test_list_n26"]
+#     df_pair = df_pair.drop(columns=["test_list_n26", "test_list_n28"], errors="ignore")
+#
+#     df_uhd = read_UHD(uhd_dir='UHD_power')
+#     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
+#     df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+#
+#     df_pair = df_pair[
+#         (df_pair["sample_count_n26"] >= sample_min)
+#         & (df_pair["sample_count_n28"] >= sample_min)
+#     ].reset_index(drop=True)
+#     df_pair = df_pair.sort_values(["lat_bin", "lon_bin"], ascending=[True, True])
+#     df_pair = df_pair.reset_index().rename(columns={"index": "loc_id"})
+#
+#     # display(df_pair)
+#     # print(len(df_pair))
+#     return df_pair
