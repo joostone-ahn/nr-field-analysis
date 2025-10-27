@@ -285,6 +285,9 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
     df_pair = df_n26_stat.merge(df_n28_stat, on=["lat_bin", "lon_bin"], how="outer")
     df_pair = df_pair.merge(df_diff_stat, on=["lat_bin", "lon_bin"], how="outer")
 
+    count_cols = [c for c in df_pair.columns if c.startswith("sample_count_")]
+    df_pair[count_cols] = df_pair[count_cols].fillna(0).astype(int)
+
     def merge_test_lists(row):
         list1 = row.get("test_list_n26", [])
         if not isinstance(list1, list):
