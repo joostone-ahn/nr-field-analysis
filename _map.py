@@ -272,8 +272,13 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
             se = std_val / np.sqrt(n_count)
             ci_delta = 1.96 * se  # ±Δ
 
+            if metric_name in ["DL_Tput", "SINR_TRS", "RSRP"]:
+                highlight = "background-color:#e3f2fd;"
+            else:
+                highlight = ""
+
             table_html += f"""
-            <tr>
+            <tr style="{highlight}">
                 <td style="{align_left}">{metric_name}</td>
                 <td style="{align_right}">{mean_val:.2f}</td>
                 <td style="{align_right}">{ci_delta:.2f}</td>
@@ -360,20 +365,6 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
                 )
             test_html += "</div></div>\n"
 
-        # for test in test_list:
-        #     parts = test.split("_")
-        #     date = parts[0]
-        #     # site = parts[2]
-        #     filename = test
-        #     url = f"{base_url}/{date}/{filename}.html"
-        #     title = f"{test}"
-        #     test_html += f"""
-        #         <div style="margin:2px 0;">
-        #             <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">
-        #                 <span style="font-size:11px;">{title}</span>
-        #             </a>
-        #         </div>
-        #     """
         test_html += """
                 </div>
             </details>
@@ -494,16 +485,17 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
 
     metrics = [
         "RSRP",
+        "DL_Tput",
     ]
 
     for metric in metrics:
         n28 = df_pair[f"{metric}_mean_n28"].astype(float)
 
-        # vmin = np.floor(n28.min())
-        # vmax = np.ceil(n28.max())
-        vmin, vmax = -120, -60
+        if metric == "RSRP":
+            vmin, vmax = -120, -60
+        elif metric == "DL_Tput":
+            vmin, vmax = 0, 100
         cmap = make_step_cmap(vmin, vmax)
-
 
         caption = f"n28 {metric} [dBm]"
         out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric}_n28.html")
