@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib
 import folium
 from branca.colormap import StepColormap
-import matplotlib.colors as mcolors
 import _common
+from collections import defaultdict
 
 uhd_th = -32
 
@@ -320,9 +320,16 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
     # --- Test List 섹션 ---
     test_list = row.get("test_list", [])
     loc_id = row.get("loc_id", np.nan)
-
     out_dir = '/'.join(out_file.split('/')[0:2])
+
     if isinstance(test_list, list) and len(test_list) > 0:
+
+        test_by_date = defaultdict(list)
+        for test in test_list:
+            parts = test.split("_")
+            date, num, site = parts[0], parts[1], parts[2]
+            test_by_date[date].append((num, site))
+
         test_html = f"""
         <div style="margin-top:10px; font-size:12px;">
             <div style="font-weight:bold; color:#000; margin-bottom:2px;">
@@ -336,21 +343,37 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
                 <div style="margin-top:6px; padding-left:10px;">
         """
         base_url = f"https://joostone-ahn.github.io/nr-field-analysis/{out_dir}/plot_kpi_each_test"
-
-        for test in test_list:
-            parts = test.split("_")
-            date = parts[0]
-            # site = parts[2]
-            filename = test
-            url = f"{base_url}/{date}/{filename}.html"
-            title = f"{test}"
+        for date, entries in sorted(test_by_date.items()):
             test_html += f"""
-                <div style="margin:2px 0;">
-                    <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">
-                        <span style="font-size:11px;">{title}</span>
-                    </a>
+            <div style="margin:2px 0; line-height:1.4;">
+                <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">
+                    {date} :
                 </div>
+                <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
             """
+            for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
+                filename = f"{date}_{num}_{site}"
+                url = f"{base_url}/{date}/{filename}.html"
+                test_html += (
+                    f'<a href="{url}" target="_blank" '
+                    f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
+                )
+            test_html += "</div></div>\n"
+
+        # for test in test_list:
+        #     parts = test.split("_")
+        #     date = parts[0]
+        #     # site = parts[2]
+        #     filename = test
+        #     url = f"{base_url}/{date}/{filename}.html"
+        #     title = f"{test}"
+        #     test_html += f"""
+        #         <div style="margin:2px 0;">
+        #             <a href="{url}" target="_blank" style="text-decoration:none; color:#0066cc;">
+        #                 <span style="font-size:11px;">{title}</span>
+        #             </a>
+        #         </div>
+        #     """
         test_html += """
                 </div>
             </details>
