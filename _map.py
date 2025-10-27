@@ -141,25 +141,6 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
         "color:#000000;"
     )
 
-    if metric in ["DL_Tput", "SINR"]:
-        title = f"{metric.replace('_',' ')} Δ"
-        if metric == "DL_Tput":
-            subtext = "(n28/n26-100)"
-            unit = "%"
-        elif metric == "SINR":
-            subtext = "(n28−n26)"
-            unit = "dB"
-    
-        header_html = f"""
-        <div style="text-align:left; font-size:12px; margin-bottom:6px;">
-            <span style="font-weight:bold;">{title}</span>
-            <span style="font-weight:normal; font-size:11px;">{subtext}</span> :
-            <span style="{color}">{val:+.1f} {unit}</span>
-        </div>
-        """
-    else:
-        header_html = ""
-
     table_items = [
         "RSRP", "RSRQ",
         "SINR", "SINR_TRS",
@@ -169,6 +150,25 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
         "DL_BLER", "UL_BLER",
     ]
     if not n28_only:
+        if metric in ["DL_Tput", "SINR"]:
+            title = f"{metric.replace('_', ' ')} Δ"
+            if metric == "DL_Tput":
+                subtext = "(n28/n26-100)"
+                unit = "%"
+            elif metric == "SINR":
+                subtext = "(n28−n26)"
+                unit = "dB"
+
+            header_html = f"""
+            <div style="text-align:left; font-size:12px; margin-bottom:6px;">
+                <span style="font-weight:bold;">{title}</span>
+                <span style="font-weight:normal; font-size:11px;">{subtext}</span> :
+                <span style="{color}">{val:+.1f} {unit}</span>
+            </div>
+            """
+        else:
+            header_html = ""
+
         n26 = int(row.get("sample_count_n26", 0))
         n28 = int(row.get("sample_count_n28", 0))
         n_diff = int(row.get("sample_count_diff", 0))
@@ -238,7 +238,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
             </tr>
             """
         table_html += "</table>"
-
+        table_html = header_html + table_html
     else:
         n_count = int(row.get("sample_count_n28", 0))
         table_html = f"""
@@ -373,7 +373,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
 
         table_html += test_html
 
-    return header_html + table_html
+    return table_html
 
 def map_pct(df, out_dir, grid_size, rb_min, sample_min):
 
