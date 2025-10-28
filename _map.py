@@ -75,10 +75,8 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
         if pd.isna(val):
             continue
 
-        loc_id = df_pair.iloc[idx]["loc_id"]
         color = cmap(val)
         popup_html = popup_func(idx, val, df_pair, metric, grid_size, out_file, n28_only)
-        popup_html += f"<div style='display:none;' class='loc_marker'>loc_id:{loc_id}</div>"
         popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
