@@ -64,7 +64,7 @@ def add_basestation(map_name):
             popup=f"{site['name']}"
         ).add_to(map_name)
 
-def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n28_only, cmap, out_file, caption):
+def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=17, tiles="cartodbpositron")
 
     lat_factor, lon_factor = 111320, 88000
@@ -76,7 +76,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
             continue
 
         color = cmap(val)
-        popup_html = popup_func(idx, val, df_pair, metric, grid_size, out_file, n28_only)
+        popup_html = popup_func(idx, val, df_pair, metric, grid_size, out_file, band)
         popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
@@ -84,14 +84,12 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
 
         border_weight = 0
         border_color = None
-        # border_dash = None
         if "uhd_max" in df_pair.columns:
             uhd = df_pair.iloc[idx]["uhd_max"]
 
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
                 border_weight = 2
-                # border_dash = "4,4"
 
         bounds = [
             [lat_c - dlat, lon_c - dlon],  # 남서(SW)
@@ -101,7 +99,6 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
             bounds=bounds,
             weight=border_weight,
             color=border_color,
-            # dash_array=border_dash,
             fill=True,
             fill_color=color,
             fill_opacity=0.4,
@@ -120,7 +117,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
-def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
+def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
     row = df_pair.iloc[idx]
 
     cell_padding = "padding:2px 6px;"
@@ -141,15 +138,12 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
         # "DL_RB",
         "DL_BLER", "UL_BLER",
     ]
-    if not n28_only:
-        if metric in ["DL_Tput", "SINR"]:
+    if not band:
+        if metric == "DL_Tput":
             title = f"{metric.replace('_', ' ')} Δ"
-            if metric == "DL_Tput":
-                subtext = "(n28/n26-100)"
-                unit = "%"
-            elif metric == "SINR":
-                subtext = "(n28−n26)"
-                unit = "dB"
+            subtext = "(n28/n26-100)"
+            unit = "%"
+
 
             header_html = f"""
             <div style="text-align:left; font-size:12px; margin-bottom:6px;">
@@ -232,10 +226,10 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
         table_html += "</table>"
         table_html = header_html + table_html
     else:
-        n_count = int(row.get("sample_count_n28", 0))
+        n_count = int(row.get(f"sample_count_{band}", 0))
         table_html = f"""
         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">
-            Metric Stats <span style="font-weight:normal; font-size:11px;">(n28, n={n_count})</span>
+            Metric Stats <span style="font-weight:normal; font-size:11px;">({band}, n={n_count})</span>
         </div>
         """
         table_html += f"""
@@ -249,8 +243,8 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, n28_only):
         """
 
         for metric_name in table_items:
-            mean_col = f"{metric_name}_mean_n28"
-            std_col  = f"{metric_name}_std_n28"
+            mean_col = f"{metric_name}_mean_{band}"
+            std_col  = f"{metric_name}_std_{band}"
 
             if mean_col not in df_pair.columns or std_col not in df_pair.columns:
                 continue
@@ -401,7 +395,8 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_pct}_ratio.html")
+        metric_title = metric_pct.replace("DL_","")
+        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_title}_ratio.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
             df_pair=df_pair,
@@ -411,7 +406,7 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
             values=ratio_diff,
             metric=metric_pct,
             popup_func=popup_table,
-            n28_only=False,
+            band=None,
             cmap=cmap,
             out_file=out_file,
             caption=caption
@@ -428,7 +423,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
     metrics_db = [
         "RSRP",
         # "SINR",
-        # "SINR_TRS", 
+        # "SINR_TRS",
         # "RSRQ",
     ]
 
@@ -461,13 +456,13 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
             values=diff,
             metric=metric_db,
             popup_func=popup_table,
-            n28_only=False,
+            band=None,
             cmap=cmap,
             out_file=out_file,
             caption=caption
         )
 
-def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
+def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     
     df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
 
@@ -477,6 +472,7 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
 
     metrics = [
         "RSRP",
+        "SINR_TRS",
         "DL_Tput",
     ]
 
@@ -487,10 +483,13 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
             vmin, vmax = -120, -60
         elif metric == "DL_Tput":
             vmin, vmax = 0, 100
+        elif metric == "SINR_TRS":
+            vmin, vmax = 10, 40
         cmap = make_step_cmap(vmin, vmax)
 
         caption = f"n28 {metric} [dBm]"
-        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric}_n28.html")
+        metric_title = metric.replace("DL_","")
+        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_title}_{band}.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
@@ -499,7 +498,7 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min):
             values=n28,
             metric=metric,
             popup_func=popup_table,
-            n28_only=True,
+            band=band,
             cmap=cmap,
             out_file=out_file,
             caption=caption,
