@@ -75,8 +75,11 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
         if pd.isna(val):
             continue
 
+        loc_id = df_pair.iloc[idx]["loc_id"]
         color = cmap(val)
-        popup = folium.Popup(popup_func(idx, val, df_pair, metric, grid_size, out_file, n28_only), max_width=300)
+        popup_html = popup_func(idx, val, df_pair, metric, grid_size, out_file, n28_only)
+        popup_html += f"<div style='display:none;' class='loc_marker'>loc_id:{loc_id}</div>"
+        popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
         lon_c = lon.iloc[idx]
@@ -86,28 +89,17 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
         # border_dash = None
         if "uhd_max" in df_pair.columns:
             uhd = df_pair.iloc[idx]["uhd_max"]
-            sinr_n26 = df_pair.iloc[idx]["SINR_mean_n26"]
-            sinr_n28 = df_pair.iloc[idx]["SINR_mean_n28"]
-            sinr_diff = sinr_n28 - sinr_n26
-            rsrp_n26 = df_pair.iloc[idx]["RSRP_mean_n26"]
-            rsrp_n28 = df_pair.iloc[idx]["RSRP_mean_n28"]
-            rsrp_diff = rsrp_n26 - rsrp_n28
 
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
                 border_weight = 2
                 # border_dash = "4,4"
 
-                if metric == "DL_Tput":
-                    if val < -5 and sinr_diff < -1 and abs(rsrp_diff) < 1:
-                        border_color = "red"
-                        border_weight = 2
-
         bounds = [
             [lat_c - dlat, lon_c - dlon],  # 남서(SW)
             [lat_c + dlat, lon_c + dlon],  # 북동(NE)
         ]
-        folium.Rectangle(
+        rect = folium.Rectangle(
             bounds=bounds,
             weight=border_weight,
             color=border_color,
@@ -116,7 +108,8 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
             fill_color=color,
             fill_opacity=0.4,
             popup=popup,
-        ).add_to(m)
+        )
+        rect.add_to(m)
         
     cmap.caption = caption
     cmap.add_to(m)
@@ -131,23 +124,17 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
     document.addEventListener("DOMContentLoaded", function() {
         const params = new URLSearchParams(window.location.search);
         const targetLoc = params.get("loc_id");
-
         if (!targetLoc) return;
 
-        for (const key in window) {
-            if (key.startsWith("marker_") || key.startsWith("rectangle_")) {
-                const obj = window[key];
-                if (obj && obj._popup && obj._popup._content && obj._popup._content.includes("loc_id")) {
-                    const content = obj._popup._content;
-                    if (content.includes(targetLoc)) {
-                        obj.openPopup();
-                        if (obj._map && obj.getLatLng) {
-                            obj._map.setView(obj.getLatLng(), 18);
-                        } else if (obj._map && obj.getBounds) {
-                            obj._map.fitBounds(obj.getBounds());
-                        }
-                        break;
+        // Folium 레이어 전체 순회
+        for (const [key, layer] of Object.entries(window)) {
+            if (layer && typeof layer === 'object' && layer._popup && layer._popup._content) {
+                if (layer._popup._content.includes('loc_id:' + targetLoc)) {
+                    layer.openPopup();
+                    if (layer._map && layer.getBounds) {
+                        layer._map.fitBounds(layer.getBounds());
                     }
+                    break;
                 }
             }
         }
