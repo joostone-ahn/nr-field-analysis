@@ -5166,41 +5166,36 @@
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    console.log("✅ JS loaded and DOM ready.");
-
     const params = new URLSearchParams(window.location.search);
     const targetLoc = params.get("loc_id");
-    console.log("🔍 targetLoc =", targetLoc);
-
     if (!targetLoc) {
-        alert("❗ loc_id 파라미터가 없습니다.");
+        console.warn("loc_id parameter not found.");
         return;
     }
 
-    // Folium 지도 객체 탐색
-    let found = false;
-    for (const [key, layer] of Object.entries(window)) {
-        if (!layer || typeof layer !== "object") continue;
-        if (layer._popup && layer._popup._content) {
-            console.log("🔎 Checking layer:", key);
-            if (layer._popup._content.includes("loc_id:" + targetLoc)) {
-                console.log("🎯 Found target layer:", key);
-                layer.openPopup();
-                if (layer._map && layer.getBounds) {
-                    console.log("🗺️ Centering map on target...");
-                    layer._map.fitBounds(layer.getBounds());
-                }
-                found = true;
-                break;
-            }
-        }
+    // Folium에서 자동 생성된 map 객체 찾기
+    const mapKey = Object.keys(window).find(k => k.startsWith("map_") && window[k] instanceof L.Map);
+    if (!mapKey) {
+        console.error("No Folium map object found in window.");
+        return;
     }
 
+    const mapObj = window[mapKey];
+    console.log("✅ Found map object:", mapKey);
+
+    // 모든 layer 탐색 (rectangles 포함)
+    let found = false;
+    Object.values(mapObj._layers).forEach(layer => {
+        if (layer._popup && layer._popup._content && layer._popup._content.includes("loc_id:" + targetLoc)) {
+            console.log("🎯 Found target loc_id:", targetLoc);
+            layer.openPopup();
+            mapObj.fitBounds(layer.getBounds());
+            found = true;
+        }
+    });
+
     if (!found) {
-        alert("⚠️ 해당 loc_id를 가진 레이어를 찾지 못했습니다: " + targetLoc);
-        console.warn("No matching layer found for loc_id:", targetLoc);
-    } else {
-        alert("✅ loc_id=" + targetLoc + " 팝업 오픈 완료!");
+        console.warn("⚠️ No matching loc_id found:", targetLoc);
     }
 });
 </script>

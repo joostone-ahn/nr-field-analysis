@@ -119,32 +119,6 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
     add_basestation(m)
     m.save(out_file)
 
-    js_script = """
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const params = new URLSearchParams(window.location.search);
-        const targetLoc = params.get("loc_id");
-        if (!targetLoc) return;
-
-        // Folium 레이어 전체 순회
-        for (const [key, layer] of Object.entries(window)) {
-            if (layer && typeof layer === 'object' && layer._popup && layer._popup._content) {
-                if (layer._popup._content.includes('loc_id:' + targetLoc)) {
-                    layer.openPopup();
-                    if (layer._map && layer.getBounds) {
-                        layer._map.fitBounds(layer.getBounds());
-                    }
-                    break;
-                }
-            }
-        }
-    });
-    </script>
-    """
-
-    with open(out_file, "a", encoding="utf-8") as f:
-        f.write(js_script)
-
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
