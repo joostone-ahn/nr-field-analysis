@@ -125,6 +125,39 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, n2
     )
     add_basestation(m)
     m.save(out_file)
+
+    js_script = """
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const params = new URLSearchParams(window.location.search);
+        const targetLoc = params.get("loc_id");
+
+        if (!targetLoc) return;
+
+        for (const key in window) {
+            if (key.startsWith("marker_") || key.startsWith("rectangle_")) {
+                const obj = window[key];
+                if (obj && obj._popup && obj._popup._content && obj._popup._content.includes("loc_id")) {
+                    const content = obj._popup._content;
+                    if (content.includes(targetLoc)) {
+                        obj.openPopup();
+                        if (obj._map && obj.getLatLng) {
+                            obj._map.setView(obj.getLatLng(), 18);
+                        } else if (obj._map && obj.getBounds) {
+                            obj._map.fitBounds(obj.getBounds());
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    });
+    </script>
+    """
+
+    with open(out_file, "a", encoding="utf-8") as f:
+        f.write(js_script)
+
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
