@@ -37,13 +37,14 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
         df_n26, df_n28 = split_band_df(df_pair)
         plot_df = df_n26.copy() if band == "n26" else df_n28.copy()
 
-        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+        plot_df = plot_df[(plot_df["RSRP"] <= -85) & (plot_df["RSRP"] >= -110)]
 
         color_col = "uhd_max"
         valid_vals = plot_df[color_col].dropna()
 
         if len(valid_vals) > 0:
-            q1, q2, q3 = valid_vals.quantile([0.25, 0.5, 0.75])
+            # q1, q2, q3 = valid_vals.quantile([0.25, 0.5, 0.75])
+            q1, q2, q3 = -40, -35, -30
 
             def color_by_uhd(v):
                 if pd.isna(v):
@@ -69,6 +70,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
             f"PWR < {q1:.0f}",
             "null",
         ]
+
         plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
         plot_df = plot_df.sort_values("color_label")
 
@@ -76,7 +78,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
             lines = [
                 # "───────────────",
                 f"loc_id_({grid_size}m): {row['loc_id']}",
-                f"UHD_PWR: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "UHD Max: N/A",
+                f"UHD_PWR: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "UHD_PWR: null",
                 # "───────────────",
                 f"RSRP: {row['RSRP']:.1f}",
                 f"DL_Tput: {row['DL_Tput']:.1f}",
@@ -113,34 +115,33 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
                 )
             )
 
-        ## Linear Regression (개별 커브)
-        valid_df = plot_df.dropna(subset=["RSRP", metric])
-        x_range = np.linspace(valid_df["RSRP"].min(), valid_df["RSRP"].max(), 200).reshape(-1, 1)
 
-        for label, group in valid_df.groupby("color_label", observed=True):
-            if len(group) < 2:
-                continue  # 데이터 너무 적으면 스킵
+        # RSRP bin 평균
+        bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
+        plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
+        plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
 
-            X = group["RSRP"].values.reshape(-1, 1)
-            y = group[metric].values
-
-            model = LinearRegression().fit(X, y)
-            y_pred = model.predict(x_range)
-
-            color = group["color"].iloc[0]
-
-            fig.add_trace(
-                go.Scatter(
-                    x=x_range.flatten(),
-                    y=y_pred,
-                    mode="lines",
-                    name=f"Trend ({label})",
-                    line=dict(color=color, width=1, dash="dot"),
-                    hoverinfo="skip",
-                    showlegend=False,
-                    legendgroup=label,
-                )
+        avg_df = (
+            plot_df.groupby("RSRP_bin_center", observed=True)["DL_Tput"]
+            .mean()
+            .reset_index()
+            .sort_values("RSRP_bin_center")
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=avg_df["RSRP_bin_center"],
+                y=avg_df["DL_Tput"],
+                # mode="lines+markers",
+                mode='lines',
+                name="Average Trend",
+                # line=dict(color="black", width=2),
+                # marker=dict(size=5, color="black"),
+                line=dict(color="black", width=2, dash="dot"),
+                hoverinfo="skip",
+                showlegend=True,
+                legendgroup="trend"
             )
+        )
 
         ## Linear Regression (단일 커브)
         # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
@@ -165,33 +166,35 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
         #     )
         # )
 
-        # # RSRP bin 평균
-        # bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
-        # plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
-        # plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-        # avg_df = (
-        #     plot_df.groupby("RSRP_bin_center", observed=True)["DL_Tput"]
-        #     .mean()
-        #     .reset_index()
-        #     .sort_values("RSRP_bin_center")
-        # )
-
-        # fig.add_trace(
-        #     go.Scatter(
-        #         x=avg_df["RSRP_bin_center"],
-        #         y=avg_df["DL_Tput"],
-        #         # mode="lines+markers",
-        #         mode='lines',
-        #         name="Average Trend",
-        #         # line=dict(color="black", width=2),
-        #         # marker=dict(size=5, color="black"),
-        #         line=dict(color="black", width=2, dash="dot"),
-        #         hoverinfo="skip",
-        #         showlegend=True,
-        #         legendgroup="trend"
+        ## Linear Regression (개별 커브)
+        # valid_df = plot_df.dropna(subset=["RSRP", metric])
+        # x_range = np.linspace(valid_df["RSRP"].min(), valid_df["RSRP"].max(), 200).reshape(-1, 1)
+        #
+        # for label, group in valid_df.groupby("color_label", observed=True):
+        #     if len(group) < 2:
+        #         continue  # 데이터 너무 적으면 스킵
+        #
+        #     X = group["RSRP"].values.reshape(-1, 1)
+        #     y = group[metric].values
+        #
+        #     model = LinearRegression().fit(X, y)
+        #     y_pred = model.predict(x_range)
+        #
+        #     color = group["color"].iloc[0]
+        #
+        #     fig.add_trace(
+        #         go.Scatter(
+        #             x=x_range.flatten(),
+        #             y=y_pred,
+        #             mode="lines",
+        #             name=f"Trend ({label})",
+        #             line=dict(color=color, width=1, dash="dot"),
+        #             hoverinfo="skip",
+        #             showlegend=False,
+        #             legendgroup=label,
+        #         )
         #     )
-        # )
+
 
         ## 3차 다항식 (단일 커브)
         # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
