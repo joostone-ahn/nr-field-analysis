@@ -1,13 +1,14 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.subplots import make_subplots
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
-import pandas as pd
-import numpy as np
 import os
+import numpy as np
+import pandas as pd
 import _common
-
 
 def split_band_df(df_pair):
     common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
@@ -25,11 +26,12 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n28"):
+def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
     metrics = [
         "SINR_TRS",
         "DL_Tput",
+        "DL_Tput_per_RB",
     ]
 
     for metric in metrics:
@@ -37,7 +39,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
         df_n26, df_n28 = split_band_df(df_pair)
         plot_df = df_n26.copy() if band == "n26" else df_n28.copy()
 
-        plot_df = plot_df[(plot_df["RSRP"] <= -85) & (plot_df["RSRP"] >= -110)]
+        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
 
         color_col = "uhd_max"
         valid_vals = plot_df[color_col].dropna()
@@ -76,12 +78,12 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
 
         def make_hover_text(row):
             lines = [
-                # "───────────────",
-                f"loc_id_({grid_size}m): {row['loc_id']}",
+                "───────────────",
+                f"Loc_ID: {row['loc_id']}",
                 f"UHD_PWR: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "UHD_PWR: null",
-                # "───────────────",
-                f"RSRP: {row['RSRP']:.1f}",
+                "───────────────",
                 f"DL_Tput: {row['DL_Tput']:.1f}",
+                f"RSRP: {row['RSRP']:.1f}",
                 f"SINR_TRS: {row['SINR_TRS']:.1f}",
                 # "───────────────",
                 # f"SINR: {row['SINR']:.1f}",
@@ -115,14 +117,13 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
                 )
             )
 
-
         # RSRP bin 평균
         bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
         plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
         plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
 
         avg_df = (
-            plot_df.groupby("RSRP_bin_center", observed=True)["DL_Tput"]
+            plot_df.groupby("RSRP_bin_center", observed=True)[metric]
             .mean()
             .reset_index()
             .sort_values("RSRP_bin_center")
@@ -130,13 +131,10 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
         fig.add_trace(
             go.Scatter(
                 x=avg_df["RSRP_bin_center"],
-                y=avg_df["DL_Tput"],
-                # mode="lines+markers",
+                y=avg_df[metric],
                 mode='lines',
-                name="Average Trend",
-                # line=dict(color="black", width=2),
-                # marker=dict(size=5, color="black"),
-                line=dict(color="black", width=2, dash="dot"),
+                name="Average",
+                line=dict(color="gray", width=2, dash="dot"),
                 hoverinfo="skip",
                 showlegend=True,
                 legendgroup="trend"
@@ -312,17 +310,176 @@ def scat_kpi_by_UHD(df, out_dir, grid_size=25, rb_min=48, sample_min=10, band="n
         os.makedirs(out_dir, exist_ok=True)
         if metric == "SINR_TRS":
             metric_title = "SINR"
-        elif metric == "DL_Tput":
-            metric_title = "Tput"
-        out_path = os.path.join(out_dir, f"plot_{grid_size}m_{metric_title}_by_UHD_{band}.html")
+        else:
+            metric_title = metric
+        out_path = os.path.join(out_dir, f"{band}_{metric_title}_by_UHD.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
+def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
+    metrics = [
+        "RSRP", "RSRQ",
+        "SINR_SSB", "SINR_TRS",
+        "DL_RB",
+        "DL_Tput",
+        "DL_Tput_per_RB",
+        "CQI", "RI", "DL_MCS",
+        "DL_BLER", "UL_BLER",
+    ]
+
+    lat_factor, lon_factor = 111320, 88000
+    df[f"lat_bin_{grid_size}m"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df[f"lon_bin_{grid_size}m"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+
+    df_grid = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+    df_grid = df_grid.rename(columns={
+        "lat_bin": f"lat_bin_{grid_size}m",
+        "lon_bin": f"lon_bin_{grid_size}m",
+        "loc_id": f"loc_id_{grid_size}m"
+    })
+    df = df.merge(
+        df_grid[[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m", f"loc_id_{grid_size}m"]],
+        on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
+        how="left"
+    )
+    df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype("Int64")
+
+    test_list = sorted(df["test_no"].unique())
+    for target_no in test_list:
+        df_sub = df[df["test_no"] == target_no].copy()
+        total_rows = len(metrics)
+
+        fig = make_subplots(
+            rows=total_rows, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.02,
+            specs=[[{"secondary_y": True}] for _ in range(total_rows)]
+        )
+
+        for i, metric in enumerate(metrics, start=1):
+            df_pivot = (
+                df_sub.pivot_table(index="TIME", columns="Band", values=metrics)
+                .dropna()
+                .reset_index()
+            )
+
+            df_pivot.columns = [
+                f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0]
+                for col in df_pivot.columns
+            ]
+            df_pivot = df_pivot.merge(
+                df_sub[["TIME", f"loc_id_{grid_size}m"]],
+                on="TIME",
+                how="left"
+            )
+
+            for m in metrics:
+                df_pivot[f"{m}_delta"] = df_pivot[f"{m}_n28"] - df_pivot[f"{m}_n26"]
+
+            hover_texts = []
+            for _, row in df_pivot.iterrows():
+                time_val = row["TIME"].strftime("%H:%M:%S")
+                loc_id_val = row[f"loc_id_{grid_size}m"]
+                f"<b>loc_id_{grid_size}m:</b> {loc_id_val} "
+
+                lines = [
+                    f"<b>time:</b> {time_val}<br>"
+                    f"<b>loc_id_{grid_size}m:</b> {loc_id_val}<br>",
+                    "<b>Metric</b> | <b>n26</b> | <b>n28</b> | <b>Δ(n28−n26)</b>",
+                    "--------------------------------------------"
+                ]
+                for m in metrics:
+                    color = "#009900" if m == metric else "#000000"
+                    delta_val = row[f"{m}_delta"]
+                    delta_color = "blue" if delta_val > 0 else "red" if delta_val < 0 else "black"
+                    line = (
+                        f"<span style='color:{color};'>{m}</span> | "
+                        f"{row[f'{m}_n26']:.2f} | {row[f'{m}_n28']:.2f} | "
+                        f"<span style='color:{delta_color};'>{delta_val:+.2f}</span>"
+                    )
+                    lines.append(line)
+                hover_texts.append("<br>".join(lines))
+
+            fig.add_trace(go.Scatter(
+                x=df_pivot["TIME"],
+                y=df_pivot[f"loc_id_{grid_size}m"],
+                mode="lines+markers",
+                line=dict(color="gray", width=0.8),
+                marker=dict(size=3),
+                name=f"loc_id_{grid_size}m",
+                legendgroup="loc_id_group",
+                showlegend=(i == 1),
+                hoverinfo="skip"
+            ), row=i, col=1, secondary_y=True)
+
+            for band, color in zip(["n26", "n28"], ["blue", "red"]):
+                fig.add_trace(go.Scatter(
+                    x=df_pivot["TIME"],
+                    y=df_pivot[f"{metric}_{band}"],
+                    mode="lines+markers",
+                    line=dict(color=color, width=1),
+                    marker=dict(size=3),
+                    name=band,
+                    legendgroup=f"{band}_group",
+                    showlegend=(i == 1),
+                    hoverinfo="text" if band == "n28" else "skip",
+                    text=hover_texts if band == "n28" else None
+                ), row=i, col=1, secondary_y=False)
+
+            fig.update_yaxes(
+                title_text=metric,
+                row=i, col=1,
+                secondary_y=False,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.5)",
+                gridwidth=0.8,
+            )
+            fig.update_yaxes(
+                title_text=f"loc_id_{grid_size}m",
+                color="gray",
+                row=i, col=1,
+                secondary_y=True,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.4)",
+                gridwidth=0.8,
+                griddash="dot"
+            )
+
+        fig.update_layout(
+            title=f"[{target_no}] KPI trends (n26 vs n28)",
+            height=300 * total_rows,
+            hovermode="x unified",
+            template="plotly_white",
+            legend=dict(
+                orientation="h",
+                yanchor="top", y=1.02,
+                xanchor="center", x=0.5,
+                font=dict(size=11),
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor="rgba(200,200,200,0.4)",
+                borderwidth=1
+            ),
+            margin=dict(t=150, b=60),
+            uirevision=True
+        )
+
+        date = target_no.split("_")[0]
+        test_num = target_no.split("_")[1]
+        route = target_no.split("_")[2]
+        save_dir = os.path.join(out_dir, f"plot_kpis_each_test", date, route)
+        os.makedirs(save_dir, exist_ok=True)
+        out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
+        pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
+        print(f"Saved HTML: {out_path_html}")
+
+
 def plot_kpi(df, grid_size, out_dir, title):
-    os.makedirs(out_dir, exist_ok = True)
+    os.makedirs(out_dir, exist_ok=True)
     plot_dir = os.path.join(out_dir, f"plot_{grid_size}m")
     os.makedirs(plot_dir, exist_ok=True)
-    
+
     df_pair = _common.grid_kpi(df, grid_size=grid_size)
 
     rsrp_col = "RSRP_n28"
@@ -330,46 +487,45 @@ def plot_kpi(df, grid_size, out_dir, title):
     rsrp_max = int(df_pair[rsrp_col].max())
     bins = np.arange(rsrp_min, rsrp_max + 2, 1)  # 1 dB step
     df_pair["RSRP_bin"] = pd.cut(df_pair["RSRP_n28"], bins=bins, right=False)
-    
+
     df_binned = (
         df_pair.groupby("RSRP_bin", observed=True)
         .mean(numeric_only=True)
         .reset_index()
     )
     df_binned["RSRP_bin_tick"] = df_binned["RSRP_bin"].apply(lambda x: int(x.left))
-    
+
     style_map = {
         "n26": {"marker": "o", "color": "blue"},
         "n28": {"marker": "s", "color": "red"},
     }
-    
+
     # 공통 x축 설정 함수
     def apply_common_axis(ax, df, xlabel, ylabel):
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.invert_xaxis()
         ax.grid(True, linestyle="--", alpha=0.7)
-    
+
         # min/max를 5dB 단위로 맞추기
         x_min = int(df["RSRP_bin_tick"].min())
         x_max = int(df["RSRP_bin_tick"].max())
         x_min_5 = (x_min // 5) * 5
         x_max_5 = (x_max // 5) * 5
-    
+
         xticks = np.arange(x_min_5, x_max_5 + 1, 5)
         ax.set_xticks(xticks)
         ax.set_xticklabels(xticks, rotation=45)
-    
-    
+
     # Rx Quality (Absolute + Difference)
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     plt.subplots_adjust(wspace=0.2, hspace=0.32)
-    
+
     # Absoulte
     metrics_group1 = [("RSRP", "RSRP [dBm]"),
                       ("RSRQ", "RSRQ [dB]"),
                       ("SINR", "SINR [dB]")]
-    
+
     for ax, (metric, ylabel) in zip(axes[0], metrics_group1):
         col_n26 = f"{metric}_n26"
         col_n28 = f"{metric}_n28"
@@ -382,15 +538,15 @@ def plot_kpi(df, grid_size, out_dir, title):
                         linestyle="-", linewidth=1)
             apply_common_axis(ax, df_binned, "RSRP [dBm]", ylabel)
             ax.legend()
-            ax.set_title(ylabel, fontsize=12, pad = 8)
-    
+            ax.set_title(ylabel, fontsize=12, pad=8)
+
     # n28 - n26 Difference
     metrics_group_diff = [
         ("RSRP", "RSRP Δ [dB]"),
         ("RSRQ", "RSRQ Δ [dB]"),
         ("SINR", "SINR Δ [dB]")
     ]
-    
+
     for ax, (metric, ylabel) in zip(axes[1], metrics_group_diff):
         col_n26 = f"{metric}_n26"
         col_n28 = f"{metric}_n28"
@@ -404,16 +560,15 @@ def plot_kpi(df, grid_size, out_dir, title):
             ax.set_ylim(-5, 5)
             ax.axhline(0, color="black", linestyle="--", linewidth=1)
             ax.legend()
-            ax.set_title(ylabel, fontsize=12, pad = 8)
-    
-    fig.suptitle(f"{title} Rx Quality (RSRP, RSRQ, SINR)", fontsize=14, y = 0.95)
+            ax.set_title(ylabel, fontsize=12, pad=8)
+
+    fig.suptitle(f"{title} Rx Quality (RSRP, RSRQ, SINR)", fontsize=14, y=0.95)
     out_path = os.path.join(plot_dir, f"plot_rx_quality.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
     # plt.show()
     plt.close(fig)
     print(f"Saved: {out_path}")
-    
-    
+
     # Link Adaptation (CQI, MCS, RI)
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     plt.subplots_adjust(wspace=0.2, hspace=0.32)
@@ -428,7 +583,7 @@ def plot_kpi(df, grid_size, out_dir, title):
         ("CQI", "CQI Δ"),
         ("DL_MCS", "DL MCS Δ"),
     ]
-    
+
     # Absolute
     for ax, (metric, ylabel) in zip(axes[0], metrics_abs):
         col_n26 = f"{metric}_n26"
@@ -442,8 +597,8 @@ def plot_kpi(df, grid_size, out_dir, title):
                         linestyle="-", linewidth=1)
             apply_common_axis(ax, df_binned, "RSRP [dBm]", ylabel)
             ax.legend()
-            ax.set_title(ylabel, fontsize=12, pad = 8)
-    
+            ax.set_title(ylabel, fontsize=12, pad=8)
+
     # delta Δ
     for ax, (metric, ylabel) in zip(axes[1], metrics_diff):
         col_n26 = f"{metric}_n26"
@@ -455,7 +610,7 @@ def plot_kpi(df, grid_size, out_dir, title):
                     color="green", label=f"{metric} (n28−n26)",
                     linestyle="-", linewidth=1)
             apply_common_axis(ax, df_binned, "RSRP [dBm]", ylabel)
-    
+
             if metric == "CQI":
                 ax.set_ylim(-10, 10)
             elif metric == "DL_MCS":
@@ -464,15 +619,15 @@ def plot_kpi(df, grid_size, out_dir, title):
                 ax.set_ylim(-1, 1)
             ax.axhline(0, color="black", linestyle="--", linewidth=1)
             ax.legend()
-            ax.set_title(ylabel, fontsize=12, pad = 8)
-    
+            ax.set_title(ylabel, fontsize=12, pad=8)
+
     fig.suptitle(f"{title} Link Adaptation (RI, CQI, DL MCS)", fontsize=14, y=0.95)
     out_path = os.path.join(plot_dir, f"plot_link_adaptation.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
     # plt.show()
     plt.close(fig)
     print(f"Saved: {out_path}")
-    
+
     # Throughput
     fig, axes = plt.subplots(2, 1, figsize=(18, 10))
     plt.subplots_adjust(wspace=0.25)
@@ -480,7 +635,7 @@ def plot_kpi(df, grid_size, out_dir, title):
     metric = "DL_Tput"
     col_n26 = f"{metric}_n26"
     col_n28 = f"{metric}_n28"
-    
+
     # Absolute Throughput
     ax = axes[0]
     for source, col in zip(["n26", "n28"], [col_n26, col_n28]):
@@ -492,7 +647,7 @@ def plot_kpi(df, grid_size, out_dir, title):
     apply_common_axis(ax, df_binned, "RSRP [dBm]", "DL Tput [Mbps]")
     ax.legend()
     # ax.set_title("Absolute DL Tput", fontsize=10, pad=7)
-    
+
     # Relative Throughput
     ax = axes[1]
     if col_n26 in df_binned.columns and col_n28 in df_binned.columns:
@@ -503,7 +658,7 @@ def plot_kpi(df, grid_size, out_dir, title):
     apply_common_axis(ax, df_binned, "RSRP [dBm]", "DL Tput Ratio [%]")
     ax.legend()
     # ax.set_title("Relative DL Tput", fontsize=10, pad=7)
-    
+
     fig.suptitle(f"{title} DL Throughput", fontsize=14, y=0.98)
     out_path = os.path.join(plot_dir, f"plot_{metric}.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
@@ -512,7 +667,6 @@ def plot_kpi(df, grid_size, out_dir, title):
     print(f"Saved: {out_path}")
 
 def plot_tput_vs_sinr(df, grid_size, out_dir, title):
-
     df_pair = _common.grid_kpi(df, grid_size=grid_size)
 
     rsrp_col = "RSRP_n28"
@@ -590,3 +744,53 @@ def plot_tput_vs_sinr(df, grid_size, out_dir, title):
     # plt.show()
     plt.close(fig)
     print(f"Saved: {out_path}")
+
+def rb_each_test(df, out_dir, rb_min):
+    metric = "DL_RB"
+    test_list = sorted(df["test_no"].unique())
+    date_list = sorted(set([t.split("_")[0] for t in test_list]))
+
+    for date in date_list:
+        date_tests = [t for t in test_list if t.startswith(date)]
+        fig, axes = plt.subplots(len(date_tests), 1, figsize=(16, 4 * len(date_tests)), sharex=False)
+
+        if len(date_tests) == 1:
+            axes = [axes]
+
+        for i, target_no in enumerate(date_tests):
+            ax = axes[i]
+            df_sub = df[df["test_no"] == target_no]
+
+            # pivot: Band별 DL_RB
+            df_pivot = (
+                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
+                .dropna()
+                .reset_index()
+            )
+            df_pivot["idx"] = range(len(df_pivot))
+
+            ymin = df_pivot[["n26", "n28"]].min().min()
+            ymax = df_pivot[["n26", "n28"]].max().max()
+            if metric == 'DL_RB':
+                ymax = 50
+                ymin = rb_min
+
+            # n26 / n28 plot
+            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
+
+            ax.set_ylim(ymin, ymax)
+            ax.legend(fontsize=8, loc="upper right")
+            ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
+            ax.set_xlabel("Time Index")
+            ax.set_ylabel("DL_RB")
+            ax.grid(True, linestyle="--", alpha=0.5)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        save_dir = os.path.join(out_dir, f"plot_RB_each_test")
+        os.makedirs(save_dir, exist_ok=True)
+        out_path = os.path.join(save_dir, f"{date}.png")
+        plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
+        plt.close(fig)
+        # plt.show()
+        print(f"Saved: {out_path}")

@@ -211,7 +211,7 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
         "CQI", "RI", "DL_MCS",
         "DL_BLER", "UL_BLER",
         "DL_RB", "DL_Tput",
-        # "DL_Tput_per_RB",
+        "DL_Tput_per_RB",
         # "DL_Tput_full_RB",
     ]
     df = df[df["DL_RB"]>rb_min].copy()

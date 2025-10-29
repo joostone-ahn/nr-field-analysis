@@ -76,7 +76,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
             continue
 
         color = cmap(val)
-        popup_html = popup_func(idx, val, df_pair, metric, grid_size, out_file, band)
+        popup_html = popup_func(idx, val, df_pair, metric, out_file, band)
         popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
@@ -117,7 +117,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 
-def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
+def popup_table(idx, val, df_pair, metric, out_file, band):
     row = df_pair.iloc[idx]
 
     cell_padding = "padding:2px 6px;"
@@ -132,10 +132,11 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
 
     table_items = [
         "RSRP", "RSRQ",
-        "SINR", "SINR_TRS",
-        "CQI", "RI", "DL_MCS",
+        "SINR_SSB", "SINR_TRS",
+        "DL_RB",
         "DL_Tput",
-        # "DL_RB",
+        "DL_Tput_per_RB",
+        "CQI", "RI", "DL_MCS",
         "DL_BLER", "UL_BLER",
     ]
     if not band:
@@ -143,7 +144,6 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
             title = f"{metric.replace('_', ' ')} Δ"
             subtext = "(n28/n26-100)"
             unit = "%"
-
 
             header_html = f"""
             <div style="text-align:left; font-size:12px; margin-bottom:6px;">
@@ -229,7 +229,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
         n_count = int(row.get(f"sample_count_{band}", 0))
         table_html = f"""
         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">
-            Metric Stats <span style="font-weight:normal; font-size:11px;">({band}, n={n_count})</span>
+            Metric Stats <span style="font-weight:normal; font-size:11px;">({n_count} samples)</span>
         </div>
         """
         table_html += f"""
@@ -308,10 +308,8 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
         """
         table_html += uhd_table
 
-    # --- Test List 섹션 ---
     test_list = row.get("test_list", [])
     loc_id = row.get("loc_id", np.nan)
-    out_dir = '/'.join(out_file.split('/')[0:2])
 
     if isinstance(test_list, list) and len(test_list) > 0:
 
@@ -325,7 +323,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
         <div style="margin-top:10px; font-size:12px;">
             <div style="font-weight:bold; color:#000; margin-bottom:2px;">
                 View Test Results
-                <span style="font-size:11px; font-weight:normal;">(loc_id_{grid_size}m: {loc_id})</span>
+                <span style="font-size:11px; font-weight:normal;">(loc_id: {loc_id})</span>
             </div>
             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
@@ -333,7 +331,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
                 </summary>
                 <div style="margin-top:6px; padding-left:10px;">
         """
-        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/{out_dir}/plot_kpi_each_test"
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/plot/plot_kpis_each_test"
         for date, entries in sorted(test_by_date.items()):
             test_html += f"""
             <div style="margin:2px 0; line-height:1.4;">
@@ -343,8 +341,7 @@ def popup_table(idx, val, df_pair, metric, grid_size, out_file, band):
                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
             """
             for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
-                filename = f"{date}_{num}_{site}"
-                url = f"{base_url}/{date}/{filename}.html"
+                url = f"{base_url}/{date}/{site}/TEST_{num}.html"
                 test_html += (
                     f'<a href="{url}" target="_blank" '
                     f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
@@ -395,8 +392,7 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        metric_title = metric_pct.replace("DL_","")
-        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_title}_ratio.html")
+        out_file = os.path.join(out_dir, f"cmpr_{metric_pct}.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
             df_pair=df_pair,
@@ -446,7 +442,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_db}_diff.html")
+        out_file = os.path.join(out_dir, f"cmpr_{metric_db}.html")
         caption = f"{metric_db} Δ(n28-n26) [dB]"
         render_step_map(
             df_pair=df_pair,
@@ -474,6 +470,8 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         "RSRP",
         "SINR_TRS",
         "DL_Tput",
+        "DL_Tput_per_RB",
+        "DL_RB",
     ]
 
     for metric in metrics:
@@ -481,15 +479,22 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
         if metric == "RSRP":
             vmin, vmax = -120, -60
-        elif metric == "DL_Tput":
-            vmin, vmax = 0, 100
         elif metric == "SINR_TRS":
             vmin, vmax = 10, 40
+        elif metric == "DL_RB":
+            vmin, vmax = 0, 50
+        elif metric == "DL_Tput":
+            vmin, vmax = 0, 100
+        elif metric == "DL_Tput_per_RB":
+            vmin, vmax = 0, 2
         cmap = make_step_cmap(vmin, vmax)
 
         caption = f"n28 {metric} [dBm]"
-        metric_title = metric.replace("DL_","")
-        out_file = os.path.join(out_dir, f"map_{grid_size}m_{metric_title}_{band}.html")
+        if metric == 'SINR_TRS':
+            metric_title = metric.replace("DL_","")
+        else:
+            metric_title = metric
+        out_file = os.path.join(out_dir, f"{band}_{metric_title}.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
