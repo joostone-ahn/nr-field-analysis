@@ -6,23 +6,35 @@ from plotly.subplots import make_subplots
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 import os
+import re
 import numpy as np
 import pandas as pd
 import _common
 
 def split_band_df(df_pair):
     common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
-    n26_cols = [c for c in df_pair.columns if c.endswith("_mean_n26")]
-    n28_cols = [c for c in df_pair.columns if c.endswith("_mean_n28")]
 
-    df_n26 = df_pair[common_cols + n26_cols].copy()
-    df_n28 = df_pair[common_cols + n28_cols].copy()
+    def extract_band(df, band):
+        band_cols = [c for c in df.columns if c.endswith(band)]
+        df_band = df[common_cols + band_cols].copy()
 
-    df_n26.columns = [c.replace("_mean_n26", "") for c in df_n26.columns]
-    df_n28.columns = [c.replace("_mean_n28", "") for c in df_n28.columns]
+        new_cols = []
+        for col in df_band.columns:
+            if col.endswith(f"_mean_{band}"):
+                new_cols.append(col.replace(f"_mean_{band}", ""))
+            elif col.endswith(f"_std_{band}"):
+                new_cols.append(col.replace(f"_std_{band}", "_std"))
+            elif col.endswith(f"sample_count_{band}"):
+                new_cols.append(col.replace(f"sample_count_{band}", "count"))
+            else:
+                new_cols.append(col)
+        df_band.columns = new_cols
 
-    df_n26["Band"] = "n26"
-    df_n28["Band"] = "n28"
+        df_band["Band"] = band
+        return df_band
+
+    df_n26 = extract_band(df_pair, "n26")
+    df_n28 = extract_band(df_pair, "n28")
 
     return df_n26, df_n28
 
@@ -37,7 +49,14 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     for metric in metrics:
         df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
         df_n26, df_n28 = split_band_df(df_pair)
-        plot_df = df_n26.copy() if band == "n26" else df_n28.copy()
+        if band == "n28":
+            plot_df = df_n28.copy()
+        elif band == "n26":
+            plot_df = df_n26.copy()
+        else:
+            print("scat_kpi_by_UHD input band must be n28 or n26")
+            break
+        # print(plot_df.info())
 
         plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
 
@@ -76,23 +95,60 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
         plot_df = plot_df.sort_values("color_label")
 
+        def print_test_list(test_list):
+            grouped = {}
+
+            for item in test_list:
+                parts = str(item).split("_")
+                date, num, place = parts[0], parts[1], parts[2]
+                grouped.setdefault(date, {}).setdefault(place, []).append(num)
+
+            formatted_lines = []
+            for date, places in sorted(grouped.items()):
+                formatted_lines.append(f"<b>{date}</b>")
+                for place, nums in sorted(places.items()):
+                    nums_str = ", ".join(sorted(nums, key=lambda x: int(x)))
+                    formatted_lines.append(f" - {place}: {nums_str}")
+
+            return "<br>".join(formatted_lines).strip()
+
         def make_hover_text(row):
+            def ci95(std, n):
+                if pd.isna(std) or pd.isna(n) or n <= 1:
+                    return None
+                return 1.96 * std / np.sqrt(n)
+
+            ci = {
+                "DL_Tput": ci95(row.get("DL_Tput_std"), row.get("count")),
+                "DL_RB": ci95(row.get("DL_RB_std"), row.get("count")),
+                "DL_Tput_per_RB": ci95(row.get("DL_Tput_per_RB_std"), row.get("count")),
+                "RSRP": ci95(row.get("RSRP_std"), row.get("count")),
+                "SINR_TRS": ci95(row.get("SINR_TRS_std"), row.get("count")),
+            }
+
+            def fmt(val, ci_val):
+                if pd.isna(val):
+                    return "null"
+                if ci_val is None:
+                    return f"{val:.1f}"
+                return f"{val:.1f} <span style='color:#777;'>(±{ci_val:.1f})</span>"
+
             lines = [
-                "───────────────",
-                f"Loc_ID: {row['loc_id']}",
-                f"UHD_PWR: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "UHD_PWR: null",
-                "───────────────",
-                f"DL_Tput: {row['DL_Tput']:.1f}",
-                f"RSRP: {row['RSRP']:.1f}",
-                f"SINR_TRS: {row['SINR_TRS']:.1f}",
-                # "───────────────",
-                # f"SINR: {row['SINR']:.1f}",
-                # f"CQI: {row['CQI']:.1f}",
-                # f"RI: {row['RI']:.1f}",
-                # f"DL MCS: {row['DL_MCS']:.1f}",
-                # f"DL BLER: {row['DL_BLER']:.1f}",
-                # f"UL BLER: {row['UL_BLER']:.1f}",
-                # "───────────────",
+                "────────────────────────",
+                f"<b>UHD_PWR</b>: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "<b>UHD_PWR</b>: null",
+                "────────────────────────",
+                f"<b>loc_id</b>: {row['loc_id']}",
+                f"<b>samples</b>: {row['count']}",
+                "────────────────────────",
+                f"<b>DL_Tput</b>: {fmt(row['DL_Tput'], ci['DL_Tput'])}",
+                f"<b>DL_RB</b>: {fmt(row['DL_RB'], ci['DL_RB'])}",
+                # f"<b>DL_Tput_per_RB</b>: {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
+                "────────────────────────",
+                f"<b>RSRP</b>: {fmt(row['RSRP'], ci['RSRP'])}",
+                f"<b>SINR_TRS</b>: {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
+                "────────────────────────",
+                # f"<b>Test List:</b><br>{print_test_list(row['test_list'])}",
+                # "────────────────────────",
             ]
             return "<br>".join(lines)
 
@@ -111,7 +167,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
                     mode="markers",
                     name=label,
                     legendgroup=label,
-                    marker=dict(size=10, color=group["color"].iloc[0]),
+                    marker=dict(size=7, color=group["color"].iloc[0]),
                     text=group["hover_text"],
                     hovertemplate="%{text}<extra></extra>",
                 )
@@ -301,7 +357,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
             y_title = "DL Throughput [Mbps]"
         fig.update_yaxes(
             title=y_title,
-            dtick=10,
+            # dtick=10,
             showgrid=True,
             gridwidth=1,
             gridcolor="rgba(0,0,0,0.15)",
@@ -328,21 +384,21 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
     ]
 
     lat_factor, lon_factor = 111320, 88000
-    df[f"lat_bin_{grid_size}m"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-    df[f"lon_bin_{grid_size}m"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df[f"lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df[f"lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
 
     df_grid = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_grid = df_grid.rename(columns={
-        "lat_bin": f"lat_bin_{grid_size}m",
-        "lon_bin": f"lon_bin_{grid_size}m",
-        "loc_id": f"loc_id_{grid_size}m"
+        "lat_bin": f"lat_bin",
+        "lon_bin": f"lon_bin",
+        "loc_id": f"loc_id"
     })
     df = df.merge(
-        df_grid[[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m", f"loc_id_{grid_size}m"]],
-        on=[f"lat_bin_{grid_size}m", f"lon_bin_{grid_size}m"],
+        df_grid[[f"lat_bin", f"lon_bin", f"loc_id"]],
+        on=[f"lat_bin", f"lon_bin"],
         how="left"
     )
-    df[f"loc_id_{grid_size}m"] = df[f"loc_id_{grid_size}m"].astype("Int64")
+    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
 
     test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
@@ -368,7 +424,7 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
                 for col in df_pivot.columns
             ]
             df_pivot = df_pivot.merge(
-                df_sub[["TIME", f"loc_id_{grid_size}m"]],
+                df_sub[["TIME", f"loc_id"]],
                 on="TIME",
                 how="left"
             )
@@ -379,12 +435,12 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
             hover_texts = []
             for _, row in df_pivot.iterrows():
                 time_val = row["TIME"].strftime("%H:%M:%S")
-                loc_id_val = row[f"loc_id_{grid_size}m"]
-                f"<b>loc_id_{grid_size}m:</b> {loc_id_val} "
+                loc_id_val = row[f"loc_id"]
+                f"<b>loc_id:</b> {loc_id_val} "
 
                 lines = [
                     f"<b>time:</b> {time_val}<br>"
-                    f"<b>loc_id_{grid_size}m:</b> {loc_id_val}<br>",
+                    f"<b>loc_id:</b> {loc_id_val}<br>",
                     "<b>Metric</b> | <b>n26</b> | <b>n28</b> | <b>Δ(n28−n26)</b>",
                     "--------------------------------------------"
                 ]
@@ -402,11 +458,11 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
 
             fig.add_trace(go.Scatter(
                 x=df_pivot["TIME"],
-                y=df_pivot[f"loc_id_{grid_size}m"],
+                y=df_pivot[f"loc_id"],
                 mode="lines+markers",
                 line=dict(color="gray", width=0.8),
                 marker=dict(size=3),
-                name=f"loc_id_{grid_size}m",
+                name=f"loc_id",
                 legendgroup="loc_id_group",
                 showlegend=(i == 1),
                 hoverinfo="skip"
@@ -436,7 +492,7 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
                 gridwidth=0.8,
             )
             fig.update_yaxes(
-                title_text=f"loc_id_{grid_size}m",
+                title_text=f"loc_id",
                 color="gray",
                 row=i, col=1,
                 secondary_y=True,

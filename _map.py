@@ -415,42 +415,32 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
     lat_factor, lon_factor = 111320, 88000
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
-    
-    metrics_db = [
-        "RSRP",
-        # "SINR",
-        # "SINR_TRS",
-        # "RSRQ",
+
+    metrics = [
+        {"name": "RSRP",           "vmin": -10,   "vmax": 10,  "unit": "dB"},
+        # {"name": "SINR_TRS",       "vmin": -10,   "vmax": 10,  "unit": "dB"},
     ]
 
-    for metric_db in metrics_db:
-        n26 = df_pair[f"{metric_db}_mean_n26"].astype(float)
-        n28 = df_pair[f"{metric_db}_mean_n28"].astype(float)
+    for m in metrics:
+        metric = m['name']
+        vmin, vmax = m['vmin'], m['vmax']
+        unit = m['unit']
 
+        n26 = df_pair[f"{metric}_mean_n26"].astype(float)
+        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
         diff = n28 - n26
 
-        # vabs = int(np.ceil(np.nanmax(np.abs(diff))))
-
-        # mean = np.nanmean(diff)
-        # std = np.nanstd(diff)
-        # vabs = max(abs(mean - 1.96 * std), abs(mean + 1.96 * std)) # 2.5% tail 제외
-        # vabs = max(abs(mean - 1.645 * std), abs(mean + 1.645 * std)) # 5% tail 제외
-        # vabs = max(abs(mean - 1.28 * std), abs(mean + 1.28 * std)) # 10% tail 제외
-
-        vabs = 10
-
-        vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
-        out_file = os.path.join(out_dir, f"cmpr_{metric_db}.html")
-        caption = f"{metric_db} Δ(n28-n26) [dB]"
+        out_file = os.path.join(out_dir, f"cmpr_{metric}.html")
+        caption = f"Δ{metric} (n28-n26) [{unit}]"
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
             values=diff,
-            metric=metric_db,
+            metric=metric,
             popup_func=popup_table,
             band=None,
             cmap=cmap,
@@ -459,7 +449,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
         )
 
 def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
-    
+
     df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
 
     lat_factor, lon_factor = 111320, 88000
@@ -467,34 +457,22 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
     metrics = [
-        "RSRP",
-        "SINR_TRS",
-        "DL_Tput",
-        "DL_Tput_per_RB",
-        "DL_RB",
+        {"name": "RSRP",           "vmin": -120, "vmax": -60,  "unit": "dBm"},
+        {"name": "SINR_TRS",       "vmin": 10,   "vmax": 40,   "unit": "dB"},
+        {"name": "DL_Tput",        "vmin": 0,    "vmax": 100,  "unit": "Mbps"},
+        {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
+        {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
     ]
 
-    for metric in metrics:
+    for m in metrics:
+        metric = m['name']
+        vmin, vmax = m['vmin'], m['vmax']
+        unit = m['unit']
+
         n28 = df_pair[f"{metric}_mean_n28"].astype(float)
-
-        if metric == "RSRP":
-            vmin, vmax = -120, -60
-        elif metric == "SINR_TRS":
-            vmin, vmax = 10, 40
-        elif metric == "DL_RB":
-            vmin, vmax = 0, 50
-        elif metric == "DL_Tput":
-            vmin, vmax = 0, 100
-        elif metric == "DL_Tput_per_RB":
-            vmin, vmax = 0, 2
         cmap = make_step_cmap(vmin, vmax)
-
-        caption = f"n28 {metric} [dBm]"
-        if metric == 'SINR_TRS':
-            metric_title = metric.replace("DL_","")
-        else:
-            metric_title = metric
-        out_file = os.path.join(out_dir, f"{band}_{metric_title}.html")
+        caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
+        out_file = os.path.join(out_dir, f"{band}_{metric}.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
