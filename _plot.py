@@ -414,7 +414,8 @@ def plot_kpi_group_by_route(df, out_dir, band):
         color_col = "route"
         route_colors = {
             "Namsan": "#FF4500",
-            "Huam345-5": "#FFD700",
+            # "Huam345-5": "#FFD700",
+            "Huam345-5": "#FFCC00",
             "Huam415-1": "#32CD32",
             "Fixed-point": "#1E90FF",
         }
@@ -454,29 +455,26 @@ def plot_kpi_group_by_route(df, out_dir, band):
                 continue
 
             color = group["color"].iloc[0]
-
-            fig.add_trace(
-                go.Scatter(
-                    x=group["RSRP"],
-                    y=group[metric],
-                    mode="markers",
-                    name=f"{label} raw",
-                    legendgroup=label,
-                    marker=dict(size=3, color=color, opacity=0.3),
-                    text=group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
+            if label in ['Namsan', 'Huam345-5', 'Huam415-1']:
+                fig.add_trace(
+                    go.Scatter(
+                        x=group["RSRP"],
+                        y=group[metric],
+                        mode="markers",
+                        name=f"{label} raw",
+                        legendgroup=label,
+                        marker=dict(size=2, color=color, opacity=0.2),
+                        text=group["hover_text"],
+                        hovertemplate="%{text}<extra></extra>",
+                    )
                 )
-            )
 
-            if label != "Fixed-point":
                 valid = (
                     group.dropna(subset=["RSRP", metric])
                     .replace([np.inf, -np.inf], np.nan)
                     .dropna(subset=[metric, "RSRP"])
                     .copy()
                 )
-                if len(valid) < 5:
-                    continue
 
                 bin_size = 5
                 bins = np.arange(-120, -59, bin_size)
@@ -496,7 +494,7 @@ def plot_kpi_group_by_route(df, out_dir, band):
                             x=mean_df["RSRP_center"],
                             y=mean_df[metric],
                             mode="lines+markers",
-                            name=f"{label} avg({bin_size}dB)",
+                            name=f"{label} avg",
                             legendgroup=label,
                             line=dict(color=color, width=3, dash="dot"),
                             marker=dict(size=10, color=color),
@@ -504,6 +502,53 @@ def plot_kpi_group_by_route(df, out_dir, band):
                             showlegend=True,
                         )
                     )
+            else:
+                fig.add_trace(
+                    go.Scatter(
+                        x=group["RSRP"],
+                        y=group[metric],
+                        mode="markers",
+                        name=f"{label} raw",
+                        legendgroup=label,
+                        marker=dict(size=3, color=color, opacity=0.8),
+                        text=group["hover_text"],
+                        hovertemplate="%{text}<extra></extra>",
+                    )
+                )
+
+        valid_all = (
+            plot_df.dropna(subset=["RSRP", metric])
+            .replace([np.inf, -np.inf], np.nan)
+            .dropna(subset=[metric, "RSRP"])
+            .copy()
+        )
+
+        bin_size = 5
+        bins = np.arange(-120, -59, bin_size)
+        valid_all["RSRP_bin"] = pd.cut(valid_all["RSRP"], bins=bins)
+
+        mean_all = (
+            valid_all.groupby("RSRP_bin", observed=True)[metric]
+            .mean()
+            .reset_index()
+            .dropna()
+        )
+        mean_all["RSRP_center"] = mean_all["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+
+        if not mean_all.empty:
+            fig.add_trace(
+                go.Scatter(
+                    x=mean_all["RSRP_center"],
+                    y=mean_all[metric],
+                    mode="lines+markers",
+                    name=f"Overall avg",
+                    legendgroup="Overall",
+                    line=dict(color="lightgray", width=3, dash="dot"),
+                    marker=dict(size=10, color="lightgray"),
+                    hoverinfo="skip",
+                    showlegend=True,
+                )
+            )
 
         if band == "n28":
             map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
