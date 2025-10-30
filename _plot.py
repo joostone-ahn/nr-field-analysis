@@ -308,7 +308,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         #     )
 
         if band == "n28":
-            map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/All/map_25m_DL_Tput_n28.html"
+            map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
             title_text = (
                 f"{metric.replace("_"," ")} over RSRP Scatter ({band}) "
                 f"<a href='{map_url}' target='_blank' style='text-decoration:none; font-size:14px;'> [View Map]</a>"
