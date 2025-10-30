@@ -38,12 +38,10 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby):
+def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
 
     if band not in ["n26", "n28"]:
         ValueError("band must be n28 or n26")
-    if groupby not in ["uhd_max", "route"]:
-        ValueError("groupby must be 'uhd' or 'route'")
 
     metrics = [
         "SINR_TRS",
@@ -58,49 +56,33 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
         plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
         # print(plot_df.info())
 
-        if groupby == "uhd":
-            group_name = 'UHD Power'
-            color_col = "uhd_max"
-            valid_vals = plot_df[color_col].dropna()
+        group_name = 'UHD Power'
+        color_col = "uhd_max"
+        valid_vals = plot_df[color_col].dropna()
 
-            if len(valid_vals) > 0:
-                q1, q2, q3 = -40, -35, -30
+        if len(valid_vals) > 0:
+            q1, q2, q3 = -40, -35, -30
 
-                def color_by_uhd(v):
-                    if pd.isna(v):
-                        return "gray", "null"
-                    elif v >= q3:
-                        return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
-                    elif v >= q2:
-                        return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
-                    elif v >= q1:
-                        return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
-                    else:
-                        return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
+            def color_by_uhd(v):
+                if pd.isna(v):
+                    return "gray", "null"
+                elif v >= q3:
+                    return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
+                elif v >= q2:
+                    return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
+                elif v >= q1:
+                    return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
+                else:
+                    return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
 
-                plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
-                order = [
-                    f"PWR ≥ {q3:.0f}",
-                    f"{q2:.0f} ≤ PWR < {q3:.0f}",
-                    f"{q1:.0f} ≤ PWR < {q2:.0f}",
-                    f"PWR < {q1:.0f}",
-                    "null",
-                ]
-        elif groupby == "route":
-            group_name = "Field Route"
-            color_col = "route"
-            route_colors = {
-                "Namsan": "#FF4500",
-                "Huam345-5": "#FFD700",
-                "Huam415-1": "#32CD32",
-            }
-
-            def color_by_route(v):
-                color = route_colors.get(v, "gray")
-                label = v if v in route_colors else "Unknown"
-                return color, label
-            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_route(v)))
-            order = ["Namsan", "Huam345-5", "Huam415-1", "Unknown"]
+            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
+            order = [
+                f"PWR ≥ {q3:.0f}",
+                f"{q2:.0f} ≤ PWR < {q3:.0f}",
+                f"{q1:.0f} ≤ PWR < {q2:.0f}",
+                f"PWR < {q1:.0f}",
+                "null",
+            ]
 
         plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
         plot_df = plot_df.sort_values("color_label")
@@ -149,6 +131,9 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
             group = plot_df[plot_df["color_label"] == label]
             if group.empty:
                 continue
+
+            color = group["color"].iloc[0]
+
             fig.add_trace(
                 go.Scatter(
                     x=group["RSRP"],
@@ -156,189 +141,197 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
                     mode="markers",
                     name=label,
                     legendgroup=label,
-                    marker=dict(size=7, color=group["color"].iloc[0]),
+                    marker=dict(size=7, color=color),
                     text=group["hover_text"],
                     hovertemplate="%{text}<extra></extra>",
                 )
             )
 
-        # 다항식 (개별 커브)
-        if metric == 'SINR_TRS' and groupby == 'route':
-            x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 200)
+            valid = (
+                group.dropna(subset=["RSRP", metric])
+                .replace([np.inf, -np.inf], np.nan)
+                .dropna(subset=[metric, "RSRP"])
+                .copy()
+            )
+            if len(valid) < 5:
+                continue
 
-            for label, group in plot_df.groupby("color_label", observed=True):
-                color = group["color"].iloc[0]
-                valid = group[["RSRP", metric]].dropna().sort_values("RSRP")
+            bin_size = 5
+            bins = np.arange(-120, -59, bin_size)
+            valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
 
-                X = valid["RSRP"].values.reshape(-1, 1)
-                y = valid[metric].values
+            mean_df = (
+                valid.groupby("RSRP_bin", observed=True)[metric]
+                .mean()
+                .reset_index()
+                .dropna()
+            )
+            mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
 
-                poly = PolynomialFeatures(degree=3)
-                X_poly = poly.fit_transform(X)
-                model = LinearRegression().fit(X_poly, y)
-                y_pred = model.predict(poly.transform(x_range.reshape(-1, 1)))
-
+            if not mean_df.empty:
                 fig.add_trace(
                     go.Scatter(
-                        x=x_range,
-                        y=y_pred,
-                        mode="lines",
-                        line=dict(color=color, width=2, dash="dot"),
+                        x=mean_df["RSRP_center"],
+                        y=mean_df[metric],
+                        mode="lines+markers",
+                        name=f"{label} avg({bin_size}dB)",
+                        legendgroup=label,
+                        line=dict(color=color, width=3, dash="dot"),
+                        marker=dict(size=10, color=color),
                         hoverinfo="skip",
-                        showlegend=False,
-                        legendgroup=label
+                        showlegend=True,
                     )
                 )
-        else:
-            # 다항식 (단일 커브)
-            valid = plot_df.dropna(subset=["RSRP", metric])
 
-            X = valid["RSRP"].values.reshape(-1, 1)
-            y = valid[metric].values
+            # # 다항식 (개별 커브)
+            # x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 60)
+            #
+            # for label, group in plot_df.groupby("color_label", observed=True):
+            #     color = group["color"].iloc[0]
+            #     valid = group[["RSRP", metric]].dropna().sort_values("RSRP")
+            #
+            #     X = valid["RSRP"].values.reshape(-1, 1)
+            #     y = valid[metric].values
+            #
+            #     poly = PolynomialFeatures(degree=3)
+            #     X_poly = poly.fit_transform(X)
+            #     model = LinearRegression().fit(X_poly, y)
+            #     y_pred = model.predict(poly.transform(x_range.reshape(-1, 1)))
+            #
+            #     fig.add_trace(
+            #         go.Scatter(
+            #             x=x_range,
+            #             y=y_pred,
+            #             mode="lines",
+            #             line=dict(color=color, width=2, dash="dot"),
+            #             hoverinfo="skip",
+            #             showlegend=False,
+            #             legendgroup=label
+            #         )
+            #     )
 
-            poly = PolynomialFeatures(degree=3)
-            x_poly = poly.fit_transform(X)
-            model = LinearRegression().fit(x_poly, y)
+            # # 3차, CI 밴드 포함
+            # valid = plot_df.dropna(subset=["RSRP", metric])
+            # valid["RSRP_bin"] = valid["RSRP"].round(1)
+            #
+            # agg = valid.groupby("RSRP_bin").agg(
+            #     y_mean=(metric, "mean"),
+            #     y_std=(f"{metric}_std", lambda x: np.sqrt(np.mean(x ** 2))),  # RMS std
+            #     n=("RSRP", "count")
+            # ).reset_index()
+            #
+            # X = agg["RSRP_bin"].values.reshape(-1, 1)
+            # y = agg["y_mean"].values
+            # y_std = agg["y_std"].values
+            #
+            # poly = PolynomialFeatures(degree=3)
+            # X_poly = poly.fit_transform(X)
+            # model = LinearRegression().fit(X_poly, y)
+            #
+            # x_range = np.linspace(X.min(), X.max(), 200)
+            # X_pred = poly.transform(x_range.reshape(-1, 1))
+            # y_pred = model.predict(X_pred)
+            #
+            # residuals = y - model.predict(X_poly)
+            # residual_var = np.var(residuals)
+            #
+            # meas_var = np.interp(x_range, X.flatten(), y_std ** 2)
+            # total_std = np.sqrt(residual_var + meas_var)
+            #
+            # ci_upper = y_pred + 1.96 * total_std
+            # ci_lower = y_pred - 1.96 * total_std
+            #
+            # fig.add_trace(go.Scatter(
+            #     x=x_range, y=y_pred,
+            #     mode="lines",
+            #     name="3rd-Order Poly",
+            #     line=dict(color="gray", dash="dot"),
+            # ))
+            #
+            # fig.add_trace(go.Scatter(
+            #     x=np.concatenate([x_range, x_range[::-1]]),
+            #     y=np.concatenate([ci_upper, ci_lower[::-1]]),
+            #     fill="toself",
+            #     fillcolor="rgba(128,128,128,0.25)",
+            #     line=dict(color="rgba(255,255,255,0)"),
+            #     name="95 % CI Band",
+            # ))
 
-            x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
-            x_pred_poly = poly.transform(x_range.reshape(-1, 1))
-            y_pred = model.predict(x_pred_poly)
+            # # RSRP bin 평균
+            # bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
+            # plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
+            # plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+            #
+            # avg_df = (
+            #     plot_df.groupby("RSRP_bin_center", observed=True)[metric]
+            #     .mean()
+            #     .reset_index()
+            #     .sort_values("RSRP_bin_center")
+            # )
+            # fig.add_trace(
+            #     go.Scatter(
+            #         x=avg_df["RSRP_bin_center"],
+            #         y=avg_df[metric],
+            #         mode='lines',
+            #         name="Average",
+            #         line=dict(color="gray", width=2, dash="dot"),
+            #         hoverinfo="skip",
+            #         showlegend=True,
+            #         legendgroup="trend"
+            #     )
+            # )
 
-            fig.add_trace(
-                go.Scatter(
-                    x=x_range,
-                    y=y_pred,
-                    mode="lines",
-                    name="3rd-Order Poly",
-                    line=dict(color="gray", width=2, dash="dot"),
-                    hoverinfo="skip",
-                    showlegend=True,
-                    legendgroup="trend",
-                )
-            )
+            ## Linear Regression (단일 커브)
+            # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
 
-        # # 3차, CI 밴드 포함
-        # valid = plot_df.dropna(subset=["RSRP", metric])
-        # valid["RSRP_bin"] = valid["RSRP"].round(1)
-        #
-        # agg = valid.groupby("RSRP_bin").agg(
-        #     y_mean=(metric, "mean"),
-        #     y_std=(f"{metric}_std", lambda x: np.sqrt(np.mean(x ** 2))),  # RMS std
-        #     n=("RSRP", "count")
-        # ).reset_index()
-        #
-        # X = agg["RSRP_bin"].values.reshape(-1, 1)
-        # y = agg["y_mean"].values
-        # y_std = agg["y_std"].values
-        #
-        # poly = PolynomialFeatures(degree=3)
-        # X_poly = poly.fit_transform(X)
-        # model = LinearRegression().fit(X_poly, y)
-        #
-        # x_range = np.linspace(X.min(), X.max(), 200)
-        # X_pred = poly.transform(x_range.reshape(-1, 1))
-        # y_pred = model.predict(X_pred)
-        #
-        # residuals = y - model.predict(X_poly)
-        # residual_var = np.var(residuals)
-        #
-        # meas_var = np.interp(x_range, X.flatten(), y_std ** 2)
-        # total_std = np.sqrt(residual_var + meas_var)
-        #
-        # ci_upper = y_pred + 1.96 * total_std
-        # ci_lower = y_pred - 1.96 * total_std
-        #
-        # fig.add_trace(go.Scatter(
-        #     x=x_range, y=y_pred,
-        #     mode="lines",
-        #     name="3rd-Order Poly",
-        #     line=dict(color="gray", dash="dot"),
-        # ))
-        #
-        # fig.add_trace(go.Scatter(
-        #     x=np.concatenate([x_range, x_range[::-1]]),
-        #     y=np.concatenate([ci_upper, ci_lower[::-1]]),
-        #     fill="toself",
-        #     fillcolor="rgba(128,128,128,0.25)",
-        #     line=dict(color="rgba(255,255,255,0)"),
-        #     name="95 % CI Band",
-        # ))
+            # X = valid["RSRP"].values.reshape(-1, 1)
+            # y = valid["DL_Tput"].values
 
-        # # RSRP bin 평균
-        # bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
-        # plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
-        # plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-        #
-        # avg_df = (
-        #     plot_df.groupby("RSRP_bin_center", observed=True)[metric]
-        #     .mean()
-        #     .reset_index()
-        #     .sort_values("RSRP_bin_center")
-        # )
-        # fig.add_trace(
-        #     go.Scatter(
-        #         x=avg_df["RSRP_bin_center"],
-        #         y=avg_df[metric],
-        #         mode='lines',
-        #         name="Average",
-        #         line=dict(color="gray", width=2, dash="dot"),
-        #         hoverinfo="skip",
-        #         showlegend=True,
-        #         legendgroup="trend"
-        #     )
-        # )
+            # model = LinearRegression().fit(X, y)
+            # x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
+            # y_pred = model.predict(x_range.reshape(-1, 1))
 
-        ## Linear Regression (단일 커브)
-        # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
+            # fig.add_trace(
+            #     go.Scatter(
+            #         x=x_range,
+            #         y=y_pred,
+            #         mode="lines",
+            #         name="Linear Regression",
+            #         line=dict(color="black", width=2, dash="dot"),
+            #         hoverinfo="skip",
+            #         showlegend=True,
+            #         legendgroup="trend",
+            #     )
+            # )
 
-        # X = valid["RSRP"].values.reshape(-1, 1)
-        # y = valid["DL_Tput"].values
-
-        # model = LinearRegression().fit(X, y)
-        # x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
-        # y_pred = model.predict(x_range.reshape(-1, 1))
-
-        # fig.add_trace(
-        #     go.Scatter(
-        #         x=x_range,
-        #         y=y_pred,
-        #         mode="lines",
-        #         name="Linear Regression",
-        #         line=dict(color="black", width=2, dash="dot"),
-        #         hoverinfo="skip",
-        #         showlegend=True,
-        #         legendgroup="trend",
-        #     )
-        # )
-
-        ## Linear Regression (개별 커브)
-        # valid_df = plot_df.dropna(subset=["RSRP", metric])
-        # x_range = np.linspace(valid_df["RSRP"].min(), valid_df["RSRP"].max(), 200).reshape(-1, 1)
-        #
-        # for label, group in valid_df.groupby("color_label", observed=True):
-        #     if len(group) < 2:
-        #         continue  # 데이터 너무 적으면 스킵
-        #
-        #     X = group["RSRP"].values.reshape(-1, 1)
-        #     y = group[metric].values
-        #
-        #     model = LinearRegression().fit(X, y)
-        #     y_pred = model.predict(x_range)
-        #
-        #     color = group["color"].iloc[0]
-        #
-        #     fig.add_trace(
-        #         go.Scatter(
-        #             x=x_range.flatten(),
-        #             y=y_pred,
-        #             mode="lines",
-        #             name=f"Trend ({label})",
-        #             line=dict(color=color, width=1, dash="dot"),
-        #             hoverinfo="skip",
-        #             showlegend=False,
-        #             legendgroup=label,
-        #         )
-        #     )
+            ## Linear Regression (개별 커브)
+            # valid_df = plot_df.dropna(subset=["RSRP", metric])
+            # x_range = np.linspace(valid_df["RSRP"].min(), valid_df["RSRP"].max(), 200).reshape(-1, 1)
+            #
+            # for label, group in valid_df.groupby("color_label", observed=True):
+            #     if len(group) < 2:
+            #         continue  # 데이터 너무 적으면 스킵
+            #
+            #     X = group["RSRP"].values.reshape(-1, 1)
+            #     y = group[metric].values
+            #
+            #     model = LinearRegression().fit(X, y)
+            #     y_pred = model.predict(x_range)
+            #
+            #     color = group["color"].iloc[0]
+            #
+            #     fig.add_trace(
+            #         go.Scatter(
+            #             x=x_range.flatten(),
+            #             y=y_pred,
+            #             mode="lines",
+            #             name=f"Trend ({label})",
+            #             line=dict(color=color, width=1, dash="dot"),
+            #             hoverinfo="skip",
+            #             showlegend=False,
+            #             legendgroup=label,
+            #         )
+            #     )
 
 
         if band == "n28":
@@ -400,7 +393,178 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
             griddash="dot",
         )
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"{band}_{metric}_by_{groupby}.html")
+        out_path = os.path.join(out_dir, f"{band}_{metric}_by_uhd.html")
+        fig.write_html(out_path)
+        print(f"✅ Saved: {out_path}")
+
+def plot_kpi_group_by_route(df, out_dir, band):
+
+    plot_df = df[df['Band'] == band].copy()
+    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+
+    metrics = [
+        "SINR_TRS",
+        # "DL_Tput",
+        "DL_Tput_per_RB",
+    ]
+
+    for metric in metrics:
+
+        group_name = "Field Route"
+        color_col = "route"
+        route_colors = {
+            "Namsan": "#FF4500",
+            "Huam345-5": "#FFD700",
+            "Huam415-1": "#32CD32",
+            "Fixed-point": "#1E90FF",
+        }
+
+        def color_by_route(v):
+            color = route_colors.get(v, "gray")
+            label = v if v in route_colors else "Unknown"
+            return color, label
+        plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_route(v)))
+        order = ["Namsan", "Huam345-5", "Huam415-1", "Fixed-point", "Unknown"]
+
+        plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
+        plot_df = plot_df.sort_values("color_label")
+
+        def make_hover_text(row):
+            lines = [
+                "────────────────────────",
+                f"<b>route</b> : {row['route']}",
+                f"<b>test_no</b> : {row['test_no']}",
+                "────────────────────────",
+                f"<b>RSRP</b> : {row['RSRP']}",
+                f"<b>SINR_TRS</b> : {row['SINR_TRS']}",
+                f"<b>DL_Tput</b> : {row['DL_Tput']}",
+                f"<b>DL_RB</b> : {row['DL_RB']}",
+                f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']}",
+                "────────────────────────",
+            ]
+            return "<br>".join(lines)
+
+        plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
+
+        fig = go.Figure()
+
+        for label in order:
+            group = plot_df[plot_df["color_label"] == label]
+            if group.empty:
+                continue
+
+            color = group["color"].iloc[0]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=group["RSRP"],
+                    y=group[metric],
+                    mode="markers",
+                    name=f"{label} raw",
+                    legendgroup=label,
+                    marker=dict(size=3, color=color, opacity=0.3),
+                    text=group["hover_text"],
+                    hovertemplate="%{text}<extra></extra>",
+                )
+            )
+
+            if label != "Fixed-point":
+                valid = (
+                    group.dropna(subset=["RSRP", metric])
+                    .replace([np.inf, -np.inf], np.nan)
+                    .dropna(subset=[metric, "RSRP"])
+                    .copy()
+                )
+                if len(valid) < 5:
+                    continue
+
+                bin_size = 5
+                bins = np.arange(-120, -59, bin_size)
+                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+
+                mean_df = (
+                    valid.groupby("RSRP_bin", observed=True)[metric]
+                    .mean()
+                    .reset_index()
+                    .dropna()
+                )
+                mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+
+                if not mean_df.empty:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=mean_df["RSRP_center"],
+                            y=mean_df[metric],
+                            mode="lines+markers",
+                            name=f"{label} avg({bin_size}dB)",
+                            legendgroup=label,
+                            line=dict(color=color, width=3, dash="dot"),
+                            marker=dict(size=10, color=color),
+                            hoverinfo="skip",
+                            showlegend=True,
+                        )
+                    )
+
+        if band == "n28":
+            map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
+            title_text = (
+                f"{metric.replace("_"," ")} over RSRP group by {group_name} ({band}) "
+                f"<a href='{map_url}' target='_blank' style='text-decoration:none; font-size:14px;'> [View Map]</a>"
+            )
+        else:
+            title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name} ({band})"
+
+        fig.update_layout(
+            title=title_text,
+            template="plotly_white",
+            hoverlabel=dict(
+                bgcolor="white",
+                bordercolor="gray",
+                font=dict(size=10),
+                align="left",
+            ),
+            legend=dict(
+                title=dict(
+                    text=f"<span><b>  {group_name}</b></span><br>",
+                    font=dict(size=13),
+                    side="top"
+                ),
+                font=dict(size=13),
+                itemsizing="constant",
+                itemclick="toggle",
+                itemdoubleclick="toggleothers",
+                tracegroupgap=8,
+                yanchor="top",
+                y=1.0,
+                xanchor="left",
+            )
+        )
+        fig.update_xaxes(
+            title="RSRP [dBm]",
+            autorange="reversed",
+            dtick=5,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="rgba(0,0,0,0.15)",
+            griddash="dot",
+        )
+
+        if metric == "SINR_TRS":
+            y_title = "SINR TRS [dB]"
+        elif metric == "DL_Tput":
+            y_title = "DL Throughput [Mbps]"
+        elif metric == "DL_Tput_per_RB":
+            y_title = "DL Throughput per RB [Mbps]"
+        fig.update_yaxes(
+            title=y_title,
+            # dtick=10,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="rgba(0,0,0,0.15)",
+            griddash="dot",
+        )
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"{band}_{metric}_by_route.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
