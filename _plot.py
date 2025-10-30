@@ -397,10 +397,14 @@ def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
         print(f"✅ Saved: {out_path}")
 
 def plot_kpi_group_by_route(df, out_dir, band):
+    # df_pair = _common.grid_kpi(df, grid_size=5, rb_min=0, sample_min=0)
+    # df_n26, df_n28 = split_band_df(df_pair)
+    # plot_df = df_n28.copy()
 
     plot_df = df[df['Band'] == band].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
     plot_df = plot_df[plot_df["DL_RB"] >= 48]
+
+    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
 
     metrics = [
         "SINR_TRS",
@@ -414,8 +418,7 @@ def plot_kpi_group_by_route(df, out_dir, band):
         color_col = "route"
         route_colors = {
             "Namsan": "#FF4500",
-            # "Huam345-5": "#FFD700",
-            "Huam345-5": "#FFCC00",
+            "Huam345-5": "#FFC000",
             "Huam415-1": "#32CD32",
             "Fixed-point": "#1E90FF",
         }
@@ -440,7 +443,7 @@ def plot_kpi_group_by_route(df, out_dir, band):
                 f"<b>SINR_TRS</b> : {row['SINR_TRS']:.2f}",
                 f"<b>DL_Tput</b> : {row['DL_Tput']:.2f}",
                 f"<b>DL_RB</b> : {row['DL_RB']:.2f}",
-                f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']:.2f}",
+                # f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']:.2f}",
                 "────────────────────────",
             ]
             return "<br>".join(lines)
@@ -516,39 +519,39 @@ def plot_kpi_group_by_route(df, out_dir, band):
                     )
                 )
 
-        valid_all = (
-            plot_df.dropna(subset=["RSRP", metric])
-            .replace([np.inf, -np.inf], np.nan)
-            .dropna(subset=[metric, "RSRP"])
-            .copy()
-        )
-
-        bin_size = 5
-        bins = np.arange(-120, -59, bin_size)
-        valid_all["RSRP_bin"] = pd.cut(valid_all["RSRP"], bins=bins)
-
-        mean_all = (
-            valid_all.groupby("RSRP_bin", observed=True)[metric]
-            .mean()
-            .reset_index()
-            .dropna()
-        )
-        mean_all["RSRP_center"] = mean_all["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-        if not mean_all.empty:
-            fig.add_trace(
-                go.Scatter(
-                    x=mean_all["RSRP_center"],
-                    y=mean_all[metric],
-                    mode="lines+markers",
-                    name=f"Overall avg",
-                    legendgroup="Overall",
-                    line=dict(color="lightgray", width=3, dash="dot"),
-                    marker=dict(size=10, color="lightgray"),
-                    hoverinfo="skip",
-                    showlegend=True,
-                )
-            )
+        # valid_all = (
+        #     plot_df.dropna(subset=["RSRP", metric])
+        #     .replace([np.inf, -np.inf], np.nan)
+        #     .dropna(subset=[metric, "RSRP"])
+        #     .copy()
+        # )
+        #
+        # bin_size = 5
+        # bins = np.arange(-120, -59, bin_size)
+        # valid_all["RSRP_bin"] = pd.cut(valid_all["RSRP"], bins=bins)
+        #
+        # mean_all = (
+        #     valid_all.groupby("RSRP_bin", observed=True)[metric]
+        #     .mean()
+        #     .reset_index()
+        #     .dropna()
+        # )
+        # mean_all["RSRP_center"] = mean_all["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+        #
+        # if not mean_all.empty:
+        #     fig.add_trace(
+        #         go.Scatter(
+        #             x=mean_all["RSRP_center"],
+        #             y=mean_all[metric],
+        #             mode="lines+markers",
+        #             name=f"Overall avg",
+        #             legendgroup="Overall",
+        #             line=dict(color="gray", width=2, dash="dot"),
+        #             marker=dict(size=8, color="gray"),
+        #             hoverinfo="skip",
+        #             showlegend=True,
+        #         )
+        #     )
 
         if band == "n28":
             map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
