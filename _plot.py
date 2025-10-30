@@ -38,7 +38,12 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
+def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby):
+
+    if band not in ["n26", "n28"]:
+        ValueError("band must be n28 or n26")
+    if groupby not in ["uhd_max", "route"]:
+        ValueError("groupby must be 'uhd' or 'route'")
 
     metrics = [
         "SINR_TRS",
@@ -49,68 +54,56 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     for metric in metrics:
         df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
         df_n26, df_n28 = split_band_df(df_pair)
-        if band == "n28":
-            plot_df = df_n28.copy()
-        elif band == "n26":
-            plot_df = df_n26.copy()
-        else:
-            print("scat_kpi_by_UHD input band must be n28 or n26")
-            break
+        plot_df = df_n28.copy() if band == "n28" else df_n26.copy()
+        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
         # print(plot_df.info())
 
-        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+        if groupby == "uhd":
+            group_name = 'UHD Power'
+            color_col = "uhd_max"
+            valid_vals = plot_df[color_col].dropna()
 
-        color_col = "uhd_max"
-        valid_vals = plot_df[color_col].dropna()
+            if len(valid_vals) > 0:
+                q1, q2, q3 = -40, -35, -30
 
-        if len(valid_vals) > 0:
-            # q1, q2, q3 = valid_vals.quantile([0.25, 0.5, 0.75])
-            q1, q2, q3 = -40, -35, -30
+                def color_by_uhd(v):
+                    if pd.isna(v):
+                        return "gray", "null"
+                    elif v >= q3:
+                        return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
+                    elif v >= q2:
+                        return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
+                    elif v >= q1:
+                        return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
+                    else:
+                        return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
 
-            def color_by_uhd(v):
-                if pd.isna(v):
-                    return "gray", "null"
-                elif v >= q3:
-                    return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
-                elif v >= q2:
-                    return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
-                elif v >= q1:
-                    return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
-                else:
-                    return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
+                plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
+                order = [
+                    f"PWR ≥ {q3:.0f}",
+                    f"{q2:.0f} ≤ PWR < {q3:.0f}",
+                    f"{q1:.0f} ≤ PWR < {q2:.0f}",
+                    f"PWR < {q1:.0f}",
+                    "null",
+                ]
+        elif groupby == "route":
+            group_name = "Field Route"
+            color_col = "route"
+            route_colors = {
+                "Namsan": "#FF4500",
+                "Huam345-5": "#FFD700",
+                "Huam415-1": "#32CD32",
+            }
 
-            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
-        else:
-            plot_df["color"] = "gray"
-            plot_df["color_label"] = "null"
-
-        order = [
-            f"PWR ≥ {q3:.0f}",
-            f"{q2:.0f} ≤ PWR < {q3:.0f}",
-            f"{q1:.0f} ≤ PWR < {q2:.0f}",
-            f"PWR < {q1:.0f}",
-            "null",
-        ]
+            def color_by_route(v):
+                color = route_colors.get(v, "gray")
+                label = v if v in route_colors else "Unknown"
+                return color, label
+            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_route(v)))
+            order = ["Namsan", "Huam345-5", "Huam415-1", "Unknown"]
 
         plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
         plot_df = plot_df.sort_values("color_label")
-
-        def print_test_list(test_list):
-            grouped = {}
-
-            for item in test_list:
-                parts = str(item).split("_")
-                date, num, place = parts[0], parts[1], parts[2]
-                grouped.setdefault(date, {}).setdefault(place, []).append(num)
-
-            formatted_lines = []
-            for date, places in sorted(grouped.items()):
-                formatted_lines.append(f"<b>{date}</b>")
-                for place, nums in sorted(places.items()):
-                    nums_str = ", ".join(sorted(nums, key=lambda x: int(x)))
-                    formatted_lines.append(f" - {place}: {nums_str}")
-
-            return "<br>".join(formatted_lines).strip()
 
         def make_hover_text(row):
             def ci95(std, n):
@@ -135,20 +128,16 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
             lines = [
                 "────────────────────────",
-                f"<b>UHD_PWR</b>: {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "<b>UHD_PWR</b>: null",
+                f"<b>UHD_PWR</b> : {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "<b>UHD_PWR</b>: null",
+                f"<b>route / loc_id</b> : {row['route']} / {row['loc_id']}",
                 "────────────────────────",
-                f"<b>loc_id</b>: {row['loc_id']}",
-                f"<b>samples</b>: {row['count']}",
+                f"<b>samples</b> : {row['count']}",
+                f"<b>RSRP</b> : {fmt(row['RSRP'], ci['RSRP'])}",
+                f"<b>SINR_TRS</b> : {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
+                f"<b>DL_Tput</b> : {fmt(row['DL_Tput'], ci['DL_Tput'])}",
+                f"<b>DL_RB</b> : {fmt(row['DL_RB'], ci['DL_RB'])}",
+                f"<b>DL_Tput_per_RB</b> : {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
                 "────────────────────────",
-                f"<b>DL_Tput</b>: {fmt(row['DL_Tput'], ci['DL_Tput'])}",
-                f"<b>DL_RB</b>: {fmt(row['DL_RB'], ci['DL_RB'])}",
-                f"<b>DL_Tput_per_RB</b>: {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
-                "────────────────────────",
-                f"<b>RSRP</b>: {fmt(row['RSRP'], ci['RSRP'])}",
-                f"<b>SINR_TRS</b>: {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
-                "────────────────────────",
-                # f"<b>Test List:</b><br>{print_test_list(row['test_list'])}",
-                # "────────────────────────",
             ]
             return "<br>".join(lines)
 
@@ -356,14 +345,15 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         #         )
         #     )
 
+
         if band == "n28":
             map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
             title_text = (
-                f"{metric.replace("_"," ")} over RSRP group by UHD Power ({band}) "
+                f"{metric.replace("_"," ")} over RSRP group by {group_name} ({band}) "
                 f"<a href='{map_url}' target='_blank' style='text-decoration:none; font-size:14px;'> [View Map]</a>"
             )
         else:
-            title_text = f"{metric.replace("_", " ")} over RSRP group by UHD Power ({band})"
+            title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name} ({band})"
 
         fig.update_layout(
             title=title_text,
@@ -376,7 +366,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
             ),
             legend=dict(
                 title=dict(
-                    text="<span><b>  UHD Power [dBm]</b></span><br>",
+                    text=f"<span><b>  {group_name}</b></span><br>",
                     font=dict(size=13),
                     side="top"
                 ),
@@ -415,7 +405,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
             griddash="dot",
         )
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"{band}_{metric}_by_UHD.html")
+        out_path = os.path.join(out_dir, f"{band}_{metric}_by_{groupby}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 

@@ -300,6 +300,21 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
     df_pair["test_list"] = df_pair.apply(merge_test_lists, axis=1)
     df_pair = df_pair.drop(columns=["test_list_n26", "test_list_n28"], errors="ignore")
 
+    def extract_route(test_list):
+        places = [str(t).split("_")[-1] for t in test_list if "_" in str(t)]
+        unique_places = list(set(places))
+        if len(unique_places) == 1:
+            return unique_places[0]
+        elif 'Fixed-point' in unique_places:
+            others = [p for p in unique_places if p != "Fixed-point"]
+            if len(others) == 1:
+                return others[0]
+            else:
+                raise ValueError(f"❌ Multiple places found: {unique_places}, {test_list}")
+        else:
+            raise ValueError(f"❌ Multiple places found: {unique_places}, {test_list}")
+    df_pair[f"route"] = df_pair[f"test_list"].apply(extract_route)
+
     df_uhd = read_UHD(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
     df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
@@ -312,7 +327,7 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
     df_pair = df_pair.sort_values(["lat_bin", "lon_bin"], ascending=[True, True])
     df_pair = df_pair.reset_index().rename(columns={"index": "loc_id"})
 
-    common_cols = ["loc_id", "lat_bin", "lon_bin", "test_list"]
+    common_cols = ["loc_id", "lat_bin", "lon_bin", "test_list", "route"]
     sample_cols = [c for c in ["sample_count_n26", "sample_count_n28", "sample_count_diff"] if c in df_pair.columns]
     metric_cols = []
     for kpi in kpi_cols:
