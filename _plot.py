@@ -162,33 +162,60 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
                 )
             )
 
-        # 다항식 (단일 커브)
-        valid = plot_df.dropna(subset=["RSRP", metric])
+        # 다항식 (개별 커브)
+        if metric == 'SINR_TRS' and groupby == 'route':
+            x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 200)
 
-        X = valid["RSRP"].values.reshape(-1, 1)
-        y = valid[metric].values
-        y_std = valid[f"{metric}_std"].values
+            for label, group in plot_df.groupby("color_label", observed=True):
+                color = group["color"].iloc[0]
+                valid = group[["RSRP", metric]].dropna().sort_values("RSRP")
 
-        poly = PolynomialFeatures(degree=3)
-        x_poly = poly.fit_transform(X)
-        model = LinearRegression().fit(x_poly, y)
+                X = valid["RSRP"].values.reshape(-1, 1)
+                y = valid[metric].values
 
-        x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
-        x_pred_poly = poly.transform(x_range.reshape(-1, 1))
-        y_pred = model.predict(x_pred_poly)
+                poly = PolynomialFeatures(degree=3)
+                X_poly = poly.fit_transform(X)
+                model = LinearRegression().fit(X_poly, y)
+                y_pred = model.predict(poly.transform(x_range.reshape(-1, 1)))
 
-        fig.add_trace(
-            go.Scatter(
-                x=x_range,
-                y=y_pred,
-                mode="lines",
-                name="3rd-Order Poly",
-                line=dict(color="gray", width=2, dash="dot"),
-                hoverinfo="skip",
-                showlegend=True,
-                legendgroup="trend",
+                fig.add_trace(
+                    go.Scatter(
+                        x=x_range,
+                        y=y_pred,
+                        mode="lines",
+                        line=dict(color=color, width=2, dash="dot"),
+                        hoverinfo="skip",
+                        showlegend=False,
+                        legendgroup=label
+                    )
+                )
+        else:
+            # 다항식 (단일 커브)
+            valid = plot_df.dropna(subset=["RSRP", metric])
+
+            X = valid["RSRP"].values.reshape(-1, 1)
+            y = valid[metric].values
+
+            poly = PolynomialFeatures(degree=3)
+            x_poly = poly.fit_transform(X)
+            model = LinearRegression().fit(x_poly, y)
+
+            x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
+            x_pred_poly = poly.transform(x_range.reshape(-1, 1))
+            y_pred = model.predict(x_pred_poly)
+
+            fig.add_trace(
+                go.Scatter(
+                    x=x_range,
+                    y=y_pred,
+                    mode="lines",
+                    name="3rd-Order Poly",
+                    line=dict(color="gray", width=2, dash="dot"),
+                    hoverinfo="skip",
+                    showlegend=True,
+                    legendgroup="trend",
+                )
             )
-        )
 
         # # 3차, CI 밴드 포함
         # valid = plot_df.dropna(subset=["RSRP", metric])
@@ -310,38 +337,6 @@ def scat_kpi_by_group(df, out_dir, grid_size, rb_min, sample_min, band, groupby)
         #             hoverinfo="skip",
         #             showlegend=False,
         #             legendgroup=label,
-        #         )
-        #     )
-
-
-        ## 3차 다항식 (개별 커브)
-        # x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 200)
-
-        # for label, group in plot_df.groupby("color_label", observed=True):
-        #     color = group["color"].iloc[0]
-        #     valid = group[["RSRP", "DL_Tput"]].dropna().sort_values("RSRP")
-        #     if len(valid) < 5:
-        #         continue
-
-        #     X = valid["RSRP"].values.reshape(-1, 1)
-        #     y = valid["DL_Tput"].values
-
-        #     poly = PolynomialFeatures(degree=3)
-        #     X_poly = poly.fit_transform(X)
-        #     model = LinearRegression().fit(X_poly, y)
-
-        #     # 전체 범위(x_range)에 대해 예측 수행
-        #     y_pred = model.predict(poly.transform(x_range.reshape(-1, 1)))
-
-        #     fig.add_trace(
-        #         go.Scatter(
-        #             x=x_range,
-        #             y=y_pred,
-        #             mode="lines",
-        #             line=dict(color=color, width=2, dash="dot"),
-        #             hoverinfo="skip",
-        #             showlegend=False,
-        #             legendgroup=label
         #         )
         #     )
 
