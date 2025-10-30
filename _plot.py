@@ -45,8 +45,8 @@ def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
 
     metrics = [
         "SINR_TRS",
-        # "DL_Tput",
-        "DL_Tput_per_RB",
+        "DL_Tput",
+        # "DL_Tput_per_RB",
     ]
 
     for metric in metrics:
@@ -58,15 +58,14 @@ def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
 
         group_name = 'UHD Power'
         color_col = "uhd_max"
-        valid_vals = plot_df[color_col].dropna()
 
-        if len(valid_vals) > 0:
+        # valid_vals = plot_df[color_col].dropna()
+        # if len(valid_vals) > 0:
+        plot_df = plot_df.dropna(subset=[color_col])
+        if not plot_df.empty:
             q1, q2, q3 = -40, -35, -30
-
             def color_by_uhd(v):
-                if pd.isna(v):
-                    return "gray", "null"
-                elif v >= q3:
+                if v >= q3:
                     return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
                 elif v >= q2:
                     return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
@@ -404,8 +403,8 @@ def plot_kpi_group_by_route(df, out_dir, band):
 
     metrics = [
         "SINR_TRS",
-        # "DL_Tput",
-        "DL_Tput_per_RB",
+        "DL_Tput",
+        # "DL_Tput_per_RB",
     ]
 
     for metric in metrics:
