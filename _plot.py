@@ -631,6 +631,7 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
     df[f"lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
     df[f"lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
 
+
     df_grid = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_grid = df_grid.rename(columns={
         "lat_bin": f"lat_bin",
