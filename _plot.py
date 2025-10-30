@@ -42,7 +42,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
     metrics = [
         "SINR_TRS",
-        "DL_Tput",
+        # "DL_Tput",
         "DL_Tput_per_RB",
     ]
 
@@ -131,7 +131,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
                     return "null"
                 if ci_val is None:
                     return f"{val:.1f}"
-                return f"{val:.1f} <span style='color:#777;'>(±{ci_val:.1f})</span>"
+                return f"{val:.1f} <span style='color:#777;'>(±{ci_val:.2f})</span>"
 
             lines = [
                 "────────────────────────",
@@ -142,7 +142,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
                 "────────────────────────",
                 f"<b>DL_Tput</b>: {fmt(row['DL_Tput'], ci['DL_Tput'])}",
                 f"<b>DL_RB</b>: {fmt(row['DL_RB'], ci['DL_RB'])}",
-                # f"<b>DL_Tput_per_RB</b>: {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
+                f"<b>DL_Tput_per_RB</b>: {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
                 "────────────────────────",
                 f"<b>RSRP</b>: {fmt(row['RSRP'], ci['RSRP'])}",
                 f"<b>SINR_TRS</b>: {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
@@ -173,29 +173,104 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
                 )
             )
 
-        # RSRP bin 평균
-        bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
-        plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
-        plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+        # 다항식 (단일 커브)
+        valid = plot_df.dropna(subset=["RSRP", metric])
 
-        avg_df = (
-            plot_df.groupby("RSRP_bin_center", observed=True)[metric]
-            .mean()
-            .reset_index()
-            .sort_values("RSRP_bin_center")
-        )
+        X = valid["RSRP"].values.reshape(-1, 1)
+        y = valid[metric].values
+        y_std = valid[f"{metric}_std"].values
+
+        poly = PolynomialFeatures(degree=3)
+        x_poly = poly.fit_transform(X)
+        model = LinearRegression().fit(x_poly, y)
+
+        x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
+        x_pred_poly = poly.transform(x_range.reshape(-1, 1))
+        y_pred = model.predict(x_pred_poly)
+
         fig.add_trace(
             go.Scatter(
-                x=avg_df["RSRP_bin_center"],
-                y=avg_df[metric],
-                mode='lines',
-                name="Average",
+                x=x_range,
+                y=y_pred,
+                mode="lines",
+                name="3rd-Order Poly",
                 line=dict(color="gray", width=2, dash="dot"),
                 hoverinfo="skip",
                 showlegend=True,
-                legendgroup="trend"
+                legendgroup="trend",
             )
         )
+
+        # # 3차, CI 밴드 포함
+        # valid = plot_df.dropna(subset=["RSRP", metric])
+        # valid["RSRP_bin"] = valid["RSRP"].round(1)
+        #
+        # agg = valid.groupby("RSRP_bin").agg(
+        #     y_mean=(metric, "mean"),
+        #     y_std=(f"{metric}_std", lambda x: np.sqrt(np.mean(x ** 2))),  # RMS std
+        #     n=("RSRP", "count")
+        # ).reset_index()
+        #
+        # X = agg["RSRP_bin"].values.reshape(-1, 1)
+        # y = agg["y_mean"].values
+        # y_std = agg["y_std"].values
+        #
+        # poly = PolynomialFeatures(degree=3)
+        # X_poly = poly.fit_transform(X)
+        # model = LinearRegression().fit(X_poly, y)
+        #
+        # x_range = np.linspace(X.min(), X.max(), 200)
+        # X_pred = poly.transform(x_range.reshape(-1, 1))
+        # y_pred = model.predict(X_pred)
+        #
+        # residuals = y - model.predict(X_poly)
+        # residual_var = np.var(residuals)
+        #
+        # meas_var = np.interp(x_range, X.flatten(), y_std ** 2)
+        # total_std = np.sqrt(residual_var + meas_var)
+        #
+        # ci_upper = y_pred + 1.96 * total_std
+        # ci_lower = y_pred - 1.96 * total_std
+        #
+        # fig.add_trace(go.Scatter(
+        #     x=x_range, y=y_pred,
+        #     mode="lines",
+        #     name="3rd-Order Poly",
+        #     line=dict(color="gray", dash="dot"),
+        # ))
+        #
+        # fig.add_trace(go.Scatter(
+        #     x=np.concatenate([x_range, x_range[::-1]]),
+        #     y=np.concatenate([ci_upper, ci_lower[::-1]]),
+        #     fill="toself",
+        #     fillcolor="rgba(128,128,128,0.25)",
+        #     line=dict(color="rgba(255,255,255,0)"),
+        #     name="95 % CI Band",
+        # ))
+
+        # # RSRP bin 평균
+        # bins = np.arange(plot_df["RSRP"].min(), plot_df["RSRP"].max() + 1, 1)
+        # plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=bins, right=False)
+        # plot_df["RSRP_bin_center"] = plot_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+        #
+        # avg_df = (
+        #     plot_df.groupby("RSRP_bin_center", observed=True)[metric]
+        #     .mean()
+        #     .reset_index()
+        #     .sort_values("RSRP_bin_center")
+        # )
+        # fig.add_trace(
+        #     go.Scatter(
+        #         x=avg_df["RSRP_bin_center"],
+        #         y=avg_df[metric],
+        #         mode='lines',
+        #         name="Average",
+        #         line=dict(color="gray", width=2, dash="dot"),
+        #         hoverinfo="skip",
+        #         showlegend=True,
+        #         legendgroup="trend"
+        #     )
+        # )
 
         ## Linear Regression (단일 커브)
         # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
@@ -250,32 +325,6 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         #     )
 
 
-        ## 3차 다항식 (단일 커브)
-        # valid = plot_df.dropna(subset=["RSRP", "DL_Tput"])
-
-        # X = valid["RSRP"].values.reshape(-1, 1)
-        # y = valid["DL_Tput"].values
-
-        # poly = PolynomialFeatures(degree=3)
-        # X_poly = poly.fit_transform(X)
-        # model = LinearRegression().fit(X_poly, y)
-
-        # x_range = np.linspace(valid["RSRP"].min(), valid["RSRP"].max(), 200)
-        # y_pred = model.predict(poly.transform(x_range.reshape(-1, 1)))
-
-        # fig.add_trace(
-        #     go.Scatter(
-        #         x=x_range,
-        #         y=y_pred,
-        #         mode="lines",
-        #         name="3rd Polynomial Curve",
-        #         line=dict(color="black", width=2, dash="dot"),
-        #         hoverinfo="skip",
-        #         showlegend=True,
-        #         legendgroup="trend",
-        #     )
-        # )
-
         ## 3차 다항식 (개별 커브)
         # x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 200)
 
@@ -310,11 +359,11 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         if band == "n28":
             map_url = "https://joostone-ahn.github.io/nr-field-analysis/results/map_mobility/n28_DL_Tput.html"
             title_text = (
-                f"{metric.replace("_"," ")} over RSRP Scatter ({band}) "
+                f"{metric.replace("_"," ")} over RSRP group by UHD Power ({band}) "
                 f"<a href='{map_url}' target='_blank' style='text-decoration:none; font-size:14px;'> [View Map]</a>"
             )
         else:
-            title_text = f"{metric.replace("_", " ")} over RSRP Scatter ({band})"
+            title_text = f"{metric.replace("_", " ")} over RSRP group by UHD Power ({band})"
 
         fig.update_layout(
             title=title_text,
@@ -355,6 +404,8 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
             y_title = "SINR TRS [dB]"
         elif metric == "DL_Tput":
             y_title = "DL Throughput [Mbps]"
+        elif metric == "DL_Tput_per_RB":
+            y_title = "DL Throughput per RB [Mbps]"
         fig.update_yaxes(
             title=y_title,
             # dtick=10,
@@ -364,11 +415,7 @@ def scat_kpi_by_UHD(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
             griddash="dot",
         )
         os.makedirs(out_dir, exist_ok=True)
-        if metric == "SINR_TRS":
-            metric_title = "SINR"
-        else:
-            metric_title = metric
-        out_path = os.path.join(out_dir, f"{band}_{metric_title}_by_UHD.html")
+        out_path = os.path.join(out_dir, f"{band}_{metric}_by_UHD.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
