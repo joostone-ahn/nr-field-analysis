@@ -140,47 +140,47 @@ def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
                     mode="markers",
                     name=label,
                     legendgroup=label,
-                    marker=dict(size=7, color=color),
+                    marker=dict(size=10, color=color),
                     text=group["hover_text"],
                     hovertemplate="%{text}<extra></extra>",
                 )
             )
 
-            valid = (
-                group.dropna(subset=["RSRP", metric])
-                .replace([np.inf, -np.inf], np.nan)
-                .dropna(subset=[metric, "RSRP"])
-                .copy()
-            )
-            if len(valid) < 5:
-                continue
-
-            bin_size = 5
-            bins = np.arange(-120, -59, bin_size)
-            valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-
-            mean_df = (
-                valid.groupby("RSRP_bin", observed=True)[metric]
-                .mean()
-                .reset_index()
-                .dropna()
-            )
-            mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-            if not mean_df.empty:
-                fig.add_trace(
-                    go.Scatter(
-                        x=mean_df["RSRP_center"],
-                        y=mean_df[metric],
-                        mode="lines+markers",
-                        name=f"{label} avg({bin_size}dB)",
-                        legendgroup=label,
-                        line=dict(color=color, width=3, dash="dot"),
-                        marker=dict(size=10, color=color),
-                        hoverinfo="skip",
-                        showlegend=True,
-                    )
-                )
+            # valid = (
+            #     group.dropna(subset=["RSRP", metric])
+            #     .replace([np.inf, -np.inf], np.nan)
+            #     .dropna(subset=[metric, "RSRP"])
+            #     .copy()
+            # )
+            # if len(valid) < 5:
+            #     continue
+            #
+            # bin_size = 1
+            # bins = np.arange(-120, -59, bin_size)
+            # valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+            #
+            # mean_df = (
+            #     valid.groupby("RSRP_bin", observed=True)[metric]
+            #     .mean()
+            #     .reset_index()
+            #     .dropna()
+            # )
+            # mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+            #
+            # if not mean_df.empty:
+            #     fig.add_trace(
+            #         go.Scatter(
+            #             x=mean_df["RSRP_center"],
+            #             y=mean_df[metric],
+            #             mode="lines+markers",
+            #             name=f"{label} avg({bin_size}dB)",
+            #             legendgroup=label,
+            #             line=dict(color=color, width=3, dash="dot"),
+            #             marker=dict(size=10, color=color),
+            #             hoverinfo="skip",
+            #             showlegend=True,
+            #         )
+            #     )
 
             # # 다항식 (개별 커브)
             # x_range = np.linspace(plot_df["RSRP"].min(), plot_df["RSRP"].max(), 60)
@@ -400,6 +400,7 @@ def plot_kpi_group_by_route(df, out_dir, band):
 
     plot_df = df[df['Band'] == band].copy()
     plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+    plot_df = plot_df[plot_df["DL_RB"] >= 48]
 
     metrics = [
         "SINR_TRS",
@@ -434,11 +435,11 @@ def plot_kpi_group_by_route(df, out_dir, band):
                 f"<b>route</b> : {row['route']}",
                 f"<b>test_no</b> : {row['test_no']}",
                 "────────────────────────",
-                f"<b>RSRP</b> : {row['RSRP']}",
-                f"<b>SINR_TRS</b> : {row['SINR_TRS']}",
-                f"<b>DL_Tput</b> : {row['DL_Tput']}",
-                f"<b>DL_RB</b> : {row['DL_RB']}",
-                f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']}",
+                f"<b>RSRP</b> : {row['RSRP']:.2f}",
+                f"<b>SINR_TRS</b> : {row['SINR_TRS']:.2f}",
+                f"<b>DL_Tput</b> : {row['DL_Tput']:.2f}",
+                f"<b>DL_RB</b> : {row['DL_RB']:.2f}",
+                f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']:.2f}",
                 "────────────────────────",
             ]
             return "<br>".join(lines)
