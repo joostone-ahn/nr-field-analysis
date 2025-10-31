@@ -50,7 +50,7 @@ def plot_kpi_raw(df, out_dir):
             f"<b>test_no</b> : {row['test_no']}",
             "────────────────────────",
             f"<b>DL_Tput</b> : {row['DL_Tput']:.1f} Mbps",
-            f"<b>DL_RB</b> : {row['DL_RB']:.1f}",
+            # f"<b>DL_RB</b> : {row['DL_RB']:.1f}",
             "────────────────────────",
             f"<b>RSRP</b> : {row['RSRP']:.1f} dBm",
             f"<b>SINR_SSB</b> : {row['SINR_SSB']:.1f} dB",
@@ -80,17 +80,19 @@ def plot_kpi_raw(df, out_dir):
     }
     order = ["n28", "n26"]
 
-    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
+    # route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
+    route_list = ["Namsan", "Huam345-5", "Huam415-1"]
     df_fixed = plot_df[plot_df["route"] == "Fixed-point"].copy()
 
     for metric in metrics:
         fig = go.Figure()
 
         for route_name in route_list:
-            if route_name == "All":
-                route_df = plot_df.copy()
-            else:
-                route_df = plot_df[plot_df["route"] == route_name]
+            # if route_name == "All":
+            #     route_df = plot_df.copy()
+            # else:
+            #     route_df = plot_df[plot_df["route"] == route_name]
+            route_df = plot_df[plot_df["route"] == route_name]
 
             for band in order:
                 group = route_df[route_df["Band"] == band]
@@ -113,7 +115,8 @@ def plot_kpi_raw(df, out_dir):
                         bordercolor=color,
                         font=dict(color="gray")
                     ),
-                    visible=(route_name == "All"),
+                    # visible=(route_name == "All"),
+                    visible=(route_name == "Namsan"),
                 ))
 
                 valid = group.dropna(subset=["RSRP", metric])
@@ -136,7 +139,8 @@ def plot_kpi_raw(df, out_dir):
                         line=dict(color=color, width=3, dash="dot"),
                         marker=dict(size=7, color=color),
                         hoverinfo="skip",
-                        visible=(route_name == "All"),
+                        # visible=(route_name == "All"),
+                        visible=(route_name == "Namsan"),
                     ))
 
         for band in order:
@@ -167,8 +171,10 @@ def plot_kpi_raw(df, out_dir):
                 trace_name = trace.name
                 if "(Fixed-point)" in trace_name:
                     visible_flags.append(True)
-                elif route_name == "All":
-                    visible_flags.append("(All)" in trace_name)
+                # elif route_name == "All":
+                #     visible_flags.append("(All)" in trace_name)
+                elif route_name == "Namsan":
+                    visible_flags.append("(Namsan)" in trace_name)
                 else:
                     visible_flags.append(f"({route_name})" in trace_name)
             buttons.append(dict(
@@ -233,7 +239,6 @@ def plot_kpi_raw(df, out_dir):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-###
 def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
     df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_n26, df_n28 = split_band_df(df_pair)
