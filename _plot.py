@@ -556,167 +556,345 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
         print(f"Saved HTML: {out_path_html}")
 
-def plot_kpi_raw(df, out_dir):
-    # df_pair = _common.grid_kpi(df, grid_size=5, rb_min=0, sample_min=0)
-    # df_n26, df_n28 = split_band_df(df_pair)
-    # plot_df = df_n28.copy()
 
-    plot_df = df[df["DL_RB"] >= 48]
-    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+def plot_kpi_raw(df, out_dir):
+    plot_df = df[(df["DL_RB"] >= 48) & (df["RSRP"].between(-120, -60))].copy()
 
     metrics = [
         "SINR_SSB",
         "SINR_TRS",
-        "DL_Tput",
-        # "DL_Tput_per_RB",
+        "DL_Tput"
     ]
 
+    # 색상 정의
+    band_colors = {
+        "n28": "#FF4500", # 빨강
+        "n26": "#1E90FF"  # 파랑
+    }
+    fixed_colors = {
+        "n28": "#FF8C00", # 주황
+        "n26": "#228B22"  # 초록
+    }
+    order = ["n28", "n26"]
+
+    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
+    df_fixed = plot_df[plot_df["route"] == "Fixed-point"].copy()
+
     for metric in metrics:
-
-        group_name = "Field Route"
-        color_col = "Band"
-        band_colors = {
-            "n28": "#FF4500",
-            "n26": "#1E90FF",
-        }
-
-        def color_by_route(v):
-            color = band_colors.get(v, "gray")
-            label = v if v in band_colors else "Unknown"
-            return color, label
-        plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_route(v)))
-        order = ["n28", "n26"]
-
-        plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
-        plot_df = plot_df.sort_values("color_label")
-
-        def make_hover_text(row):
-            lines = [
-                "────────────────────────",
-                f"<b>route</b> : {row['route']}",
-                f"<b>test_no</b> : {row['test_no']}",
-                "────────────────────────",
-                f"<b>RSRP</b> : {row['RSRP']:.2f}",
-                f"<b>SINR_TRS</b> : {row['SINR_TRS']:.2f}",
-                f"<b>DL_Tput</b> : {row['DL_Tput']:.2f}",
-                f"<b>DL_RB</b> : {row['DL_RB']:.2f}",
-                # f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']:.2f}",
-                "────────────────────────",
-            ]
-            return "<br>".join(lines)
-
-        plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
-
         fig = go.Figure()
 
-        for label in order:
-            group = plot_df[plot_df["color_label"] == label]
-            if group.empty:
-                continue
+        for route_name in route_list:
+            if route_name == "All":
+                route_df = plot_df.copy()
+            else:
+                route_df = plot_df[plot_df["route"] == route_name]
 
-            color = group["color"].iloc[0]
-            fig.add_trace(
-                go.Scatter(
+            for band in order:
+                group = route_df[route_df["Band"] == band]
+                if group.empty:
+                    continue
+
+                color = band_colors.get(band, "gray")
+                hover_text = (
+                    "────────────────────────<br>"
+                    + "Route: %{customdata[0]}<br>"
+                    + "RSRP: %{x:.2f} dBm<br>"
+                    + f"{metric}: %{{y:.2f}}<br>"
+                    + "────────────────────────<extra></extra>"
+                )
+
+                fig.add_trace(go.Scatter(
                     x=group["RSRP"],
                     y=group[metric],
                     mode="markers",
-                    name=f"{label} raw",
-                    legendgroup=label,
+                    name=f"{band} raw ({route_name})",
+                    legendgroup=f"{band}_{route_name}",
                     marker=dict(size=2, color=color, opacity=0.2),
-                    text=group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                )
-            )
+                    customdata=np.stack([group["route"]], axis=-1),
+                    hovertemplate=hover_text,
+                    visible=(route_name == "All"),
+                ))
 
-            valid = (
-                group.dropna(subset=["RSRP", metric])
-                .replace([np.inf, -np.inf], np.nan)
-                .dropna(subset=[metric, "RSRP"])
-                .copy()
-            )
+                valid = group.dropna(subset=["RSRP", metric])
+                if not valid.empty:
+                    bins = np.arange(-120, -59, 5)
+                    valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+                    mean_df = (
+                        valid.groupby("RSRP_bin", observed=True)[metric]
+                        .mean()
+                        .reset_index()
+                    )
+                    mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
 
-            bin_size = 5
-            bins = np.arange(-120, -59, bin_size)
-            valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-
-            mean_df = (
-                valid.groupby("RSRP_bin", observed=True)[metric]
-                .mean()
-                .reset_index()
-                .dropna()
-            )
-            mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-            if not mean_df.empty:
-                fig.add_trace(
-                    go.Scatter(
+                    fig.add_trace(go.Scatter(
                         x=mean_df["RSRP_center"],
                         y=mean_df[metric],
                         mode="lines+markers",
-                        name=f"{label} avg",
-                        legendgroup=label,
+                        name=f"{band} avg ({route_name})",
+                        legendgroup=f"{band}_{route_name}",
                         line=dict(color=color, width=3, dash="dot"),
-                        marker=dict(size=10, color=color),
+                        marker=dict(size=7, color=color),
                         hoverinfo="skip",
-                        showlegend=True,
-                    )
-                )
+                        visible=(route_name == "All"),
+                    ))
 
-        title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name}"
+        for band in order:
+            fixed_group = df_fixed[df_fixed["Band"] == band]
+            if not fixed_group.empty:
+                fixed_color = fixed_colors[band]
+                hover_text = (
+                    "Route: %{customdata[0]}<br>"
+                    + "RSRP: %{x:.2f} dBm<br>"
+                    + f"{metric}: %{{y:.2f}}<br>"
+                )
+                fig.add_trace(go.Scatter(
+                    x=fixed_group["RSRP"],
+                    y=fixed_group[metric],
+                    mode="markers",
+                    name=f"{band} raw (Fixed-point)",
+                    legendgroup=f"Fixed-{band}",
+                    marker=dict(size=3, color=fixed_color, opacity=0.8),
+                    customdata=np.stack([fixed_group["route"]], axis=-1),
+                    hovertemplate=hover_text,
+                    visible=True,  # ✅ 항상 표시
+                ))
+
+        buttons = []
+        for route_name in route_list:
+            visible_flags = []
+            for trace in fig.data:
+                trace_name = trace.name
+                if "(Fixed-point)" in trace_name:
+                    visible_flags.append(True)
+                elif route_name == "All":
+                    visible_flags.append("(All)" in trace_name)
+                else:
+                    visible_flags.append(f"({route_name})" in trace_name)
+            buttons.append(dict(
+                label=route_name,
+                method="update",
+                args=[
+                    {"visible": visible_flags},
+                    {"title.text": f"{metric.replace('_',' ')} over RSRP ({route_name})"}
+                ]
+            ))
 
         fig.update_layout(
-            title=title_text,
-            template="plotly_white",
-            hoverlabel=dict(
-                bgcolor="white",
-                bordercolor="gray",
-                font=dict(size=10),
-                align="left",
-            ),
-            legend=dict(
-                title=dict(
-                    text=f"<span><b>  {group_name}</b></span><br>",
-                    font=dict(size=13),
-                    side="top"
-                ),
-                font=dict(size=13),
-                itemsizing="constant",
-                itemclick="toggle",
-                itemdoubleclick="toggleothers",
-                tracegroupgap=8,
+            updatemenus=[dict(
+                buttons=buttons,
+                direction="down",
+                showactive=True,
+                x=1.07, y=1.05,
+                xanchor="center",
                 yanchor="top",
-                y=1.0,
-                xanchor="left",
-            )
+                bgcolor="white",
+                bordercolor="lightgray",
+                borderwidth=1,
+                pad=dict(r=10, t=5, b=5),
+            )],
+            title=f"{metric.replace('_',' ')} over RSRP",
+            template="plotly_white",
+            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
+            legend=dict(
+                title="<b>Field Band</b>",
+                font=dict(size=12),
+                itemsizing="constant",
+                yanchor="top",
+                y=0.98,
+                xanchor="right",
+                x=1.15,
+                bordercolor="lightgray",
+                borderwidth=1
+            ),
+            margin=dict(l=60, r=160, t=100, b=60),
         )
+
         fig.update_xaxes(
             title="RSRP [dBm]",
             autorange="reversed",
             dtick=5,
-            showgrid=True,
             gridwidth=1,
             gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
         )
 
         if metric == "SINR_TRS":
             y_title = "SINR TRS [dB]"
+        elif metric == "SINR_SSB":
+            y_title = "SINR SSB [dB]"
         elif metric == "DL_Tput":
             y_title = "DL Throughput [Mbps]"
-        elif metric == "DL_Tput_per_RB":
-            y_title = "DL Throughput per RB [Mbps]"
-        fig.update_yaxes(
-            title=y_title,
-            # dtick=10,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
-        )
+        else:
+            y_title = metric
+        fig.update_yaxes(title=y_title, gridcolor="rgba(0,0,0,0.15)")
+
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_{metric}_raw.html")
+        out_path = os.path.join(out_dir, f"cmpr_{metric}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
+
+
+
+# def plot_kpi_raw(df, out_dir):
+#     # df_pair = _common.grid_kpi(df, grid_size=5, rb_min=0, sample_min=0)
+#     # df_n26, df_n28 = split_band_df(df_pair)
+#     # plot_df = df_n28.copy()
+#
+#     plot_df = df[df["DL_RB"] >= 48]
+#     plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+#
+#     metrics = [
+#         "SINR_SSB",
+#         "SINR_TRS",
+#         "DL_Tput",
+#         # "DL_Tput_per_RB",
+#     ]
+#
+#     for metric in metrics:
+#
+#         group_name = "Field Route"
+#         color_col = "Band"
+#         band_colors = {
+#             "n28": "#FF4500",
+#             "n26": "#1E90FF",
+#         }
+#
+#         def color_by_route(v):
+#             color = band_colors.get(v, "gray")
+#             label = v if v in band_colors else "Unknown"
+#             return color, label
+#         plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_route(v)))
+#         order = ["n28", "n26"]
+#
+#         plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
+#         plot_df = plot_df.sort_values("color_label")
+#
+#         def make_hover_text(row):
+#             lines = [
+#                 "────────────────────────",
+#                 f"<b>route</b> : {row['route']}",
+#                 f"<b>test_no</b> : {row['test_no']}",
+#                 "────────────────────────",
+#                 f"<b>RSRP</b> : {row['RSRP']:.2f}",
+#                 f"<b>SINR_TRS</b> : {row['SINR_TRS']:.2f}",
+#                 f"<b>DL_Tput</b> : {row['DL_Tput']:.2f}",
+#                 f"<b>DL_RB</b> : {row['DL_RB']:.2f}",
+#                 # f"<b>DL_Tput_per_RB</b> : {row['DL_Tput_per_RB']:.2f}",
+#                 "────────────────────────",
+#             ]
+#             return "<br>".join(lines)
+#
+#         plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
+#
+#         fig = go.Figure()
+#
+#         for label in order:
+#             group = plot_df[plot_df["color_label"] == label]
+#             if group.empty:
+#                 continue
+#
+#             color = group["color"].iloc[0]
+#             fig.add_trace(
+#                 go.Scatter(
+#                     x=group["RSRP"],
+#                     y=group[metric],
+#                     mode="markers",
+#                     name=f"{label} raw",
+#                     legendgroup=label,
+#                     marker=dict(size=2, color=color, opacity=0.2),
+#                     text=group["hover_text"],
+#                     hovertemplate="%{text}<extra></extra>",
+#                 )
+#             )
+#
+#             valid = (
+#                 group.dropna(subset=["RSRP", metric])
+#                 .replace([np.inf, -np.inf], np.nan)
+#                 .dropna(subset=[metric, "RSRP"])
+#                 .copy()
+#             )
+#
+#             bin_size = 5
+#             bins = np.arange(-120, -59, bin_size)
+#             valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+#
+#             mean_df = (
+#                 valid.groupby("RSRP_bin", observed=True)[metric]
+#                 .mean()
+#                 .reset_index()
+#                 .dropna()
+#             )
+#             mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+#
+#             if not mean_df.empty:
+#                 fig.add_trace(
+#                     go.Scatter(
+#                         x=mean_df["RSRP_center"],
+#                         y=mean_df[metric],
+#                         mode="lines+markers",
+#                         name=f"{label} avg",
+#                         legendgroup=label,
+#                         line=dict(color=color, width=3, dash="dot"),
+#                         marker=dict(size=10, color=color),
+#                         hoverinfo="skip",
+#                         showlegend=True,
+#                     )
+#                 )
+#
+#         title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name}"
+#
+#         fig.update_layout(
+#             title=title_text,
+#             template="plotly_white",
+#             hoverlabel=dict(
+#                 bgcolor="white",
+#                 bordercolor="gray",
+#                 font=dict(size=10),
+#                 align="left",
+#             ),
+#             legend=dict(
+#                 title=dict(
+#                     text=f"<span><b>  {group_name}</b></span><br>",
+#                     font=dict(size=13),
+#                     side="top"
+#                 ),
+#                 font=dict(size=13),
+#                 itemsizing="constant",
+#                 itemclick="toggle",
+#                 itemdoubleclick="toggleothers",
+#                 tracegroupgap=8,
+#                 yanchor="top",
+#                 y=1.0,
+#                 xanchor="left",
+#             )
+#         )
+#         fig.update_xaxes(
+#             title="RSRP [dBm]",
+#             autorange="reversed",
+#             dtick=5,
+#             showgrid=True,
+#             gridwidth=1,
+#             gridcolor="rgba(0,0,0,0.15)",
+#             griddash="dot",
+#         )
+#
+#         if metric == "SINR_TRS":
+#             y_title = "SINR TRS [dB]"
+#         elif metric == "DL_Tput":
+#             y_title = "DL Throughput [Mbps]"
+#         elif metric == "DL_Tput_per_RB":
+#             y_title = "DL Throughput per RB [Mbps]"
+#         fig.update_yaxes(
+#             title=y_title,
+#             # dtick=10,
+#             showgrid=True,
+#             gridwidth=1,
+#             gridcolor="rgba(0,0,0,0.15)",
+#             griddash="dot",
+#         )
+#         os.makedirs(out_dir, exist_ok=True)
+#         out_path = os.path.join(out_dir, f"cmpr_{metric}_raw.html")
+#         fig.write_html(out_path)
+#         print(f"✅ Saved: {out_path}")
 
 def plot_kpi_group_by_route(df, out_dir, band):
     # df_pair = _common.grid_kpi(df, grid_size=5, rb_min=0, sample_min=0)
