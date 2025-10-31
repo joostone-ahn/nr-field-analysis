@@ -210,8 +210,8 @@ def plot_kpi_raw(df, out_dir):
                 y=0.98,
                 xanchor="right",
                 x=1.15,
-                bordercolor="lightgray",
-                borderwidth=1
+                # bordercolor="lightgray",
+                # borderwidth=1
             ),
             margin=dict(l=60, r=160, t=100, b=60),
         )
@@ -239,8 +239,9 @@ def plot_kpi_raw(df, out_dir):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
-    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+def plot_kpi_group_by_site(df, out_dir, grid_size, rb_min, sample_min):
+    df_map = df[df['route'].isin(['Namsan','Huam415-1','Huam345-5'])]
+    df_pair = _common.grid_kpi(df_map, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_n26, df_n28 = split_band_df(df_pair)
     plot_df = pd.concat([df_n26, df_n28], axis=0)
     plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
@@ -248,21 +249,15 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
     df_fixed = df[df["route"] == "Fixed-point"].copy()
 
     if grid_size == 30:
-        raw_marker = dict(size=5, color=color, opacity=0.8)
-        raw_line = dict(color=color, width=3, dash="dot")
-        raw_line_marker = dict(size=7, color=color)
-        fixed_marker = dict(size=5, color=color, opacity=0.8)
+        marker_size = 15
     elif grid_size == 5:
-        raw_marker = dict(size=5, color=color, opacity=0.8)
-        raw_line = dict(color=color, width=3, dash="dot")
-        raw_line_marker = dict(size=7, color=color)
-        fixed_marker = dict(size=5, color=color, opacity=0.8)
+        marker_size = 5
 
     def make_hover_text(row):
         lines = [
             "────────────────────────",
             f"<b>band</b> : {row['Band']}",
-            f"<b>route / loc_id</b> :  : {row['route']} / {row['loc_id']}",
+            f"<b>route</b> : {row['route']}",
             "────────────────────────",
             f"<b>DL_Tput</b> : {row['DL_Tput']:.1f} Mbps",
             f"<b>DL_RB</b> : {row['DL_RB']:.1f}",
@@ -273,6 +268,8 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
             f"<b>RSRQ</b> : {row['RSRQ']:.1f} dB",
             "────────────────────────",
         ]
+        if "loc_id" in row.index:
+            lines[2] = f"<b>route / loc_id</b> : {row['route']} / {row['loc_id']}"
         return "<br>".join(lines)
 
     plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
@@ -320,7 +317,7 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
                     mode="markers",
                     name=f"{band} raw ({route_name})",
                     legendgroup=f"{band}_{route_name}",
-                    marker=raw_marker,
+                    marker= dict(size=marker_size, color=color, opacity=0.3),
                     text=group["hover_text"],
                     hovertemplate="%{text}<extra></extra>",
                     hoverlabel=dict(
@@ -348,8 +345,8 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
                         mode="lines+markers",
                         name=f"{band} avg ({route_name})",
                         legendgroup=f"{band}_{route_name}",
-                        line=raw_line,
-                        marker=raw_line_marker,
+                        line= dict(color=color, width=3, dash="dot"),
+                        marker= dict(size=7, color=color),
                         hoverinfo="skip",
                         visible=(route_name == "All"),
                     ))
@@ -364,7 +361,7 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
                     mode="markers",
                     name=f"{band} raw (Fixed-point)",
                     legendgroup=f"Fixed-{band}",
-                    marker=fixed_marker,
+                    marker=dict(size=3, color=fixed_color, opacity=0.8),
                     text=fixed_group["hover_text"],
                     hovertemplate="%{text}<extra></extra>",
                     hoverlabel=dict(
@@ -419,8 +416,8 @@ def plot_kpi_grid(df, out_dir, grid_size, rb_min, sample_min):
                 y=0.98,
                 xanchor="right",
                 x=1.15,
-                bordercolor="lightgray",
-                borderwidth=1
+                # bordercolor="lightgray",
+                # borderwidth=1
             ),
             margin=dict(l=60, r=160, t=100, b=60),
         )
@@ -965,19 +962,6 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
         out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
         print(f"Saved HTML: {out_path_html}")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def plot_kpi_group_by_route(df, out_dir, band):
     # df_pair = _common.grid_kpi(df, grid_size=5, rb_min=0, sample_min=0)
