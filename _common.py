@@ -207,7 +207,7 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
 
     kpi_cols = [
         "RSRP", "RSRQ",
-        "SINR", "SINR_TRS",
+        "SINR", "SINR_TRS", "SINR_SSB",
         "CQI", "RI", "DL_MCS",
         "DL_BLER", "UL_BLER",
         "DL_RB", "DL_Tput",
