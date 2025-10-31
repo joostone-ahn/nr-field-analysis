@@ -560,9 +560,28 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
 def plot_kpi_raw(df, out_dir):
     plot_df = df[(df["DL_RB"] >= 48) & (df["RSRP"].between(-120, -60))].copy()
 
+    def make_hover_text(row):
+        lines = [
+            "────────────────────────",
+            f"<b>band</b> : {row['Band']}",
+            f"<b>route</b> : {row['route']}",
+            f"<b>test_no</b> : {row['test_no']}",
+            "────────────────────────",
+            f"<b>DL_Tput</b> : {row['DL_Tput']:.1f} Mbps",
+            f"<b>RSRP</b> : {row['RSRP']:.1f} dBm",
+            f"<b>SINR_SSB</b> : {row['SINR_SSB']:.1f} dB",
+            f"<b>SINR_TRS</b> : {row['SINR_TRS']:.1f} dB",
+            f"<b>RSRQ</b> : {row['RSRQ']:.1f} dB",
+            "────────────────────────",
+        ]
+        return "<br>".join(lines)
+
+    plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
+
     metrics = [
         "SINR_SSB",
         "SINR_TRS",
+        "RSRQ",
         "DL_Tput"
     ]
 
@@ -595,13 +614,6 @@ def plot_kpi_raw(df, out_dir):
                     continue
 
                 color = band_colors.get(band, "gray")
-                hover_text = (
-                    "────────────────────────<br>"
-                    + "Route: %{customdata[0]}<br>"
-                    + "RSRP: %{x:.2f} dBm<br>"
-                    + f"{metric}: %{{y:.2f}}<br>"
-                    + "────────────────────────<extra></extra>"
-                )
 
                 fig.add_trace(go.Scatter(
                     x=group["RSRP"],
@@ -610,8 +622,13 @@ def plot_kpi_raw(df, out_dir):
                     name=f"{band} raw ({route_name})",
                     legendgroup=f"{band}_{route_name}",
                     marker=dict(size=2, color=color, opacity=0.2),
-                    customdata=np.stack([group["route"]], axis=-1),
-                    hovertemplate=hover_text,
+                    text=group["hover_text"],
+                    hovertemplate="%{text}",
+                    hoverlabel=dict(
+                        bgcolor="white",
+                        bordercolor=color,
+                        font=dict(color="gray")
+                    ),
                     visible=(route_name == "All"),
                 ))
 
@@ -642,11 +659,6 @@ def plot_kpi_raw(df, out_dir):
             fixed_group = df_fixed[df_fixed["Band"] == band]
             if not fixed_group.empty:
                 fixed_color = fixed_colors[band]
-                hover_text = (
-                    "Route: %{customdata[0]}<br>"
-                    + "RSRP: %{x:.2f} dBm<br>"
-                    + f"{metric}: %{{y:.2f}}<br>"
-                )
                 fig.add_trace(go.Scatter(
                     x=fixed_group["RSRP"],
                     y=fixed_group[metric],
@@ -654,9 +666,14 @@ def plot_kpi_raw(df, out_dir):
                     name=f"{band} raw (Fixed-point)",
                     legendgroup=f"Fixed-{band}",
                     marker=dict(size=3, color=fixed_color, opacity=0.8),
-                    customdata=np.stack([fixed_group["route"]], axis=-1),
-                    hovertemplate=hover_text,
-                    visible=True,  # ✅ 항상 표시
+                    text=fixed_group["hover_text"],
+                    hovertemplate="%{text}",
+                    hoverlabel=dict(
+                        bgcolor="white",
+                        bordercolor=fixed_color,
+                        font=dict(color="gray")
+                    ),
+                    visible=True,
                 ))
 
         buttons = []
