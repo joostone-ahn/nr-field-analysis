@@ -38,25 +38,14 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpi_raw(df, out_dir):
-    plot_df = df[df["DL_RB"] >= 48].copy()
+def plot_kpi_raw(df, out_dir, rb_min):
+    plot_df = df[df["DL_RB"] > rb_min].copy()
     plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
 
     def make_hover_text(row):
         lines = [
-            "────────────────────────",
-            f"<b>band</b> : {row['Band']}",
-            f"<b>route</b> : {row['route']}",
-            f"<b>test_no</b> : {row['test_no']}",
-            "────────────────────────",
-            f"<b>DL_Tput</b> : {row['DL_Tput']:.1f} Mbps",
-            # f"<b>DL_RB</b> : {row['DL_RB']:.1f}",
-            "────────────────────────",
-            f"<b>RSRP</b> : {row['RSRP']:.1f} dBm",
-            f"<b>SINR_SSB</b> : {row['SINR_SSB']:.1f} dB",
-            f"<b>SINR_TRS</b> : {row['SINR_TRS']:.1f} dB",
-            f"<b>RSRQ</b> : {row['RSRQ']:.1f} dB",
-            "────────────────────────",
+            f"<b>{row['test_no']}</b>",
+            f"<b>RSRP</b>: {row['RSRP']:.1f}",
         ]
         return "<br>".join(lines)
 
@@ -80,19 +69,18 @@ def plot_kpi_raw(df, out_dir):
     }
     order = ["n28", "n26"]
 
-    # route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
-    route_list = ["Namsan", "Huam345-5", "Huam415-1"]
+    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
     df_fixed = plot_df[plot_df["route"] == "Fixed-point"].copy()
 
     for metric in metrics:
         fig = go.Figure()
 
         for route_name in route_list:
-            # if route_name == "All":
-            #     route_df = plot_df.copy()
-            # else:
-            #     route_df = plot_df[plot_df["route"] == route_name]
-            route_df = plot_df[plot_df["route"] == route_name]
+            if route_name == "All":
+                route_df = plot_df.copy()
+            else:
+                route_df = plot_df[plot_df["route"] == route_name]
+            # route_df = plot_df[plot_df["route"] == route_name]
 
             for band in order:
                 group = route_df[route_df["Band"] == band]
@@ -109,19 +97,16 @@ def plot_kpi_raw(df, out_dir):
                     legendgroup=f"{band}_{route_name}",
                     marker=dict(size=2, color=color, opacity=0.2),
                     text=group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                    hoverlabel=dict(
-                        bgcolor="white",
-                        bordercolor=color,
-                        font=dict(color="gray")
+                    hovertemplate=(
+                        f"<span style='color:{color}'>%{{text}}<br>"
+                        f"<b>{metric}</b>: %{{y:.1f}}<br></span><extra></extra>"
                     ),
-                    # visible=(route_name == "All"),
-                    visible=(route_name == "Namsan"),
+                    visible=(route_name == "All"),
                 ))
 
                 valid = group.dropna(subset=["RSRP", metric])
                 if not valid.empty:
-                    bins = np.arange(-120, -59, 5)
+                    bins = np.arange(-120, -59, 1)
                     valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
                     mean_df = (
                         valid.groupby("RSRP_bin", observed=True)[metric]
@@ -136,11 +121,10 @@ def plot_kpi_raw(df, out_dir):
                         mode="lines+markers",
                         name=f"{band} avg ({route_name})",
                         legendgroup=f"{band}_{route_name}",
-                        line=dict(color=color, width=3, dash="dot"),
+                        line=dict(color=color, width=2),
                         marker=dict(size=7, color=color),
                         hoverinfo="skip",
-                        # visible=(route_name == "All"),
-                        visible=(route_name == "Namsan"),
+                        visible=(route_name == "All"),
                     ))
 
         for band in order:
@@ -155,11 +139,9 @@ def plot_kpi_raw(df, out_dir):
                     legendgroup=f"Fixed-{band}",
                     marker=dict(size=3, color=fixed_color, opacity=0.8),
                     text=fixed_group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                    hoverlabel=dict(
-                        bgcolor="white",
-                        bordercolor=fixed_color,
-                        font=dict(color="gray")
+                    hovertemplate=(
+                        f"<span style='color:{fixed_color}'>%{{text}}<br>"
+                        f"<b>{metric}</b>: %{{y:.1f}}<br></span><extra></extra>"
                     ),
                     visible=True,
                 ))
@@ -171,10 +153,8 @@ def plot_kpi_raw(df, out_dir):
                 trace_name = trace.name
                 if "(Fixed-point)" in trace_name:
                     visible_flags.append(True)
-                # elif route_name == "All":
-                #     visible_flags.append("(All)" in trace_name)
-                elif route_name == "Namsan":
-                    visible_flags.append("(Namsan)" in trace_name)
+                elif route_name == "All":
+                    visible_flags.append("(All)" in trace_name)
                 else:
                     visible_flags.append(f"({route_name})" in trace_name)
             buttons.append(dict(
@@ -821,11 +801,6 @@ def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
 
     df_map = df[df["route"].isin(['Namsan','Huam415-1','Huam345-5'])].copy()
     df_grid = _common.grid_kpi(df_map, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
-    df_grid = df_grid.rename(columns={
-        "lat_bin": f"lat_bin",
-        "lon_bin": f"lon_bin",
-        "loc_id": f"loc_id"
-    })
     df = df.merge(
         df_grid[[f"lat_bin", f"lon_bin", f"loc_id"]],
         on=[f"lat_bin", f"lon_bin"],
