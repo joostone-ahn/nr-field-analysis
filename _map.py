@@ -75,14 +75,16 @@ def add_basestation(map_name):
         location=[uhd_lat, uhd_lon],
         radius=1000,
         color="gray",
-        weight=2,
+        weight=1,
         dash_array="3,3",
         fill=False,
         popup="1km"
     ).add_to(map_name)
 
 def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
-    m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=16, tiles="cartodbpositron")
+    uhd_lat, uhd_lon = 37.551130, 126.987443
+    # m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=16, tiles="cartodbpositron")
+    m = folium.Map(location=[uhd_lat,uhd_lon], zoom_start=16, tiles="cartodbpositron")
 
     lat_factor, lon_factor = 111320, 88000
     dlat = grid_size / (2 * lat_factor)
