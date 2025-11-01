@@ -53,9 +53,9 @@ def make_step_cmap(vmin, vmax):
     
 def add_basestation(map_name):
     site_list = [
-        {"name": "[PCI 21,22] Huam 415-1", "lat": 37.5472288, "lon": 126.9815217},
-        {"name": "[PCI 11,12] Huam 345-5", "lat": 37.549636, "lon": 126.981512},
-        {"name": "[PCI 1,2] NamsanTower", "lat": 37.552596, "lon": 126.987184},
+        {"name": "Huam 415-1", "lat": 37.5472288, "lon": 126.9815217},
+        {"name": "Huam 345-5", "lat": 37.549636, "lon": 126.981512},
+        {"name": "NamsanTower", "lat": 37.552596, "lon": 126.987184},
     ]
     for site in site_list:
         folium.Marker(
