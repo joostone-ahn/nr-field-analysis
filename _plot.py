@@ -54,13 +54,14 @@ def plot_kpis_raw(df, out_dir, rb_min):
     plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
 
     metrics = [
-        "DL_Tput",
-        "SINR_SSB",
-        "SINR_TRS",
-        "RSRQ",
-        "RI",
-        "CQI",
+        ("DL_Tput", "DL Throughput [Mbps]"),
+        ("SINR_SSB", "SSB SINR [dB]"),
+        ("SINR_TRS", "TRS SINR [dB]"),
+        ("RSRQ", "RSRQ [dB]"),
+        ("RI", "Rank Indicator"),
+        ("CQI", "CQI Index"),
     ]
+
     band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
     fixed_colors = {"n28": "#FF8C00", "n26": "#228B22"}
     order = ["n28", "n26"]
@@ -78,7 +79,7 @@ def plot_kpis_raw(df, out_dir, rb_min):
 
         route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
 
-        for i, metric in enumerate(metrics, start=1):
+        for i, (metric, y_title) in enumerate(metrics, start=1):
             for band in order:
                 group = route_df[route_df["Band"] == band]
                 if group.empty:
@@ -154,6 +155,12 @@ def plot_kpis_raw(df, out_dir, rb_min):
                 row=i, col=1,
             )
 
+            fig.update_yaxes(
+                title=y_title,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+
         fig.update_layout(
             legend=dict(
                 orientation="h",
@@ -170,8 +177,6 @@ def plot_kpis_raw(df, out_dir, rb_min):
             height=SUBPLOT_HEIGHT * len(metrics),
             margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         )
-
-        fig.update_yaxes(gridcolor="rgba(0,0,0,0.15)")
 
         os.makedirs(out_dir, exist_ok=True)
         out_path = os.path.join(out_dir, f"cmpr_kpis_{route_name}.html")
