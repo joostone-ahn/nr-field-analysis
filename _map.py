@@ -53,9 +53,9 @@ def make_step_cmap(vmin, vmax):
     
 def add_basestation(map_name):
     site_list = [
-        {"name": "Huam 415-1", "lat": 37.5472288, "lon": 126.9815217},
-        {"name": "Huam 345-5", "lat": 37.549636, "lon": 126.981512},
-        {"name": "NamsanTower", "lat": 37.552596, "lon": 126.987184},
+        {"name": "[PCI 21,22] Huam 415-1", "lat": 37.5472288, "lon": 126.9815217},
+        {"name": "[PCI 11,12] Huam 345-5", "lat": 37.549636, "lon": 126.981512},
+        {"name": "[PCI 1,2] NamsanTower", "lat": 37.552596, "lon": 126.987184},
     ]
     for site in site_list:
         folium.Marker(
@@ -63,6 +63,12 @@ def add_basestation(map_name):
             icon=folium.Icon(color="black", icon="signal"),
             popup=f"{site['name']}"
         ).add_to(map_name)
+
+    folium.Marker(
+        [37.551130, 126.987443],
+        icon=folium.Icon(color="red", icon="tower-cell", prefix='fa'),
+        popup="UHD Broadcasting Tower"
+    ).add_to(map_name)
 
 def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=17, tiles="cartodbpositron")
