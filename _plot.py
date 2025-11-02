@@ -49,6 +49,180 @@ def plot_kpis_stats(df, out_dir, rb_min):
     plot_df = df[df["DL_RB"] > rb_min].copy()
     plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
 
+    metrics = [
+        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
+        ("SINR_SSB", "SSB SINR [dB]", [0, 40]),
+        ("SINR_TRS", "TRS SINR [dB]", [0, 40]),
+        ("RSRQ", "RSRQ [dB]", [-15, -10]),
+        ("RI", "Rank Indicator", [1, 2]),
+        ("CQI", "CQI Index", [0, 15]),
+    ]
+
+    band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
+    order = ["n28", "n26"]
+    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
+
+    for route_name in route_list:
+        fig = make_subplots(
+            rows=len(metrics),
+            cols=1,
+            shared_xaxes=False,
+            vertical_spacing=VERTICAL_SPACING,
+        )
+
+        route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
+
+        for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
+            for band in order:
+                group = route_df[route_df["Band"] == band]
+                if group.empty:
+                    continue
+                color = band_colors[band]
+                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, 1)
+                valid = group.copy()
+                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+
+                stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
+                stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                stats["SE"] = stats["std"] / np.sqrt(stats["count"])
+                stats["CI"] = 1.96 * stats["SE"]
+
+                # hover text: 평균 ± 95%CI
+                stats["hover_text"] = (
+                        "<b>count</b>: " + stats["count"].astype(str) + "<br>" +
+                        "<b>rsrp</b>: " + stats["RSRP_center"].round(1).astype(str) + "<br>" +
+                        f"<b>{metric.lower().replace('_',' ')}</b>: " + stats["mean"].round(2).astype(str) +
+                        " (±" + stats["CI"].round(2).astype(str) + ")"
+                )
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=stats["RSRP_center"],
+                        y=stats["mean"],
+                        mode="lines+markers",
+                        name=f"{band} mean",
+                        legendgroup=f"{band}_mean",
+                        showlegend=(i == 1),
+                        line=dict(color=color, width=1.3),
+                        marker=dict(size=5, color=color),
+                        text=stats["hover_text"],
+                        hovertemplate="%{text}<extra></extra>",
+                    ),
+                    row=i, col=1
+                )
+
+                median_df = valid.groupby("RSRP_bin", observed=True)[metric].median().reset_index()
+                median_df["RSRP_center"] = median_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                fig.add_trace(
+                    go.Scatter(
+                        x=median_df["RSRP_center"],
+                        y=median_df[metric],
+                        mode="lines+markers",
+                        name=f"{band} median",
+                        legendgroup=f"{band}_med",
+                        showlegend=(i == 1),
+                        line=dict(color=color, width=1, dash='dot'),
+                        marker=dict(size=5, color=color, symbol='square'),
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1
+                )
+
+                iqr_df = valid.groupby("RSRP_bin", observed=True)[metric].quantile([0.25, 0.75]).unstack().reset_index()
+                iqr_df.columns = ["RSRP_bin", "Q1", "Q3"]
+                iqr_df["RSRP_center"] = iqr_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=iqr_df["RSRP_center"],
+                        y=iqr_df["Q3"],
+                        mode="lines",
+                        line=dict(width=0),
+                        showlegend=False,
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1,
+                )
+                fig.add_trace(
+                    go.Scatter(
+                        x=iqr_df["RSRP_center"],
+                        y=iqr_df["Q1"],
+                        mode="lines",
+                        line=dict(width=0),
+                        fill="tonexty",
+                        fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
+                        name=f"{band} ±IQR(Q1–Q3)",
+                        legendgroup=f"{band}_iqr",
+                        showlegend=(i == 1),
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1,
+                )
+
+                # raw data
+                fig.add_trace(
+                    go.Scatter(
+                        x=valid["RSRP"],
+                        y=valid[metric],
+                        mode="markers",
+                        name=f"{band} raw",
+                        legendgroup=f"{band}_raw",
+                        showlegend=(i == 1),
+                        # visible="legendonly",
+                        marker=dict(size=2, color=color, opacity=0.15),
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1
+                )
+
+            fig.update_xaxes(
+                title="RSRP [dBm]",
+                autorange="reversed",
+                dtick=5,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+            fig.update_yaxes(
+                title=y_title,
+                range=y_range,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+
+        fig.update_layout(
+            legend=dict(
+                orientation="h",
+                font=dict(size=LEGEND_FONT_SIZE),
+                itemsizing="constant",
+                yanchor="top",
+                y=LEGEND_Y,
+                xanchor="center",
+                x=0.5,
+                title=None,
+            ),
+            template="plotly_white",
+            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
+            height=SUBPLOT_HEIGHT * len(metrics),
+            margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+        )
+
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"cmpr_kpis_{route_name}.html")
+        fig.write_html(out_path)
+        print(f"✅ Saved: {out_path}")
+
+def _plot_kpis_stats(df, out_dir, rb_min):
+    SUBPLOT_HEIGHT = 600
+    VERTICAL_SPACING = 0.035
+    TOP_MARGIN = 70
+    LEGEND_Y = 1.02
+    LEGEND_FONT_SIZE = 13
+    RSRP_LOW = -115
+    RSRP_HIGH = -65
+
+    plot_df = df[df["DL_RB"] > rb_min].copy()
+    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
+
     def make_hover_text(row):
         return f"<b>{row['test_no']}</b><br><b>RSRP</b>: {row['RSRP']:.1f}"
 
