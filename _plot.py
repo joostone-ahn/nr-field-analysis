@@ -52,8 +52,8 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SSB SINR [dB]", [0, 40]),
-        ("SINR_TRS", "TRS SINR [dB]", [0, 40]),
+        ("SINR_SSB", "SSB SINR [dB]", [-10, 35]),
+        ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
         ("RSRQ", "RSRQ [dB]", [-15, -10]),
         ("RI", "Rank Indicator", [1, 2]),
         ("CQI", "CQI Index", [0, 15]),
