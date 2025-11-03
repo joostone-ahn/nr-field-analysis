@@ -413,6 +413,7 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
         vmin, vmax = -vabs, vabs
         cmap = make_step_cmap(vmin, vmax)
 
+        os.makedirs(out_dir, exist_ok=True)
         out_file = os.path.join(out_dir, f"cmpr_{metric_pct}.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
@@ -453,6 +454,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
 
         cmap = make_step_cmap(vmin, vmax)
 
+        os.makedirs(out_dir, exist_ok=True)
         out_file = os.path.join(out_dir, f"cmpr_{metric}.html")
         caption = f"Δ{metric} (n28-n26) [{unit}]"
         render_step_map(
@@ -493,6 +495,8 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
         n28 = df_pair[f"{metric}_mean_n28"].astype(float)
         cmap = make_step_cmap(vmin, vmax)
         caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
+
+        os.makedirs(out_dir, exist_ok=True)
         out_file = os.path.join(out_dir, f"{band}_{metric}.html")
         render_step_map(
             df_pair=df_pair,

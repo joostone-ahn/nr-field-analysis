@@ -38,109 +38,7 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpi_pdf_input_html(df, out_dir, rb_min, rsrp_bin):
-    SUBPLOT_HEIGHT = 600
-    LEGEND_FONT_SIZE = 13
-    RSRP_LOW, RSRP_HIGH = -115, -65
-
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
-
-    metrics = [
-        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SSB SINR [dB]", [-10, 40]),
-        ("SINR_TRS", "TRS SINR [dB]", [-10, 40]),
-    ]
-    band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
-    order = ["n28", "n26"]
-
-    bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
-
-    for metric, y_title, y_range in metrics:
-        fig = go.Figure()
-
-        # 모든 bin의 PDF를 미리 그리고, 처음엔 전부 invisible
-        for b_idx, b in enumerate(bins[:-1]):
-            rsrp_min, rsrp_max = b, b + rsrp_bin
-            subset = plot_df[(plot_df["RSRP"] >= rsrp_min) & (plot_df["RSRP"] < rsrp_max)]
-
-            for band in order:
-                group = subset[subset["Band"] == band]
-                if len(group) < 5:
-                    continue
-                kde = gaussian_kde(group[metric].dropna())
-                x_vals = np.linspace(group[metric].min(), group[metric].max(), 200)
-                y_vals = kde(x_vals)
-
-                fig.add_trace(go.Scatter(
-                    x=x_vals,
-                    y=y_vals,
-                    mode="lines",
-                    line=dict(color=band_colors[band], width=2),
-                    name=f"{band} ({rsrp_min}~{rsrp_max} dBm)",
-                    visible=(b_idx == 0),  # 초기엔 첫 구간만 표시
-                    hovertemplate=f"<b>{band}</b><br>RSRP: {rsrp_min}~{rsrp_max} dBm<extra></extra>"
-                ))
-
-        fig.update_layout(
-            title=f"{metric} PDF (입력한 RSRP 구간 표시)",
-            xaxis_title=f"{metric}",
-            yaxis_title="Density",
-            legend=dict(
-                orientation="h",
-                yanchor="top",
-                y=1.05,
-                xanchor="center",
-                x=0.5,
-                font=dict(size=LEGEND_FONT_SIZE)
-            ),
-            template="plotly_white",
-            height=SUBPLOT_HEIGHT,
-            margin=dict(l=60, r=60, t=70, b=60),
-        )
-
-        # JavaScript 삽입 (입력창 + 버튼 + 이벤트)
-        js_code = f"""
-        <script>
-        const bins = {list(bins)};
-        const tracesPerBin = {len(order)};
-        function updatePlot() {{
-            const input = parseFloat(document.getElementById('rsrpInput').value);
-            let binIndex = -1;
-            for (let i = 0; i < bins.length - 1; i++) {{
-                if (input >= bins[i] && input < bins[i + 1]) {{
-                    binIndex = i;
-                    break;
-                }}
-            }}
-            const update = Array(Plotly.graphs[0].data.length).fill(false);
-            if (binIndex >= 0) {{
-                for (let i = 0; i < tracesPerBin; i++) {{
-                    update[binIndex * tracesPerBin + i] = true;
-                }}
-            }}
-            Plotly.update('plotly-div', {{visible: update}});
-        }}
-        </script>
-
-        <div style="margin-bottom:10px;">
-            <label>RSRP 입력 (-115 ~ -65 dBm): </label>
-            <input id="rsrpInput" type="number" step="1" value="-110" style="width:80px;">
-            <button onclick="updatePlot()">확인</button>
-        </div>
-        """
-
-        # HTML 출력 (JS 포함)
-        html = fig.to_html(include_plotlyjs="cdn", full_html=False, div_id="plotly-div")
-        html = js_code + html
-
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"pdf_{metric}_interactive.html")
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(html)
-        print(f"✅ Saved interactive HTML: {out_path}")
-
-def plot_raw_kpis(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -351,7 +249,7 @@ def plot_raw_kpis(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_rsrp_kpis_{route_name}.html")
+        out_path = os.path.join(out_dir, f"kpis_raw_{route_name}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
@@ -503,11 +401,64 @@ def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
         date = target_no.split("_")[0]
         test_num = target_no.split("_")[1]
         route = target_no.split("_")[2]
+
+        os.makedirs(out_dir, exist_ok=True)
         save_dir = os.path.join(out_dir, f"grid_{grid_size}m", date, route)
         os.makedirs(save_dir, exist_ok=True)
         out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
         print(f"Saved HTML: {out_path_html}")
+
+def rb_each_test(df, out_dir, rb_min):
+    metric = "DL_RB"
+    test_list = sorted(df["test_no"].unique())
+    date_list = sorted(set([t.split("_")[0] for t in test_list]))
+
+    for date in date_list:
+        date_tests = [t for t in test_list if t.startswith(date)]
+        fig, axes = plt.subplots(len(date_tests), 1, figsize=(16, 4 * len(date_tests)), sharex=False)
+
+        if len(date_tests) == 1:
+            axes = [axes]
+
+        for i, target_no in enumerate(date_tests):
+            ax = axes[i]
+            df_sub = df[df["test_no"] == target_no]
+
+            # pivot: Band별 DL_RB
+            df_pivot = (
+                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
+                .dropna()
+                .reset_index()
+            )
+            df_pivot["idx"] = range(len(df_pivot))
+
+            ymin = df_pivot[["n26", "n28"]].min().min()
+            ymax = df_pivot[["n26", "n28"]].max().max()
+            if metric == 'DL_RB':
+                ymax = 50
+                ymin = rb_min
+
+            # n26 / n28 plot
+            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
+            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
+
+            ax.set_ylim(ymin, ymax)
+            ax.legend(fontsize=8, loc="upper right")
+            ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
+            ax.set_xlabel("Time Index")
+            ax.set_ylabel("DL_RB")
+            ax.grid(True, linestyle="--", alpha=0.5)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.97])
+        os.makedirs(out_dir, exist_ok=True)
+        save_dir = os.path.join(out_dir, f"plot_RB_each_test")
+        os.makedirs(save_dir, exist_ok=True)
+        out_path = os.path.join(save_dir, f"{date}.png")
+        plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
+        plt.close(fig)
+        # plt.show()
+        print(f"Saved: {out_path}")
 
 def plot_grid_kpi(df, out_dir, grid_size, rb_min, sample_min):
     df_map = df[df['route'].isin(['Namsan','Huam415-1','Huam345-5'])]
@@ -914,53 +865,3 @@ def plot_grid_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band)
         out_path = os.path.join(out_dir, f"{band}_{metric}_by_uhd.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
-
-def rb_each_test(df, out_dir, rb_min):
-    metric = "DL_RB"
-    test_list = sorted(df["test_no"].unique())
-    date_list = sorted(set([t.split("_")[0] for t in test_list]))
-
-    for date in date_list:
-        date_tests = [t for t in test_list if t.startswith(date)]
-        fig, axes = plt.subplots(len(date_tests), 1, figsize=(16, 4 * len(date_tests)), sharex=False)
-
-        if len(date_tests) == 1:
-            axes = [axes]
-
-        for i, target_no in enumerate(date_tests):
-            ax = axes[i]
-            df_sub = df[df["test_no"] == target_no]
-
-            # pivot: Band별 DL_RB
-            df_pivot = (
-                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
-                .dropna()
-                .reset_index()
-            )
-            df_pivot["idx"] = range(len(df_pivot))
-
-            ymin = df_pivot[["n26", "n28"]].min().min()
-            ymax = df_pivot[["n26", "n28"]].max().max()
-            if metric == 'DL_RB':
-                ymax = 50
-                ymin = rb_min
-
-            # n26 / n28 plot
-            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
-            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
-
-            ax.set_ylim(ymin, ymax)
-            ax.legend(fontsize=8, loc="upper right")
-            ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
-            ax.set_xlabel("Time Index")
-            ax.set_ylabel("DL_RB")
-            ax.grid(True, linestyle="--", alpha=0.5)
-
-        plt.tight_layout(rect=[0, 0, 1, 0.97])
-        save_dir = os.path.join(out_dir, f"plot_RB_each_test")
-        os.makedirs(save_dir, exist_ok=True)
-        out_path = os.path.join(save_dir, f"{date}.png")
-        plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
-        plt.close(fig)
-        # plt.show()
-        print(f"Saved: {out_path}")

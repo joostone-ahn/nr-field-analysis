@@ -126,17 +126,13 @@ def generate_list_html(root_dir, depth=0):
             continue
 
         path = os.path.join(root_dir, item)
-        # ✅ 항상 "results" 기준 상대경로를 구함
         rel_path = os.path.relpath(path, "results").replace("\\", "/")
 
         if os.path.isdir(path):
-            # ✅ 기본 펼침 대상 폴더들
             is_open = rel_path in (
                 "map",
                 "map/grid_30m",
                 "plot",
-                "plot/raw",
-                "plot/raw/rsrp_1dB",
             )
 
             html += (
@@ -146,7 +142,6 @@ def generate_list_html(root_dir, depth=0):
             html += "</details></li>"
 
         elif item.endswith((".html", ".png")):
-            # ✅ 항상 "results/" prefix를 붙임
             href = f"results/{rel_path}"
             html += f'<li><a href="{href}" target="_blank">{item}</a></li>'
 
