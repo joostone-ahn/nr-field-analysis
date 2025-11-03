@@ -249,7 +249,7 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"kpis_raw_{route_name}.html")
+        out_path = os.path.join(out_dir, f"site_{route_name}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
