@@ -200,7 +200,6 @@ def analyze_kpi(fname, date_list):
     return df
 
 def grid_kpi(df, grid_size, rb_min, sample_min):
-
     kpi_cols = [
         "RSRP", "RSRQ",
         "SINR", "SINR_TRS", "SINR_SSB",
