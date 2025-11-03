@@ -62,25 +62,24 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
     plot_df = df[df["DL_RB"] > rb_min].copy()
     plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
 
-    bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
+
+    fig = make_subplots(
+        rows=len(metrics),
+        cols=1,
+        shared_xaxes=False,
+        vertical_spacing=VERTICAL_SPACING,
+    )
 
     for route_name in route_list:
-        fig = make_subplots(
-            rows=len(metrics),
-            cols=1,
-            shared_xaxes=False,
-            vertical_spacing=VERTICAL_SPACING,
-        )
-
         route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
 
         for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
             for band in order:
                 group = route_df[route_df["Band"] == band]
-                if group.empty:
-                    continue
                 color = band_colors[band]
                 valid = group.copy()
+
+                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
                 valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
 
                 stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
@@ -104,10 +103,9 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                         x=stats["RSRP_center"],
                         y=stats["mean"],
                         mode="lines+markers",
-                        name=f"{band} mean",
+                        name=f"{route_name} | {band} | mean",
                         legendgroup=f"{band}_mean",
                         showlegend=(i == 1),
-                        # visible="legendonly" if band == "n26" else True,
                         line=dict(color=color, width=1.3),
                         marker=dict(size=5, color=color),
                         text=stats["hover_text"],
@@ -125,6 +123,7 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                         x=ci_df["RSRP_center"],
                         y=ci_df["upper_CI"],
                         mode="lines",
+                        name=f"{route_name} | {band} | ±95% CI upper",
                         line=dict(width=0),
                         showlegend=False,
                         hoverinfo="skip",
@@ -140,74 +139,38 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                         line=dict(width=0),
                         fill="tonexty",
                         fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
-                        name=f"{band} ±95% CI",
+                        name=f"{route_name} | {band} | ±95% CI",
                         legendgroup=f"{band}_ci",
                         showlegend=(i == 1),
-                        # visible="legendonly" if band == "n26" else True,
                         hoverinfo="skip",
                     ),
                     row=i, col=1,
                 )
 
-                median_df = valid.groupby("RSRP_bin", observed=True)[metric].median().reset_index()
-                median_df["RSRP_center"] = median_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                fig.add_trace(
-                    go.Scatter(
-                        x=median_df["RSRP_center"],
-                        y=median_df[metric],
-                        mode="lines+markers",
-                        name=f"{band} median",
-                        legendgroup=f"{band}_med",
-                        showlegend=(i == 1),
-                        visible="legendonly",
-                        # visible="legendonly" if band == "n26" else True,
-                        line=dict(color=color, width=1, dash='dot'),
-                        marker=dict(size=5, color=color, symbol='square'),
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1
-                )
-
-                # iqr_df = valid.groupby("RSRP_bin", observed=True)[metric].quantile([0.25, 0.75]).unstack().reset_index()
-                # iqr_df.columns = ["RSRP_bin", "Q1", "Q3"]
-                # iqr_df["RSRP_center"] = iqr_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                #
+                # median_df = valid.groupby("RSRP_bin", observed=True)[metric].median().reset_index()
+                # median_df["RSRP_center"] = median_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
                 # fig.add_trace(
                 #     go.Scatter(
-                #         x=iqr_df["RSRP_center"],
-                #         y=iqr_df["Q3"],
-                #         mode="lines",
-                #         line=dict(width=0),
-                #         showlegend=False,
-                #         hoverinfo="skip",
-                #     ),
-                #     row=i, col=1,
-                # )
-                # fig.add_trace(
-                #     go.Scatter(
-                #         x=iqr_df["RSRP_center"],
-                #         y=iqr_df["Q1"],
-                #         mode="lines",
-                #         line=dict(width=0),
-                #         fill="tonexty",
-                #         fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
-                #         name=f"{band} ±IQR(Q1–Q3)",
-                #         legendgroup=f"{band}_iqr",
+                #         x=median_df["RSRP_center"],
+                #         y=median_df[metric],
+                #         mode="lines+markers",
+                #         name=f"{route_name} | {band} | median",
+                #         legendgroup=f"{band}_median",
                 #         showlegend=(i == 1),
-                #         visible="legendonly" if band == "n26" else True,
+                #         visible="legendonly",
+                #         line=dict(color=color, width=1, dash='dot'),
+                #         marker=dict(size=5, color=color, symbol='square'),
                 #         hoverinfo="skip",
                 #     ),
-                #     row=i, col=1,
+                #     row=i, col=1
                 # )
-
-                # raw data
 
                 fig.add_trace(
                     go.Scatter(
                         x=valid["RSRP"],
                         y=valid[metric],
                         mode="markers",
-                        name=f"{band} raw",
+                        name=f"{route_name} | {band} | raw",
                         legendgroup=f"{band}_raw",
                         showlegend=(i == 1),
                         visible="legendonly",
@@ -231,27 +194,51 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                 row=i, col=1,
             )
 
-        fig.update_layout(
-            legend=dict(
-                orientation="h",
-                font=dict(size=LEGEND_FONT_SIZE),
-                itemsizing="constant",
-                yanchor="top",
-                y=LEGEND_Y,
-                xanchor="center",
-                x=0.5,
-                title=None,
-            ),
-            template="plotly_white",
-            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
-            height=SUBPLOT_HEIGHT * len(metrics),
-            margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+    buttons = []
+    for route_name in route_list:
+        visible_array = [route_name in trace.name for trace in fig.data]
+        buttons.append(
+            dict(
+                label=route_name,
+                method="update",
+                args=[{"visible": visible_array}],
+            )
         )
+    initial_visible = ["All" in (trace.name or "") for trace in fig.data]
+    for trace, visible in zip(fig.data, initial_visible):
+        trace.visible = visible
 
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"site_{route_name}.html")
-        fig.write_html(out_path)
-        print(f"✅ Saved: {out_path}")
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type="dropdown",
+                direction="down",
+                x=0.01,
+                y=LEGEND_Y,
+                xanchor="left",
+                buttons=buttons,
+                showactive=True,
+                bgcolor="white",
+                bordercolor="gray",
+            )
+        ],
+        height=SUBPLOT_HEIGHT * len(metrics),
+        template="plotly_white",
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=LEGEND_Y,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=LEGEND_FONT_SIZE),
+        ),
+        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+    )
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, f"site_.html")
+    fig.write_html(out_path)
+    print(f"✅ Saved: {out_path}")
 
 def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
     metrics = [
