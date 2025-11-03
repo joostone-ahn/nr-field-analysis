@@ -49,22 +49,18 @@ def grid_uhd(df_uhd, grid_size):
 def read_logs():
     log_dir = "logs"
     device_data = {}  
-    route_list = []
     for route in os.listdir(log_dir):
         route_path = os.path.join(log_dir, route)
         if not os.path.isdir(route_path):
             continue  # 폴더가 아니면 스킵
-        route_list.append(route)
-        # route 폴더 안의 csv 파일만 처리
         for fname in os.listdir(route_path):
             if fname.endswith(".xlsx"):
                 fpath = os.path.join(route_path, fname)
 
                 parts = fname.replace(".xlsx", "").split("_")
                 if len(parts) < 3:
-                    print(f"⚠️ Skipped (unexpected filename): {fname}")
+                    print(f"⚠️ unexpected filename: {fname}")
                     continue
-
                 date    = parts[0]
                 device  = parts[1]
                 test_no = parts[2]
