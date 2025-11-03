@@ -350,8 +350,8 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
                 </summary>
                 <div style="margin-top:6px; padding-left:10px;">
         """
-        out_dir = '/'.join(out_file.split("/")[0:2])
-        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/{out_dir}/plot/plot_kpis_each_test"
+        grid_dir = out_file.split("/")[2]
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/{grid_dir}"
 
         for date, entries in sorted(test_by_date.items()):
             test_html += f"""

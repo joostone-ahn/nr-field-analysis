@@ -1,9 +1,6 @@
 from datetime import datetime
 import os
 
-base_dir = "results"
-index_path = os.path.join(base_dir, "index.html")
-
 updated_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 html_header = f"""<!DOCTYPE html>
@@ -119,9 +116,8 @@ html_footer = """
 </body></html>
 """
 
-
 def generate_list_html(root_dir, depth=0):
-    """폴더 계층을 HTML 리스트로 생성"""
+    """'map', 'map/grid_30m', 'plot', 'plot/raw', 'plot/raw/rsrp_1dB' 폴더만 기본 펼침"""
     items = sorted(os.listdir(root_dir))
     html = "<ul>"
 
@@ -130,27 +126,40 @@ def generate_list_html(root_dir, depth=0):
             continue
 
         path = os.path.join(root_dir, item)
-        rel_path = os.path.relpath(path, base_dir).replace("\\", "/")
+        rel_path = os.path.relpath(path, "results").replace("\\", "/")
 
-        fold_state = ""
-        # depth 0(grid), 1(map/plot)은 펼침, 이후는 접힘
         if os.path.isdir(path):
-            if depth <= 1:
-                fold_state = " open"
-            html += f'<li class="folder"><details{fold_state}><summary>{item}/</summary>'
+            # ✅ 기본 펼침 대상 폴더들
+            is_open = rel_path in (
+                "map",
+                "map/grid_30m",
+                "plot",
+                "plot/raw",
+                "plot/raw/rsrp_1dB",
+            )
+
+            if is_open:
+                html += f'<li class="folder"><details open><summary>{item}/</summary>'
+            else:
+                html += f'<li class="folder"><details><summary>{item}/</summary>'
+
             html += generate_list_html(path, depth + 1)
             html += "</details></li>"
-        elif item.endswith(".html") or item.endswith(".png"):
-            html += f'<li><a href="{rel_path}" target="_blank">{os.path.basename(rel_path)}</a></li>'
+
+        elif item.endswith((".html", ".png")):
+            html += f'<li><a href="{rel_path}" target="_blank">{item}</a></li>'
 
     html += "</ul>"
     return html
 
 
-os.makedirs(base_dir, exist_ok=True)
-with open(index_path, "w", encoding="utf-8") as f:
-    f.write(html_header)
-    f.write(generate_list_html(base_dir))
-    f.write(html_footer)
+# 실행부
+result_dir = "results"
+index_file = "index.html"
 
-print(f"✅ index.html generated at: {index_path}")
+with open(index_file, "w", encoding="utf-8") as f:
+    f.write(html_header)
+    f.write(generate_list_html(result_dir))
+    # f.write(html_footer)
+
+print(f"✅ index.html generated at: {index_file}")
