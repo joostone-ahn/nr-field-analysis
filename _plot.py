@@ -37,7 +37,7 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
+def plot_raw_kpis(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -78,7 +78,7 @@ def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
                 if group.empty:
                     continue
                 color = band_colors[band]
-                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
+                bins = np.arange(RSRP_LOW, RSRP_HIGH+1, rsrp_bin)
                 valid = group.copy()
                 valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
 
@@ -106,12 +106,46 @@ def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
                         name=f"{band} mean",
                         legendgroup=f"{band}_mean",
                         showlegend=(i == 1),
+                        # visible="legendonly" if band == "n26" else True,
                         line=dict(color=color, width=1.3),
                         marker=dict(size=5, color=color),
                         text=stats["hover_text"],
                         hovertemplate="%{text}<extra></extra>",
                     ),
                     row=i, col=1
+                )
+
+                ci_df = stats.copy()
+                ci_df["upper_CI"] = ci_df["mean"] + ci_df["CI"]
+                ci_df["lower_CI"] = ci_df["mean"] - ci_df["CI"]
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=ci_df["RSRP_center"],
+                        y=ci_df["upper_CI"],
+                        mode="lines",
+                        line=dict(width=0),
+                        showlegend=False,
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1,
+                )
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=ci_df["RSRP_center"],
+                        y=ci_df["lower_CI"],
+                        mode="lines",
+                        line=dict(width=0),
+                        fill="tonexty",
+                        fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
+                        name=f"{band} ±95% CI",
+                        legendgroup=f"{band}_ci",
+                        showlegend=(i == 1),
+                        # visible="legendonly" if band == "n26" else True,
+                        hoverinfo="skip",
+                    ),
+                    row=i, col=1,
                 )
 
                 median_df = valid.groupby("RSRP_bin", observed=True)[metric].median().reset_index()
@@ -125,6 +159,7 @@ def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
                         legendgroup=f"{band}_med",
                         showlegend=(i == 1),
                         visible="legendonly",
+                        # visible="legendonly" if band == "n26" else True,
                         line=dict(color=color, width=1, dash='dot'),
                         marker=dict(size=5, color=color, symbol='square'),
                         hoverinfo="skip",
@@ -132,39 +167,40 @@ def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
                     row=i, col=1
                 )
 
-                iqr_df = valid.groupby("RSRP_bin", observed=True)[metric].quantile([0.25, 0.75]).unstack().reset_index()
-                iqr_df.columns = ["RSRP_bin", "Q1", "Q3"]
-                iqr_df["RSRP_center"] = iqr_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-                fig.add_trace(
-                    go.Scatter(
-                        x=iqr_df["RSRP_center"],
-                        y=iqr_df["Q3"],
-                        mode="lines",
-                        line=dict(width=0),
-                        showlegend=False,
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1,
-                )
-                fig.add_trace(
-                    go.Scatter(
-                        x=iqr_df["RSRP_center"],
-                        y=iqr_df["Q1"],
-                        mode="lines",
-                        line=dict(width=0),
-                        fill="tonexty",
-                        fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
-                        name=f"{band} ±IQR(Q1–Q3)",
-                        legendgroup=f"{band}_iqr",
-                        showlegend=(i == 1),
-                        visible="legendonly",
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1,
-                )
+                # iqr_df = valid.groupby("RSRP_bin", observed=True)[metric].quantile([0.25, 0.75]).unstack().reset_index()
+                # iqr_df.columns = ["RSRP_bin", "Q1", "Q3"]
+                # iqr_df["RSRP_center"] = iqr_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                #
+                # fig.add_trace(
+                #     go.Scatter(
+                #         x=iqr_df["RSRP_center"],
+                #         y=iqr_df["Q3"],
+                #         mode="lines",
+                #         line=dict(width=0),
+                #         showlegend=False,
+                #         hoverinfo="skip",
+                #     ),
+                #     row=i, col=1,
+                # )
+                # fig.add_trace(
+                #     go.Scatter(
+                #         x=iqr_df["RSRP_center"],
+                #         y=iqr_df["Q1"],
+                #         mode="lines",
+                #         line=dict(width=0),
+                #         fill="tonexty",
+                #         fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
+                #         name=f"{band} ±IQR(Q1–Q3)",
+                #         legendgroup=f"{band}_iqr",
+                #         showlegend=(i == 1),
+                #         visible="legendonly" if band == "n26" else True,
+                #         hoverinfo="skip",
+                #     ),
+                #     row=i, col=1,
+                # )
 
                 # raw data
+
                 fig.add_trace(
                     go.Scatter(
                         x=valid["RSRP"],
@@ -216,328 +252,7 @@ def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-def _plot_kpis_stats(df, out_dir, rb_min):
-    SUBPLOT_HEIGHT = 600
-    VERTICAL_SPACING = 0.035
-    TOP_MARGIN = 70
-    LEGEND_Y = 1.02
-    LEGEND_FONT_SIZE = 13
-    RSRP_LOW = -115
-    RSRP_HIGH = -65
-
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
-
-    def make_hover_text(row):
-        return f"<b>{row['test_no']}</b><br><b>RSRP</b>: {row['RSRP']:.1f}"
-
-    plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
-
-    metrics = [
-        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SSB SINR [dB]", [-10, 40]),
-        ("SINR_TRS", "TRS SINR [dB]", [-10, 40]),
-        ("RSRQ", "RSRQ [dB]", [-20, -5]),
-        ("RI", "Rank Indicator", [0.5, 2.5]),
-        ("CQI", "CQI Index", [0, 15]),
-    ]
-
-    band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
-    order = ["n28", "n26"]
-
-    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
-
-    for route_name in route_list:
-        fig = make_subplots(
-            rows=len(metrics),
-            cols=1,
-            shared_xaxes=False,
-            vertical_spacing=VERTICAL_SPACING,
-        )
-
-        route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
-
-        for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
-            for band in order:
-                group = route_df[route_df["Band"] == band]
-                if group.empty:
-                    continue
-                color = band_colors[band]
-
-                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, 1)
-
-                valid = group.copy()
-                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-
-                mean_df = valid.groupby("RSRP_bin", observed=True)[metric].mean().reset_index()
-                mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                fig.add_trace(
-                    go.Scatter(
-                        x=mean_df["RSRP_center"],
-                        y=mean_df[metric],
-                        mode="lines+markers",
-                        name=f"{band} mean",
-                        legendgroup=f"{band}_mean",
-                        showlegend=(i == 1),
-                        line=dict(color=color, width=1),
-                        marker=dict(size=5, color=color),
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1
-                )
-
-                median_df = valid.groupby("RSRP_bin", observed=True)[metric].median().reset_index()
-                median_df["RSRP_center"] = median_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                fig.add_trace(
-                    go.Scatter(
-                        x=median_df["RSRP_center"],
-                        y=median_df[metric],
-                        mode="lines+markers",
-                        name=f"{band} median",
-                        legendgroup=f"{band}_med",
-                        showlegend=(i == 1),
-                        line=dict(color=color, width=1, dash='dot'),
-                        marker=dict(size=5, color=color, symbol='square'),
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1
-                )
-
-                iqr_df = valid.groupby("RSRP_bin", observed=True)[metric].quantile([0.25, 0.75]).unstack().reset_index()
-                iqr_df.columns = ["RSRP_bin", "Q1", "Q3"]
-                iqr_df["IQR"] = iqr_df["Q3"] - iqr_df["Q1"]
-                iqr_df["RSRP_center"] = iqr_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-                fig.add_trace(
-                    go.Scatter(
-                        x=iqr_df["RSRP_center"],
-                        y=iqr_df["Q3"],
-                        mode="lines",
-                        line=dict(width=0),
-                        showlegend=False,
-                        hoverinfo="skip"
-                    ),
-                    row=i, col=1
-                )
-                fig.add_trace(
-                    go.Scatter(
-                        x=iqr_df["RSRP_center"],
-                        y=iqr_df["Q1"],
-                        mode="lines",
-                        line=dict(width=0),
-                        fill="tonexty",
-                        fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
-                        name=f"{band} ±IQR(Q1-Q3)",
-                        legendgroup=f"{band}_iqr",
-                        showlegend=(i == 1),
-                        hoverinfo="skip"
-                    ),
-                    row=i, col=1
-                )
-
-                # raw data
-                fig.add_trace(
-                    go.Scatter(
-                        x=valid["RSRP"],
-                        y=valid[metric],
-                        mode="markers",
-                        name=f"{band} raw",
-                        legendgroup=f"{band}_raw",
-                        showlegend=(i == 1),
-                        visible="legendonly",
-                        marker=dict(size=2, color=color, opacity=0.15),
-                        text=valid["hover_text"],
-                        hovertemplate=(
-                            f"<span style='color:{color}'>%{{text}}<br>"
-                            f"<b>{metric}</b>: %{{y:.1f}}</span><extra></extra>"
-                        ),
-                    ),
-                    row=i, col=1
-                )
-
-            fig.update_xaxes(
-                title="RSRP [dBm]",
-                autorange="reversed",
-                dtick=5,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-
-            fig.update_yaxes(
-                title=y_title,
-                range=y_range,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-
-        fig.update_layout(
-            legend=dict(
-                orientation="h",
-                font=dict(size=LEGEND_FONT_SIZE),
-                itemsizing="constant",
-                yanchor="top",
-                y=LEGEND_Y,
-                xanchor="center",
-                x=0.5,
-                title=None,
-            ),
-            template="plotly_white",
-            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
-            height=SUBPLOT_HEIGHT * len(metrics),
-            margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
-        )
-
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_kpis_{route_name}.html")
-        fig.write_html(out_path)
-        print(f"✅ Saved: {out_path}")
-
-def plot_kpis_raw(df, out_dir, rb_min):
-    SUBPLOT_HEIGHT = 600
-    VERTICAL_SPACING = 0.02
-    TOP_MARGIN = 70
-    LEGEND_Y = 1.02
-    LEGEND_FONT_SIZE = 13
-
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
-
-    def make_hover_text(row):
-        return f"<b>{row['test_no']}</b><br><b>RSRP</b>: {row['RSRP']:.1f}"
-
-    plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
-
-    metrics = [
-        ("DL_Tput", "DL Throughput [Mbps]"),
-        ("SINR_SSB", "SSB SINR [dB]"),
-        ("SINR_TRS", "TRS SINR [dB]"),
-        ("RSRQ", "RSRQ [dB]"),
-        ("RI", "Rank Indicator"),
-        ("CQI", "CQI Index"),
-    ]
-
-    band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
-    fixed_colors = {"n28": "#FF8C00", "n26": "#228B22"}
-    order = ["n28", "n26"]
-
-    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
-    df_fixed = plot_df[plot_df["route"] == "Fixed-point"].copy()
-
-    for route_name in route_list:
-        fig = make_subplots(
-            rows=len(metrics),
-            cols=1,
-            shared_xaxes=False,
-            vertical_spacing=VERTICAL_SPACING,
-        )
-
-        route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
-
-        for i, (metric, y_title) in enumerate(metrics, start=1):
-            for band in order:
-                group = route_df[route_df["Band"] == band]
-                if group.empty:
-                    continue
-                color = band_colors[band]
-
-                fig.add_trace(
-                    go.Scatter(
-                        x=group["RSRP"],
-                        y=group[metric],
-                        mode="markers",
-                        name=f"{band} raw",
-                        legendgroup=f"{band}_raw",
-                        showlegend=(i == 1),
-                        marker=dict(size=2, color=color, opacity=0.2),
-                        text=group["hover_text"],
-                        hovertemplate=(
-                            f"<span style='color:{color}'>%{{text}}<br>"
-                            f"<b>{metric}</b>: %{{y:.1f}}</span><extra></extra>"
-                        ),
-                    ),
-                    row=i, col=1
-                )
-
-                valid = group.dropna(subset=["RSRP", metric])
-                bins = np.arange(-120, -59, 1)
-                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-                mean_df = valid.groupby("RSRP_bin", observed=True)[metric].mean().reset_index()
-                mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-                fig.add_trace(
-                    go.Scatter(
-                        x=mean_df["RSRP_center"],
-                        y=mean_df[metric],
-                        mode="lines+markers",
-                        name=f"{band} avg",
-                        legendgroup=f"{band}_avg",
-                        showlegend=(i == 1),
-                        line=dict(color=color, width=2),
-                        marker=dict(size=7, color=color),
-                        hoverinfo="skip",
-                    ),
-                    row=i, col=1
-                )
-
-            for band in order:
-                fixed_group = df_fixed[df_fixed["Band"] == band]
-                if not fixed_group.empty:
-                    fixed_color = fixed_colors[band]
-                    fig.add_trace(
-                        go.Scatter(
-                            x=fixed_group["RSRP"],
-                            y=fixed_group[metric],
-                            mode="markers",
-                            name=f"{band} fixed-point",
-                            legendgroup=f"fixed_{band}",
-                            showlegend=(i == 1),
-                            marker=dict(size=3, color=fixed_color, opacity=0.8),
-                            text=fixed_group["hover_text"],
-                            hovertemplate=(
-                                f"<span style='color:{fixed_color}'>%{{text}}<br>"
-                                f"<b>{metric}</b>: %{{y:.1f}}</span><extra></extra>"
-                            ),
-                        ),
-                        row=i, col=1
-                    )
-
-            fig.update_xaxes(
-                title="RSRP [dBm]",
-                autorange="reversed",
-                dtick=5,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-
-            fig.update_yaxes(
-                title=y_title,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-
-        fig.update_layout(
-            legend=dict(
-                orientation="h",
-                font=dict(size=LEGEND_FONT_SIZE),
-                itemsizing="constant",
-                yanchor="top",
-                y=LEGEND_Y,
-                xanchor="center",
-                x=0.5,
-                title=None,
-            ),
-            template="plotly_white",
-            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
-            height=SUBPLOT_HEIGHT * len(metrics),
-            margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
-        )
-
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_kpis_{route_name}.html")
-        fig.write_html(out_path)
-        print(f"✅ Saved: {out_path}")
-
-def plot_kpi_group_by_site(df, out_dir, grid_size, rb_min, sample_min):
+def plot_grid_kpi(df, out_dir, grid_size, rb_min, sample_min):
     df_map = df[df['route'].isin(['Namsan','Huam415-1','Huam345-5'])]
     df_pair = _common.grid_kpi(df_map, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
     df_n26, df_n28 = split_band_df(df_pair)
@@ -743,7 +458,7 @@ def plot_kpi_group_by_site(df, out_dir, grid_size, rb_min, sample_min):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
+def plot_grid_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
 
     if band not in ["n26", "n28"]:
         ValueError("band must be n28 or n26")
@@ -1102,7 +817,7 @@ def plot_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-def kpi_each_test(df, out_dir, grid_size, rb_min, sample_min):
+def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
     metrics = [
         "RSRP", "RSRQ",
         "SINR_SSB", "SINR_TRS",
