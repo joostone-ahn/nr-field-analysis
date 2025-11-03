@@ -126,6 +126,7 @@ def generate_list_html(root_dir, depth=0):
             continue
 
         path = os.path.join(root_dir, item)
+        # ✅ 항상 "results" 기준 상대경로를 구함
         rel_path = os.path.relpath(path, "results").replace("\\", "/")
 
         if os.path.isdir(path):
@@ -138,20 +139,19 @@ def generate_list_html(root_dir, depth=0):
                 "plot/raw/rsrp_1dB",
             )
 
-            if is_open:
-                html += f'<li class="folder"><details open><summary>{item}/</summary>'
-            else:
-                html += f'<li class="folder"><details><summary>{item}/</summary>'
-
+            html += (
+                f'<li class="folder"><details {"open" if is_open else ""}><summary>{item}/</summary>'
+            )
             html += generate_list_html(path, depth + 1)
             html += "</details></li>"
 
         elif item.endswith((".html", ".png")):
-            html += f'<li><a href="{rel_path}" target="_blank">{item}</a></li>'
+            # ✅ 항상 "results/" prefix를 붙임
+            href = f"results/{rel_path}"
+            html += f'<li><a href="{href}" target="_blank">{item}</a></li>'
 
     html += "</ul>"
     return html
-
 
 # 실행부
 result_dir = "results"
