@@ -42,13 +42,10 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
-    LEGEND_Y = 1.02
+    LEGEND_Y = 1.03
     LEGEND_FONT_SIZE = 13
     RSRP_LOW = -115
     RSRP_HIGH = -65
-
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
@@ -62,6 +59,11 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
     band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
     order = ["n28", "n26"]
     route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
+
+    plot_df = df[df["DL_RB"] > rb_min].copy()
+    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
+
+    bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
 
     for route_name in route_list:
         fig = make_subplots(
@@ -79,7 +81,6 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                 if group.empty:
                     continue
                 color = band_colors[band]
-                bins = np.arange(RSRP_LOW, RSRP_HIGH+1, rsrp_bin)
                 valid = group.copy()
                 valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
 
