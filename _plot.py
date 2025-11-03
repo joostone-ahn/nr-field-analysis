@@ -37,7 +37,7 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpis_stats(df, out_dir, rb_min):
+def plot_kpis_stats(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -78,21 +78,24 @@ def plot_kpis_stats(df, out_dir, rb_min):
                 if group.empty:
                     continue
                 color = band_colors[band]
-                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, 1)
+                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
                 valid = group.copy()
                 valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
 
                 stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
                 stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.right:.0f} ~ {x.left:.0f}")
                 stats["SE"] = stats["std"] / np.sqrt(stats["count"])
                 stats["CI"] = 1.96 * stats["SE"]
 
-                # hover text: 평균 ± 95%CI
-                stats["hover_text"] = (
-                        "<b>count</b>: " + stats["count"].astype(str) + "<br>" +
-                        "<b>rsrp</b>: " + stats["RSRP_center"].round(1).astype(str) + "<br>" +
-                        f"<b>{metric.lower().replace('_',' ')}</b>: " + stats["mean"].round(2).astype(str) +
-                        " (±" + stats["CI"].round(2).astype(str) + ")"
+                stats["hover_text"] = stats.apply(
+                    lambda r: (
+                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                        f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.2f}<br>"
+                        f"<b>95% CI</b>: ±{r['CI']:.2f}<br>"
+                        f"<b>counts</b>: {int(r['count'])}"
+                    ),
+                    axis=1
                 )
 
                 fig.add_trace(
@@ -121,6 +124,7 @@ def plot_kpis_stats(df, out_dir, rb_min):
                         name=f"{band} median",
                         legendgroup=f"{band}_med",
                         showlegend=(i == 1),
+                        visible="legendonly",
                         line=dict(color=color, width=1, dash='dot'),
                         marker=dict(size=5, color=color, symbol='square'),
                         hoverinfo="skip",
@@ -154,6 +158,7 @@ def plot_kpis_stats(df, out_dir, rb_min):
                         name=f"{band} ±IQR(Q1–Q3)",
                         legendgroup=f"{band}_iqr",
                         showlegend=(i == 1),
+                        visible="legendonly",
                         hoverinfo="skip",
                     ),
                     row=i, col=1,
@@ -168,7 +173,7 @@ def plot_kpis_stats(df, out_dir, rb_min):
                         name=f"{band} raw",
                         legendgroup=f"{band}_raw",
                         showlegend=(i == 1),
-                        # visible="legendonly",
+                        visible="legendonly",
                         marker=dict(size=2, color=color, opacity=0.15),
                         hoverinfo="skip",
                     ),
@@ -207,7 +212,7 @@ def plot_kpis_stats(df, out_dir, rb_min):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_kpis_{route_name}.html")
+        out_path = os.path.join(out_dir, f"cmpr_rsrp_kpis_{route_name}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
