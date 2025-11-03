@@ -132,7 +132,7 @@ def generate_list_html(root_dir, depth=0):
             is_open = rel_path in (
                 "map",
                 "map/grid_30m",
-                "plot_kpis_raw",
+                "plot",
             )
 
             html += (

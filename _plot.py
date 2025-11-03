@@ -37,7 +37,7 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -110,6 +110,10 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
                         marker=dict(size=5, color=color),
                         text=stats["hover_text"],
                         hovertemplate="%{text}<extra></extra>",
+                        hoverlabel=dict(
+                            font=dict(size=10, color="white"),
+                            bgcolor=color
+                        )
                     ),
                     row=i, col=1
                 )
@@ -231,12 +235,13 @@ def plot_kpis_raw(df, out_dir, rb_min, rsrp_bin):
             xanchor="center",
             x=0.5,
             font=dict(size=LEGEND_FONT_SIZE),
+            itemsizing="constant",
         ),
         margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"site_.html")
+    out_path = os.path.join(out_dir, f"kpis_group_by_site.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
