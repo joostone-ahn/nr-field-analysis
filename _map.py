@@ -244,6 +244,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             """
         table_html += "</table>"
         table_html = header_html + table_html
+
     else:
         n_count = int(row.get(f"sample_count_{band}", 0))
         table_html = f"""
@@ -256,8 +257,10 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         <tr style="background-color:#e0e0e0;">
             <th style="{align_left};">Metric</th>
             <th style="{align_right};">Mean</th>
+            <th style="{align_right};">Std</th>
             <th style="{align_right};">
-                95% CI <span style="font-weight:normal;">(±Δ)</span>
+                CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>
+            </th>
         </tr>
         """
 
@@ -274,6 +277,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             if pd.isna(mean_val) or pd.isna(std_val) or n_count <= 1:
                 continue
 
+            # cv = (std_val / abs(mean_val) * 100) if mean_val != 0 else np.nan
             se = std_val / np.sqrt(n_count)
             ci_delta = 1.96 * se  # ±Δ
 
@@ -285,8 +289,9 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             table_html += f"""
             <tr style="{highlight}">
                 <td style="{align_left}">{metric_name}</td>
-                <td style="{align_right}">{mean_val:.2f}</td>
-                <td style="{align_right}">{ci_delta:.2f}</td>
+                <td style="{align_right}">{mean_val:.1f}</td>
+                <td style="{align_right}">{std_val:.1f}</td>
+                <td style="{align_right}">±{ci_delta:.2f}</td>
             </tr>
             """
         table_html += "</table>"
