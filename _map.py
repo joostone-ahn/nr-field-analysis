@@ -481,10 +481,10 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
     metrics = [
         {"name": "RSRP",           "vmin": -120, "vmax": -60,  "unit": "dBm"},
-        {"name": "SINR_TRS",       "vmin": 10,   "vmax": 40,   "unit": "dB"},
+        # {"name": "SINR_TRS",       "vmin": 10,   "vmax": 40,   "unit": "dB"},
         {"name": "DL_Tput",        "vmin": 0,    "vmax": 100,  "unit": "Mbps"},
-        {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
-        {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
+        # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
+        # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
     ]
 
     for m in metrics:

@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 band_map = {
     868.85: "n26",
@@ -198,6 +199,68 @@ def analyze_kpi(fname, date_list):
     df = df[new_order]
 
     return df
+
+def update_fixed_point(df):
+    fixed_df = df[df["route"].str.contains("fixed", case=False, na=False)].copy()
+    # unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
+    # display(unique_pairs)
+
+    LOS_groups = {
+        # "01": [
+        #     "251024_25_Fixed-point",
+        #     "251024_26_Fixed-point",
+        # ],
+        # '02':[
+        #     "251024_27_Fixed-point"
+        # ],
+        "01": [
+            "251103_01_Fixed-point",
+            "251103_02_Fixed-point",
+            "251103_03_Fixed-point",
+            "251103_04_Fixed-point",
+            "251103_05_Fixed-point",
+        ],
+        "02": [
+            "251103_16_Fixed-point",
+            "251103_17_Fixed-point",
+            "251103_18_Fixed-point",
+            "251103_19_Fixed-point",
+            "251103_20_Fixed-point",
+        ]
+    }
+    NLOS_groups = {
+        "01": [
+            "251103_06_Fixed-point",
+            "251103_07_Fixed-point",
+            "251103_08_Fixed-point",
+            "251103_09_Fixed-point",
+            "251103_10_Fixed-point",
+        ],
+        "02": [
+            "251103_11_Fixed-point",
+            "251103_12_Fixed-point",
+            "251103_13_Fixed-point",
+            "251103_14_Fixed-point",
+            "251103_15_Fixed-point",
+        ],
+    }
+
+    def map_fixed_route(test_no):
+        for gid, tlist in LOS_groups.items():
+            if test_no in tlist:
+                return f"Fixed-LOS-{gid}"
+        for gid, tlist in NLOS_groups.items():
+            if test_no in tlist:
+                return f"Fixed-NLOS-{gid}"
+        return "Fixed-point"
+
+    fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
+
+    check_cols = ["route", "test_no"]
+    unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)
+    display(unique_check.sort_values(["route", "test_no"]))
+
+    return fixed_df
 
 def grid_kpi(df, grid_size, rb_min, sample_min):
     kpi_cols = [
