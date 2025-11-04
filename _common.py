@@ -221,28 +221,28 @@ def update_fixed_point(df):
             "251103_05_Fixed-point",
         ],
         "02": [
-            "251103_16_Fixed-point",
-            "251103_17_Fixed-point",
-            "251103_18_Fixed-point",
-            "251103_19_Fixed-point",
-            "251103_20_Fixed-point",
-        ]
-    }
-    NLOS_groups = {
-        "01": [
             "251103_06_Fixed-point",
             "251103_07_Fixed-point",
             "251103_08_Fixed-point",
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
         ],
-        "02": [
+    }
+    NLOS_groups = {
+        "01": [
             "251103_11_Fixed-point",
             "251103_12_Fixed-point",
             "251103_13_Fixed-point",
             "251103_14_Fixed-point",
             "251103_15_Fixed-point",
         ],
+        "02": [
+            "251103_16_Fixed-point",
+            "251103_17_Fixed-point",
+            "251103_18_Fixed-point",
+            "251103_19_Fixed-point",
+            "251103_20_Fixed-point",
+        ]
     }
 
     def map_fixed_route(test_no):
@@ -252,7 +252,7 @@ def update_fixed_point(df):
         for gid, tlist in NLOS_groups.items():
             if test_no in tlist:
                 return f"Fixed-NLOS-{gid}"
-        return "Fixed-point"
+        return "Fixed-LOS-old"
 
     fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
 
