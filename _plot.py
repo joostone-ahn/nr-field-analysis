@@ -111,7 +111,7 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
 
                     stats["hover_text"] = stats.apply(
                         lambda r: (
-                            f"<b>Counts</b>: {int(r['count'])}"
+                            f"<b>Counts</b>: {int(r['count'])}<br>"
                             f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                             f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f}<br>"
                             # f"<b>95% CI</b>: ±{r['CI']:.2f}<br>"
