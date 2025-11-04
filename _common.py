@@ -202,8 +202,8 @@ def analyze_kpi(fname, date_list):
 
 def update_fixed_point(df):
     fixed_df = df[df["route"].str.contains("fixed", case=False, na=False)].copy()
-    # unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
-    # display(unique_pairs)
+    unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
+    display(unique_pairs)
 
     LOS_groups = {
         # "01": [
