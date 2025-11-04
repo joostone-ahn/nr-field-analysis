@@ -5,10 +5,10 @@ import plotly.io as pio
 from plotly.subplots import make_subplots
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
-import os
-import numpy as np
 import pandas as pd
 import _common
+import numpy as np
+import os
 
 def split_band_df(df_pair):
     common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
@@ -36,6 +36,189 @@ def split_band_df(df_pair):
     df_n28 = extract_band(df_pair, "n28")
 
     return df_n26, df_n28
+
+def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
+    SUBPLOT_HEIGHT = 600
+    VERTICAL_SPACING = 0.035
+    TOP_MARGIN = 70
+    LEGEND_Y = 1.02
+    LEGEND_FONT_SIZE = 13
+    RSRP_LOW = -120
+    RSRP_HIGH = -50
+
+    metrics = [
+        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
+        ("SINR_SSB", "SINR [dB]", [-5, 45]),
+        # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
+        ("RSRQ", "RSRQ [dB]", [-20, -10]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
+        ("CQI", "CQI Index", [-0.1, 15.1]),
+    ]
+
+    route_colors = {
+        # "All": "#1E90FF",
+        "Namsan": "#FF4500",
+        "Huam345-5": "#FFD700",
+        "Huam415-1": "#32CD32",
+    }
+    route_list = list(route_colors.keys())
+    band_list = ["n28", "n26"]
+
+    df = df[df["DL_RB"] > rb_min]
+    df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
+    plot_df = df[df['route'].isin(route_list)].copy()
+
+    fig = make_subplots(
+        rows=len(metrics),
+        cols=1,
+        shared_xaxes=False,
+        vertical_spacing=VERTICAL_SPACING,
+    )
+
+    for band_name in band_list:
+        band_df = plot_df[plot_df["Band"] == band_name]
+
+        for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
+            for route_name, color in route_colors.items():
+                group = band_df if route_name == "All" else band_df[band_df["route"] == route_name]
+                valid = group.copy()
+                if valid.empty:
+                    continue
+
+                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
+                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+
+                stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
+                stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.right:.0f} ~ {x.left:.0f}")
+                # stats["SE"] = stats["std"] / np.sqrt(stats["count"])
+                # stats["CI"] = 1.96 * stats["SE"]
+
+                stats["hover_text"] = stats.apply(
+                    lambda r: (
+                        f"<b>Counts</b>: {int(r['count'])}<br>"
+                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                        f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f}<br>"
+                        # f"<b>95% CI</b>: ±{r['CI']:.2f}<br>"
+                    ),
+                    axis=1
+                )
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=stats["RSRP_center"],
+                        y=stats["mean"],
+                        mode="lines+markers",
+                        # name=f"{band_name} | {route_name} | Avg ±95% CI",
+                        name=f"{band_name} | {route_name} | Avg",
+                        legendgroup=f"{route_name}",
+                        showlegend=(i == 1),
+                        line=dict(color=color, width=1.3),
+                        marker=dict(size=5, color=color),
+                        text=stats["hover_text"],
+                        hovertemplate="%{text}<extra></extra>",
+                        hoverlabel=dict(
+                            font=dict(size=11, color="white"),
+                            bgcolor=color),
+                    ),
+                    row=i, col=1
+                )
+
+                # ci_df = stats.copy()
+                # ci_df["upper_CI"] = ci_df["mean"] + ci_df["CI"]
+                # ci_df["lower_CI"] = ci_df["mean"] - ci_df["CI"]
+                #
+                # fig.add_trace(
+                #     go.Scatter(
+                #         x=ci_df["RSRP_center"],
+                #         y=ci_df["upper_CI"],
+                #         mode="lines",
+                #         name=f"{band_name} | {route_name} | ±95% CI upper",
+                #         line=dict(width=0),
+                #         showlegend=False,
+                #         hoverinfo="skip",
+                #     ),
+                #     row=i, col=1
+                # )
+                #
+                # fig.add_trace(
+                #     go.Scatter(
+                #         x=ci_df["RSRP_center"],
+                #         y=ci_df["lower_CI"],
+                #         mode="lines",
+                #         line=dict(width=0),
+                #         fill="tonexty",
+                #         fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
+                #         name=f"{band_name} | {route_name} | ±95% CI lower",
+                #         legendgroup=f"{route_name}",
+                #         showlegend=False,
+                #         hoverinfo="skip",
+                #     ),
+                #     row=i, col=1
+                # )
+
+            fig.update_xaxes(
+                title="RSRP [dBm]",
+                autorange="reversed",
+                dtick=5,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+            fig.update_yaxes(
+                title=y_title,
+                range=y_range,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+
+    # dropdown for band selection
+    buttons = []
+    for band_name in band_list:
+        visible_array = [band_name in trace.name for trace in fig.data]
+        buttons.append(
+            dict(
+                label=band_name,
+                method="update",
+                args=[{"visible": visible_array}],
+            )
+        )
+
+    initial_visible = ["n28" in (trace.name or "") for trace in fig.data]
+    for trace, visible in zip(fig.data, initial_visible):
+        trace.visible = visible
+
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type="dropdown",
+                direction="down",
+                x=0.01,
+                y=LEGEND_Y,
+                xanchor="left",
+                buttons=buttons,
+                showactive=True,
+                bgcolor="white",
+                bordercolor="gray",
+            )
+        ],
+        height=SUBPLOT_HEIGHT * len(metrics),
+        template="plotly_white",
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=LEGEND_Y,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=LEGEND_FONT_SIZE),
+            itemsizing="constant",
+        ),
+        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+    )
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, f"kpis_group_by_site.html")
+    fig.write_html(out_path)
+    print(f"✅ Saved: {out_path}")
 
 def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
@@ -336,189 +519,6 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
             out_path = os.path.join(out_dir, "kpis_fixed-point", f"{fixed_route}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
-
-def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
-    SUBPLOT_HEIGHT = 600
-    VERTICAL_SPACING = 0.035
-    TOP_MARGIN = 70
-    LEGEND_Y = 1.02
-    LEGEND_FONT_SIZE = 13
-    RSRP_LOW = -120
-    RSRP_HIGH = -50
-
-    metrics = [
-        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SINR [dB]", [-5, 45]),
-        # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
-        ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
-        ("CQI", "CQI Index", [-0.1, 15.1]),
-    ]
-
-    route_colors = {
-        # "All": "#1E90FF",
-        "Namsan": "#FF4500",
-        "Huam345-5": "#FFD700",
-        "Huam415-1": "#32CD32",
-    }
-    route_list = list(route_colors.keys())
-    band_list = ["n28", "n26"]
-
-    df = df[df["DL_RB"] > rb_min]
-    df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
-    plot_df = df[df['route'].isin(route_list)].copy()
-
-    fig = make_subplots(
-        rows=len(metrics),
-        cols=1,
-        shared_xaxes=False,
-        vertical_spacing=VERTICAL_SPACING,
-    )
-
-    for band_name in band_list:
-        band_df = plot_df[plot_df["Band"] == band_name]
-
-        for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
-            for route_name, color in route_colors.items():
-                group = band_df if route_name == "All" else band_df[band_df["route"] == route_name]
-                valid = group.copy()
-                if valid.empty:
-                    continue
-
-                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
-                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-
-                stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
-                stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.right:.0f} ~ {x.left:.0f}")
-                # stats["SE"] = stats["std"] / np.sqrt(stats["count"])
-                # stats["CI"] = 1.96 * stats["SE"]
-
-                stats["hover_text"] = stats.apply(
-                    lambda r: (
-                        f"<b>Counts</b>: {int(r['count'])}<br>"
-                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
-                        f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f}<br>"
-                        # f"<b>95% CI</b>: ±{r['CI']:.2f}<br>"
-                    ),
-                    axis=1
-                )
-
-                fig.add_trace(
-                    go.Scatter(
-                        x=stats["RSRP_center"],
-                        y=stats["mean"],
-                        mode="lines+markers",
-                        # name=f"{band_name} | {route_name} | Avg ±95% CI",
-                        name=f"{band_name} | {route_name} | Avg",
-                        legendgroup=f"{route_name}",
-                        showlegend=(i == 1),
-                        line=dict(color=color, width=1.3),
-                        marker=dict(size=5, color=color),
-                        text=stats["hover_text"],
-                        hovertemplate="%{text}<extra></extra>",
-                        hoverlabel=dict(
-                            font=dict(size=11, color="white"),
-                            bgcolor=color),
-                    ),
-                    row=i, col=1
-                )
-
-                # ci_df = stats.copy()
-                # ci_df["upper_CI"] = ci_df["mean"] + ci_df["CI"]
-                # ci_df["lower_CI"] = ci_df["mean"] - ci_df["CI"]
-                #
-                # fig.add_trace(
-                #     go.Scatter(
-                #         x=ci_df["RSRP_center"],
-                #         y=ci_df["upper_CI"],
-                #         mode="lines",
-                #         name=f"{band_name} | {route_name} | ±95% CI upper",
-                #         line=dict(width=0),
-                #         showlegend=False,
-                #         hoverinfo="skip",
-                #     ),
-                #     row=i, col=1
-                # )
-                #
-                # fig.add_trace(
-                #     go.Scatter(
-                #         x=ci_df["RSRP_center"],
-                #         y=ci_df["lower_CI"],
-                #         mode="lines",
-                #         line=dict(width=0),
-                #         fill="tonexty",
-                #         fillcolor=f"rgba{tuple(int(color.lstrip('#')[j:j + 2], 16) for j in (0, 2, 4)) + (0.2,)}",
-                #         name=f"{band_name} | {route_name} | ±95% CI lower",
-                #         legendgroup=f"{route_name}",
-                #         showlegend=False,
-                #         hoverinfo="skip",
-                #     ),
-                #     row=i, col=1
-                # )
-
-            fig.update_xaxes(
-                title="RSRP [dBm]",
-                autorange="reversed",
-                dtick=5,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-            fig.update_yaxes(
-                title=y_title,
-                range=y_range,
-                gridcolor="rgba(0,0,0,0.15)",
-                row=i, col=1,
-            )
-
-    # dropdown for band selection
-    buttons = []
-    for band_name in band_list:
-        visible_array = [band_name in trace.name for trace in fig.data]
-        buttons.append(
-            dict(
-                label=band_name,
-                method="update",
-                args=[{"visible": visible_array}],
-            )
-        )
-
-    initial_visible = ["n28" in (trace.name or "") for trace in fig.data]
-    for trace, visible in zip(fig.data, initial_visible):
-        trace.visible = visible
-
-    fig.update_layout(
-        updatemenus=[
-            dict(
-                type="dropdown",
-                direction="down",
-                x=0.01,
-                y=LEGEND_Y,
-                xanchor="left",
-                buttons=buttons,
-                showactive=True,
-                bgcolor="white",
-                bordercolor="gray",
-            )
-        ],
-        height=SUBPLOT_HEIGHT * len(metrics),
-        template="plotly_white",
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=LEGEND_Y,
-            xanchor="center",
-            x=0.5,
-            font=dict(size=LEGEND_FONT_SIZE),
-            itemsizing="constant",
-        ),
-        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
-    )
-
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"kpis_group_by_site.html")
-    fig.write_html(out_path)
-    print(f"✅ Saved: {out_path}")
 
 def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
     metrics = [
