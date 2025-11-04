@@ -220,13 +220,13 @@ def update_fixed_point(df):
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
         ],
-        # "03": [
-        #     "251024_25_Fixed-point",
-        #     "251024_26_Fixed-point",
-        # ],
-        # '04':[
-        #     "251024_27_Fixed-point"
-        # ],
+        "1024_25-26": [
+            "251024_25_Fixed-point",
+            "251024_26_Fixed-point",
+        ],
+        '1024_27':[
+            "251024_27_Fixed-point"
+        ],
     }
     NLOS_groups = {
         "11-15": [
