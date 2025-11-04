@@ -241,10 +241,10 @@ def update_fixed_point(df):
     def map_fixed_route(test_no):
         for gid, tlist in LOS_groups.items():
             if test_no in tlist:
-                return f"Fixed-LOS-{gid}"
+                return f"Fixed_LOS_{gid}"
         for gid, tlist in NLOS_groups.items():
             if test_no in tlist:
-                return f"Fixed-NLOS-{gid}"
+                return f"Fixed_NLOS_{gid}"
         return "Fixed-LOS-old"
 
     fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
