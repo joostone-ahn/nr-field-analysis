@@ -215,8 +215,9 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                             name=f"{route_name} | {band} | {fixed_route}",
                             legendgroup=f"{band}_fixed",
                             showlegend=(i == 1),
-                            marker=dict(size=4, color=color, opacity=0.5),
+                            marker=dict(size=5, color=color, opacity=0.3),
                             hovertemplate=(
+                                "<b>%{customdata[0]}</b><br>"
                                 "RSRP: %{x:.1f} dBm<br>"
                                 f"{metric}: %{{y:.2f}}<extra></extra>"
                             ),
@@ -224,6 +225,7 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                                 font=dict(size=11, color="white"),
                                 bgcolor=color
                             ),
+                            customdata=np.stack([band_fixed["test_no"]], axis=-1),
                         ),
                         row=i, col=1
                     )

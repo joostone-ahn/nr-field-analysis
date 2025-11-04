@@ -206,28 +206,30 @@ def update_fixed_point(df):
     # display(unique_pairs)
 
     LOS_groups = {
-        "01": [
+        "01-05": [
             "251103_01_Fixed-point",
             "251103_02_Fixed-point",
             "251103_03_Fixed-point",
             "251103_04_Fixed-point",
             "251103_05_Fixed-point",
+        ],
+        "06-10": [
             "251103_06_Fixed-point",
             "251103_07_Fixed-point",
             "251103_08_Fixed-point",
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
         ],
-        "02": [
-            "251024_25_Fixed-point",
-            "251024_26_Fixed-point",
-        ],
-        '03':[
-            "251024_27_Fixed-point"
-        ],
+        # "03": [
+        #     "251024_25_Fixed-point",
+        #     "251024_26_Fixed-point",
+        # ],
+        # '04':[
+        #     "251024_27_Fixed-point"
+        # ],
     }
     NLOS_groups = {
-        "01": [
+        "11-15": [
             "251103_11_Fixed-point",
             "251103_12_Fixed-point",
             "251103_13_Fixed-point",
