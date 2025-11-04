@@ -43,16 +43,16 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
     TOP_MARGIN = 70
     LEGEND_Y = 1.02
     LEGEND_FONT_SIZE = 13
-    RSRP_LOW = -115
-    RSRP_HIGH = -65
+    RSRP_LOW = -120
+    RSRP_HIGH = -50
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SINR [dB]", [-10, 35]),
+        ("SINR_SSB", "SINR [dB]", [-5, 45]),
         # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
-        ("RSRQ", "RSRQ [dB]", [-18, -10]),
-        ("RI", "Rank Indicator", [1, 2]),
-        ("CQI", "CQI Index", [0, 15]),
+        ("RSRQ", "RSRQ [dB]", [-20, -10]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
+        ("CQI", "CQI Index", [-0.1, 15.1]),
     ]
 
     band_colors = {
@@ -343,16 +343,16 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     TOP_MARGIN = 70
     LEGEND_Y = 1.02
     LEGEND_FONT_SIZE = 13
-    RSRP_LOW = -115
-    RSRP_HIGH = -65
+    RSRP_LOW = -120
+    RSRP_HIGH = -50
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SINR [dB]", [-10, 35]),
+        ("SINR_SSB", "SINR [dB]", [-5, 45]),
         # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
-        ("RSRQ", "RSRQ [dB]", [-18, -10]),
-        ("RI", "Rank Indicator", [1, 2]),
-        ("CQI", "CQI Index", [0, 15]),
+        ("RSRQ", "RSRQ [dB]", [-20, -10]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
+        ("CQI", "CQI Index", [-0.1, 15.1]),
     ]
 
     route_colors = {

@@ -135,7 +135,6 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
 
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
-
 def popup_table(idx, val, df_pair, metric, out_file, band):
     row = df_pair.iloc[idx]
 
