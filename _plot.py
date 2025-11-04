@@ -228,7 +228,6 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                         row=i, col=1
                     )
 
-                    # 평균과 신뢰구간 계산
                     mean_rsrp = band_fixed["RSRP"].mean()
                     std_rsrp = band_fixed["RSRP"].std()
                     n_rsrp = band_fixed["RSRP"].count()
