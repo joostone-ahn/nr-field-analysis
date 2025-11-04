@@ -151,7 +151,8 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
 
     table_items = [
         "RSRP", "RSRQ",
-        "SINR_SSB", "SINR_TRS",
+        "SINR",
+        "SINR_TRS",
         "DL_RB",
         "DL_Tput",
         "DL_Tput_per_RB",
@@ -277,7 +278,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             se = std_val / np.sqrt(n_count)
             ci_delta = 1.96 * se  # ±Δ
 
-            if metric_name in ["DL_Tput", "SINR_TRS", "RSRP"]:
+            if metric_name in ["DL_Tput", "SINR", "RSRP"]:
                 highlight = "background-color:#e3f2fd;"
             else:
                 highlight = ""
@@ -481,7 +482,7 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
 
     metrics = [
         {"name": "RSRP",           "vmin": -120, "vmax": -60,  "unit": "dBm"},
-        # {"name": "SINR_TRS",       "vmin": 10,   "vmax": 40,   "unit": "dB"},
+        {"name": "SINR",           "vmin": 0,    "vmax": 40,   "unit": "dB"},
         {"name": "DL_Tput",        "vmin": 0,    "vmax": 100,  "unit": "Mbps"},
         # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
         # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
