@@ -531,19 +531,7 @@ def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
         "DL_BLER", "UL_BLER",
     ]
 
-    lat_factor, lon_factor = 111320, 88000
-    df[f"lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-    df[f"lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-
-    df_map = df[df["route"].isin(['Namsan','Huam415-1','Huam345-5'])].copy()
-    df_grid = _common.grid_kpi(df_map, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
-    df = df.merge(
-        df_grid[[f"lat_bin", f"lon_bin", f"loc_id"]],
-        on=[f"lat_bin", f"lon_bin"],
-        how="left"
-    )
-    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
-
+    df = _common.assign_loc_id(df, grid_size, rb_min, sample_min)
     test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no].copy()
