@@ -480,9 +480,9 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
     metrics = [
-        {"name": "RSRP",           "vmin": -120, "vmax": -60,  "unit": "dBm"},
-        {"name": "SINR",           "vmin": 0,    "vmax": 40,   "unit": "dB"},
-        {"name": "DL_Tput",        "vmin": 0,    "vmax": 100,  "unit": "Mbps"},
+        {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
+        {"name": "SINR",           "vmin": -5,    "vmax": 45,   "unit": "dB"},
+        {"name": "DL_Tput",        "vmin": 0,    "vmax": 120,  "unit": "Mbps"},
         # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
         # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
     ]
