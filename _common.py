@@ -202,30 +202,28 @@ def analyze_kpi(fname, date_list):
 
 def update_fixed_point(df):
     fixed_df = df[df["route"].str.contains("fixed", case=False, na=False)].copy()
-    unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
-    display(unique_pairs)
+    # unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
+    # display(unique_pairs)
 
     LOS_groups = {
-        # "01": [
-        #     "251024_25_Fixed-point",
-        #     "251024_26_Fixed-point",
-        # ],
-        # '02':[
-        #     "251024_27_Fixed-point"
-        # ],
         "01": [
             "251103_01_Fixed-point",
             "251103_02_Fixed-point",
             "251103_03_Fixed-point",
             "251103_04_Fixed-point",
             "251103_05_Fixed-point",
-        ],
-        "02": [
             "251103_06_Fixed-point",
             "251103_07_Fixed-point",
             "251103_08_Fixed-point",
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
+        ],
+        "02": [
+            "251024_25_Fixed-point",
+            "251024_26_Fixed-point",
+        ],
+        '03':[
+            "251024_27_Fixed-point"
         ],
     }
     NLOS_groups = {
@@ -236,13 +234,6 @@ def update_fixed_point(df):
             "251103_14_Fixed-point",
             "251103_15_Fixed-point",
         ],
-        "02": [
-            "251103_16_Fixed-point",
-            "251103_17_Fixed-point",
-            "251103_18_Fixed-point",
-            "251103_19_Fixed-point",
-            "251103_20_Fixed-point",
-        ]
     }
 
     def map_fixed_route(test_no):
@@ -256,9 +247,9 @@ def update_fixed_point(df):
 
     fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
 
-    check_cols = ["route", "test_no"]
-    unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)
-    display(unique_check.sort_values(["route", "test_no"]))
+    # check_cols = ["route", "test_no"]
+    # unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)
+    # display(unique_check.sort_values(["route", "test_no"]))
 
     return fixed_df
 
