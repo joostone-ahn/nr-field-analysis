@@ -193,7 +193,7 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, "RSRP_bin_group_by_site")
+        out_path = os.path.join(out_dir, "kpis_group_by_site", f"RSRP_bin_{rsrp_bin}dB")
         os.makedirs(out_path, exist_ok=True)
         out_path = os.path.join(out_path, f"RSRP_{rsrp_min}_to_{rsrp_max}.html")
         fig.write_html(out_path)
@@ -385,7 +385,7 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, "RSRP_bin_group_by_band")
+        out_path = os.path.join(out_dir, "kpis_group_by_band", f"RSRP_bin_{rsrp_bin}dB")
         os.makedirs(out_path, exist_ok=True)
         out_path = os.path.join(out_path, f"RSRP_{rsrp_min}_to_{rsrp_max}.html")
         fig.write_html(out_path)
