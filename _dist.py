@@ -18,8 +18,8 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
         ("SINR_SSB", "SINR [dB]", [-5, 45]),
         ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
         ("CQI", "CQI Index", [-0.1, 15.1]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
     route_colors = {
@@ -212,8 +212,8 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
         ("SINR_SSB", "SINR [dB]", [-5, 45]),
         ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
         ("CQI", "CQI Index", [-0.1, 15.1]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
     band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
