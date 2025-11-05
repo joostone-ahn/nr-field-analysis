@@ -8,7 +8,7 @@ band_map = {
     798.15: "n28", # upper
 }
 
-def read_UHD(uhd_dir):
+def read_UHD_csv(uhd_dir):
     csv_files = [f for f in os.listdir(uhd_dir) if f.endswith('.csv')]
     df_list = []
     for f in csv_files:
@@ -19,10 +19,28 @@ def read_UHD(uhd_dir):
     
     return df_uhd
 
+def read_UHD_xlsx(uhd_dir):
+    xlsx_files = [f for f in os.listdir(uhd_dir) if f.endswith('.xlsx')]
+    df_list = []
+    for f in xlsx_files:
+        file_path = os.path.join(uhd_dir, f)
+        df_temp = pd.read_excel(file_path, index_col=0)
+        df_list.append(df_temp)
+    df_uhd = pd.concat(df_list, ignore_index=True)
+
+    df_uhd = df_uhd.rename(columns={
+        'Latitude': 'lat',
+        'Longitude': 'lon',
+        'Total_CH_power_DBm': 'value'
+    }).drop(columns=['source_file'])
+
+    return df_uhd
+
 def grid_uhd(df_uhd, grid_size):
     lat_factor, lon_factor = 111320, 88000  
 
-    df_grid = df_uhd.copy()
+    # df_grid = df_uhd.copy()
+    df_grid = df_uhd.dropna(subset=["lat", "lon"]).copy()
 
     df_grid["lat_bin"] = (df_grid["lat"] * lat_factor // grid_size).astype(int)
     df_grid["lon_bin"] = (df_grid["lon"] * lon_factor // grid_size).astype(int)
@@ -34,13 +52,16 @@ def grid_uhd(df_uhd, grid_size):
             uhd_max=("value", "max"),
             uhd_avg=("value", "mean"),
             uhd_cnt=("value", "count"),
+            uhd_std=("value", "std"),
         )
         .reset_index()
     )
 
+    df_agg["uhd_ci95"] = 1.96 * df_agg["uhd_std"] / np.sqrt(df_agg["uhd_cnt"])
+
     # --- 컬럼 순서 정리 ---
     df_agg = df_agg[
-        ["lat_bin", "lon_bin", "uhd_cnt", "uhd_avg", "uhd_max", "uhd_min"]
+        ["lat_bin", "lon_bin", "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95", "uhd_max", "uhd_min"]
     ]
 
     df_agg = df_agg.round(2)
@@ -381,7 +402,8 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
             raise ValueError(f"❌ Multiple places found: {unique_places}, {test_list}")
     df_pair[f"route"] = df_pair[f"test_list"].apply(extract_route)
 
-    df_uhd = read_UHD(uhd_dir='UHD_power')
+    # df_uhd = read_UHD_csv(uhd_dir='UHD_power')
+    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
     df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
 
