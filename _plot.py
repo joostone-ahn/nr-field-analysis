@@ -51,8 +51,8 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
         ("SINR_SSB", "SINR [dB]", [-5, 45]),
         # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
         ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
         ("CQI", "CQI Index", [-0.1, 15.1]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
     route_colors = {
@@ -234,8 +234,8 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         ("SINR_SSB", "SINR [dB]", [-5, 45]),
         # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
         ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
         ("CQI", "CQI Index", [-0.1, 15.1]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
     band_colors = {
