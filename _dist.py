@@ -105,28 +105,6 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                         )
                         hovertemplate_cdf = hovertemplate_pdf.replace("PDF", "CDF")
 
-                    # CDF
-                    fig.add_trace(
-                        go.Scatter(
-                            x=centers,
-                            y=cdf,
-                            mode="lines+markers",
-                            name=f"{band_name} | {route_name} | CDF",
-                            legendgroup=f"{route_name}_cdf",
-                            line=dict(color=color, width=1.5),
-                            marker=dict(size=5, color=color),
-                            customdata=customdata,
-                            hovertemplate=hovertemplate_cdf,
-                            hoverlabel=dict(
-                                font=dict(size=11, color="white"),
-                                bgcolor=color
-                            ),
-                            visible=(band_name == "n28"),
-                            showlegend=(i == 1),
-                        ),
-                        row=i, col=1, secondary_y=True,
-                    )
-
                     # PDF
                     fig.add_trace(
                         go.Scatter(
@@ -135,8 +113,8 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{band_name} | {route_name} | PDF",
                             legendgroup=f"{route_name}_pdf",
-                            line=dict(color=color, width=0.8, dash="dash"),
-                            marker=dict(size=5, color=color, symbol="square"),
+                            line=dict(color=color, width=0.8),
+                            marker=dict(size=5, color=color),
                             customdata=customdata,
                             hovertemplate=hovertemplate_pdf,
                             hoverlabel=dict(
@@ -149,6 +127,28 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                         row=i, col=1, secondary_y=False,
                     )
 
+                    # CDF
+                    fig.add_trace(
+                        go.Scatter(
+                            x=centers,
+                            y=cdf,
+                            mode="lines+markers",
+                            name=f"{band_name} | {route_name} | CDF",
+                            legendgroup=f"{route_name}_cdf",
+                            line=dict(color=color, width=2.0, dash="dash"),
+                            marker=dict(size=5, color=color, symbol="square"),
+                            customdata=customdata,
+                            hovertemplate=hovertemplate_cdf,
+                            hoverlabel=dict(
+                                font=dict(size=11, color="white"),
+                                bgcolor=color
+                            ),
+                            visible=(band_name == "n28"),
+                            showlegend=(i == 1),
+                        ),
+                        row=i, col=1, secondary_y=True,
+                    )
+
                 fig.update_xaxes(
                     title_text=x_title,
                     gridcolor="rgba(0,0,0,0.15)",
@@ -156,12 +156,13 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                 )
                 fig.update_yaxes(
                     title_text="PDF (Probability Density Function)",
-                    gridcolor="rgba(0,0,0,0.15)",
+                    gridcolor="rgba(0,0,0,0.25)",
                     row=i, col=1,
                 )
                 fig.update_yaxes(
                     title_text="CDF (Cumulative Distribution Function)",
                     gridcolor="rgba(0,0,0,0.15)",
+                    griddash="dot",
                     tickvals=[0, 0.25, 0.5, 0.75, 1.0],
                     tickformat=".2f",
                     row=i, col=1,
@@ -317,27 +318,7 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                         )
                         hovertemplate_cdf = hovertemplate_pdf.replace("PDF", "CDF")
 
-                    fig.add_trace(
-                        go.Scatter(
-                            x=centers,
-                            y=cdf,
-                            mode="lines+markers",
-                            name=f"{route_name} | {band} | CDF",
-                            legendgroup=f"{band}_cdf",
-                            line=dict(color=band_colors[band], width=1.5),
-                            marker=dict(size=5, color=band_colors[band]),
-                            customdata=customdata,
-                            hovertemplate=hovertemplate_cdf,
-                            hoverlabel=dict(
-                                font=dict(size=11, color="white"),
-                                bgcolor=band_colors[band]
-                            ),
-                            visible=(route_name == "All"),
-                            showlegend=(i == 1),
-                        ),
-                        row=i, col=1, secondary_y=True,
-                    )
-
+                    # PDF
                     fig.add_trace(
                         go.Scatter(
                             x=centers,
@@ -345,8 +326,8 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{route_name} | {band} | PDF",
                             legendgroup=f"{band}_pdf",
-                            line=dict(color=band_colors[band], width=0.8, dash="dash"),
-                            marker=dict(size=5, color=band_colors[band], symbol="square"),
+                            line=dict(color=band_colors[band], width=0.8),
+                            marker=dict(size=5, color=band_colors[band]),
                             customdata=customdata,
                             hovertemplate=hovertemplate_pdf,
                             hoverlabel=dict(
@@ -359,6 +340,28 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                         row=i, col=1, secondary_y=False,
                     )
 
+                    # CDF
+                    fig.add_trace(
+                        go.Scatter(
+                            x=centers,
+                            y=cdf,
+                            mode="lines+markers",
+                            name=f"{route_name} | {band} | CDF",
+                            legendgroup=f"{band}_cdf",
+                            line=dict(color=band_colors[band], width=2.0, dash="dash"),
+                            marker=dict(size=5, color=band_colors[band], symbol="square"),
+                            customdata=customdata,
+                            hovertemplate=hovertemplate_cdf,
+                            hoverlabel=dict(
+                                font=dict(size=11, color="white"),
+                                bgcolor=band_colors[band]
+                            ),
+                            visible=(route_name == "All"),
+                            showlegend=(i == 1),
+                        ),
+                        row=i, col=1, secondary_y=True,
+                    )
+
                 fig.update_xaxes(
                     title_text=x_title,
                     gridcolor="rgba(0,0,0,0.15)",
@@ -366,12 +369,13 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                 )
                 fig.update_yaxes(
                     title_text="PDF (Probability Density Function)",
-                    gridcolor="rgba(0,0,0,0.15)",
+                    gridcolor="rgba(0,0,0,0.25)",
                     row=i, col=1,
                 )
                 fig.update_yaxes(
                     title_text="CDF (Cumulative Distribution Function)",
                     gridcolor="rgba(0,0,0,0.15)",
+                    griddash="dot",
                     tickvals=[0, 0.25, 0.5, 0.75, 1.0],
                     tickformat=".2f",
                     row=i, col=1,
