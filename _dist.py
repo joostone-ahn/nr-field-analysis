@@ -66,25 +66,40 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
 
                     if metric == "DL_Tput":
                         bin_indices = np.digitize(group[metric].values, bin_edges) - 1
-                        sinr_means = []
+                        sinr_means, cqi_means = [],[]
                         for bin_i in range(len(bin_edges) - 1):
                             in_bin = (bin_indices == bin_i)
                             if np.any(in_bin):
                                 sinr_means.append(group.loc[in_bin, "SINR_SSB"].mean())
+                                cqi_means.append(group.loc[in_bin, "CQI"].mean())
                             else:
                                 sinr_means.append(np.nan)
-                        customdata = np.stack((raw_counts, sinr_means), axis=-1)
+                                cqi_means.append(np.nan)
+                        customdata = np.stack((raw_counts, sinr_means, cqi_means), axis=-1)
                         hovertemplate_pdf = (
                             f"{metric}: %{{x:.1f}}<br>"
                             f"SINR: %{{customdata[1]:.1f}}<br>"
+                            f"CQI: %{{customdata[2]:.1f}}<br>"
                             f"PDF: %{{y:.2f}}<br>"
                             f"Count: %{{customdata[0]}} / {total_count}<extra></extra>"
                         )
                         hovertemplate_cdf = hovertemplate_pdf.replace("PDF", "CDF")
                     else:
-                        customdata = np.array(raw_counts).reshape(-1, 1)
+                        bin_indices = np.digitize(group[metric].values, bin_edges) - 1
+                        tput_means = []
+
+                        for bin_i in range(len(bin_edges) - 1):
+                            in_bin = (bin_indices == bin_i)
+                            if np.any(in_bin):
+                                tput_means.append(group.loc[in_bin, "DL_Tput"].mean())
+                            else:
+                                tput_means.append(np.nan)
+
+                        customdata = np.stack((raw_counts, tput_means), axis=-1)
+
                         hovertemplate_pdf = (
                             f"{metric}: %{{x:.1f}}<br>"
+                            f"DL Tput: %{{customdata[1]:.1f}}<br>"
                             f"PDF: %{{y:.2f}}<br>"
                             f"Count: %{{customdata[0]}} / {total_count}<extra></extra>"
                         )
@@ -142,13 +157,13 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                 fig.update_yaxes(
                     title_text="PDF (Probability Density Function)",
                     gridcolor="rgba(0,0,0,0.15)",
-                    range=[0, None],
                     row=i, col=1,
                 )
                 fig.update_yaxes(
                     title_text="CDF (Cumulative Distribution Function)",
                     gridcolor="rgba(0,0,0,0.15)",
-                    range=[0, 1.05],
+                    tickvals=[0, 0.25, 0.5, 0.75, 1.0],
+                    tickformat=".2f",
                     row=i, col=1,
                     secondary_y=True,
                 )
@@ -263,25 +278,40 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
 
                     if metric == "DL_Tput":
                         bin_indices = np.digitize(group[metric].values, bin_edges) - 1
-                        sinr_means = []
+                        sinr_means, cqi_means = [],[]
                         for bin_i in range(len(bin_edges) - 1):
                             in_bin = (bin_indices == bin_i)
                             if np.any(in_bin):
                                 sinr_means.append(group.loc[in_bin, "SINR_SSB"].mean())
+                                cqi_means.append(group.loc[in_bin, "CQI"].mean())
                             else:
                                 sinr_means.append(np.nan)
-                        customdata = np.stack((raw_counts, sinr_means), axis=-1)
+                                cqi_means.append(np.nan)
+                        customdata = np.stack((raw_counts, sinr_means, cqi_means), axis=-1)
                         hovertemplate_pdf = (
                             f"{metric}: %{{x:.1f}}<br>"
                             f"SINR: %{{customdata[1]:.1f}}<br>"
+                            f"CQI: %{{customdata[2]:.1f}}<br>"
                             f"PDF: %{{y:.2f}}<br>"
                             f"Count: %{{customdata[0]}} / {total_count}<extra></extra>"
                         )
                         hovertemplate_cdf = hovertemplate_pdf.replace("PDF", "CDF")
                     else:
-                        customdata = np.array(raw_counts).reshape(-1, 1)
+                        bin_indices = np.digitize(group[metric].values, bin_edges) - 1
+                        tput_means = []
+
+                        for bin_i in range(len(bin_edges) - 1):
+                            in_bin = (bin_indices == bin_i)
+                            if np.any(in_bin):
+                                tput_means.append(group.loc[in_bin, "DL_Tput"].mean())
+                            else:
+                                tput_means.append(np.nan)
+
+                        customdata = np.stack((raw_counts, tput_means), axis=-1)
+
                         hovertemplate_pdf = (
                             f"{metric}: %{{x:.1f}}<br>"
+                            f"DL Tput: %{{customdata[1]:.1f}}<br>"
                             f"PDF: %{{y:.2f}}<br>"
                             f"Count: %{{customdata[0]}} / {total_count}<extra></extra>"
                         )
@@ -342,6 +372,8 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                 fig.update_yaxes(
                     title_text="CDF (Cumulative Distribution Function)",
                     gridcolor="rgba(0,0,0,0.15)",
+                    tickvals=[0, 0.25, 0.5, 0.75, 1.0],
+                    tickformat=".2f",
                     row=i, col=1,
                     secondary_y=True,
                 )
