@@ -13,6 +13,7 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     LEGEND_FONT_SIZE = 13
     RSRP_LOW = -120
     RSRP_HIGH = -50
+    DIST_BIN_SIZE = 10
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
@@ -57,10 +58,12 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                         continue
 
                     data = group[metric].dropna().values
-                    counts, bin_edges = np.histogram(data, bins=30, density=True)
+                    total_count = len(data)
+                    dist_bin_size = 10 if total_count < 1000 else 30
+                    counts, bin_edges = np.histogram(data, bins=dist_bin_size, density=True)
                     centers = (bin_edges[:-1] + bin_edges[1:]) / 2
                     raw_counts, _ = np.histogram(data, bins=bin_edges, density=False)
-                    total_count = len(data)
+
                     cdf = np.cumsum(counts * np.diff(bin_edges))
                     cdf = np.clip(cdf, 0, 1)
 
@@ -113,8 +116,8 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{band_name} | {route_name} | PDF",
                             legendgroup=f"{route_name}_pdf",
-                            line=dict(color=color, width=0.8),
-                            marker=dict(size=5, color=color),
+                            line=dict(color=color, width=1.2),
+                            marker=dict(size=5, color=color, symbol="square"),
                             customdata=customdata,
                             hovertemplate=hovertemplate_pdf,
                             hoverlabel=dict(
@@ -135,8 +138,8 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{band_name} | {route_name} | CDF",
                             legendgroup=f"{route_name}_cdf",
-                            line=dict(color=color, width=2.0, dash="dash"),
-                            marker=dict(size=5, color=color, symbol="square"),
+                            line=dict(color=color, width=0.7, dash="dash"),
+                            marker=dict(size=5, color=color),
                             customdata=customdata,
                             hovertemplate=hovertemplate_cdf,
                             hoverlabel=dict(
@@ -169,7 +172,7 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                     secondary_y=True,
                 )
 
-        # Band 드롭다운
+        # Band 드롭 다운
         buttons = []
         for band_name in band_list:
             visible_array = [band_name in trace.name for trace in fig.data]
@@ -260,15 +263,17 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                 x_min, x_max = None, None
 
                 for band in order:
+                    color = band_colors[band]
                     group = route_df[route_df["Band"] == band]
                     if len(group) < 5:
                         continue
 
                     data = group[metric].dropna().values
-                    counts, bin_edges = np.histogram(data, bins=30, density=True)
+                    total_count = len(data)
+                    dist_bin_size = 10 if total_count < 1000 else 30
+                    counts, bin_edges = np.histogram(data, bins=dist_bin_size, density=True)
                     centers = (bin_edges[:-1] + bin_edges[1:]) / 2
                     raw_counts, _ = np.histogram(data, bins=bin_edges, density=False)
-                    total_count = len(data)
                     cdf = np.cumsum(counts * np.diff(bin_edges))
                     cdf = np.clip(cdf, 0, 1)
 
@@ -326,8 +331,8 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{route_name} | {band} | PDF",
                             legendgroup=f"{band}_pdf",
-                            line=dict(color=band_colors[band], width=0.8),
-                            marker=dict(size=5, color=band_colors[band]),
+                            line=dict(color=color, width=1.2),
+                            marker=dict(size=5, color=color, symbol="square"),
                             customdata=customdata,
                             hovertemplate=hovertemplate_pdf,
                             hoverlabel=dict(
@@ -348,8 +353,8 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                             mode="lines+markers",
                             name=f"{route_name} | {band} | CDF",
                             legendgroup=f"{band}_cdf",
-                            line=dict(color=band_colors[band], width=2.0, dash="dash"),
-                            marker=dict(size=5, color=band_colors[band], symbol="square"),
+                            line=dict(color=band_colors[band], width=0.7, dash="dash"),
+                            marker=dict(size=5, color=band_colors[band]),
                             customdata=customdata,
                             hovertemplate=hovertemplate_cdf,
                             hoverlabel=dict(
