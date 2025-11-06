@@ -92,7 +92,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
                 stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
                 stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
                 stats["RSRP_left"] = stats["RSRP_bin"].apply(lambda x: x.left)
-                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.right:.0f} ~ {x.left:.0f}")
+                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.left:.0f} ~ {x.right:.0f}")
                 # stats["SE"] = stats["std"] / np.sqrt(stats["count"])
                 # stats["CI"] = 1.96 * stats["SE"]
 
@@ -312,7 +312,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
                     stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
                     stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
                     stats["RSRP_left"] = stats["RSRP_bin"].apply(lambda x: x.left)
-                    stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.right:.0f} ~ {x.left:.0f}")
+                    stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.left:.0f} ~ {x.right:.0f}")
                     # stats["SE"] = stats["std"] / np.sqrt(stats["count"])
                     # stats["CI"] = 1.96 * stats["SE"]
                     # stats["CI"] = 2.576 * stats["SE"]
