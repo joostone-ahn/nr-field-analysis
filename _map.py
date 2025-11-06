@@ -160,7 +160,7 @@ def add_basestation(map_name):
             # popup=f"{pci}"
         ).add_to(map_name)
 
-def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
+def render_step_map(df, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     uhd_lat, uhd_lon = 37.551130, 126.987443
     # m = folium.Map(location=[np.mean(lat), np.mean(lon)], zoom_start=16, tiles="cartodbpositron")
     m = folium.Map(location=[uhd_lat,uhd_lon], zoom_start=16, tiles="cartodbpositron")
@@ -174,7 +174,7 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
             continue
 
         color = cmap(val)
-        popup_html = popup_func(idx, val, df_pair, metric, out_file, band)
+        popup_html = popup_func(idx, val, df, metric, out_file, band)
         popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
@@ -182,8 +182,8 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
 
         border_weight = 0
         border_color = None
-        if "uhd_avg" in df_pair.columns:
-            uhd = df_pair.iloc[idx]["uhd_avg"]
+        if "uhd_avg" in df.columns:
+            uhd = df.iloc[idx]["uhd_avg"]
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
                 if grid_size >= 15:
@@ -217,7 +217,9 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
 def popup_table(idx, val, df_pair, metric, out_file, band):
+
     row = df_pair.iloc[idx]
+    loc_id = row.get("loc_id", None)
 
     cell_padding = "padding:2px 6px;"
     align_left  = f"text-align:left; {cell_padding}"
@@ -239,19 +241,37 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         "CQI", "RI", "DL_MCS",
         "DL_BLER", "UL_BLER",
     ]
+
     if not band:
         if metric == "DL_Tput":
             title = f"{metric.replace('_', ' ')} Δ"
-            subtext = "(n28/n26-100)"
+            subtitle = "n28/n26"
             unit = "%"
 
             header_html = f"""
-            <div style="text-align:left; font-size:12px; margin-bottom:6px;">
-                <span style="font-weight:bold;">{title}</span>
-                <span style="font-weight:normal; font-size:11px;">{subtext}</span> :
-                <span style="{color}">{val:+.1f} {unit}</span>
+            <div style="
+                display:flex;
+                align-items:flex-end;
+                font-size:12px;
+                font-weight:bold;
+                margin-bottom:6px;
+            ">
+                <span style="
+                    background-color:#424242;   
+                    color:#FFFFFF;              
+                    border-radius:3px;
+                    padding:1px 5px;
+                    margin-right:5px;
+                    font-size:11px;
+                    box-shadow:0 0 1px rgba(0,0,0,0.2);
+                ">{loc_id}</span>
+                <span>{title}</span>
+                <span style="font-size:11px;font-weight:normal;margin-left:4px;">({subtitle})</span>
+                <span style="font-weight:normal;margin-left:4px;">:</span>
+                <span style="{color};margin-left:4px;">{val:+.1f} {unit}</span>
             </div>
             """
+
         else:
             header_html = ""
 
@@ -260,6 +280,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         n_diff = int(row.get("sample_count_diff", 0))
 
         table_html = f"""
+        {header_html}
         <table style="border-collapse:collapse; font-size:12px;">
         <tr style="background-color:#cfd8dc;">
             <th style="{align_left}">Metric</th>
@@ -324,16 +345,36 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             </tr>
             """
         table_html += "</table>"
-        table_html = header_html + table_html
 
     elif band in ['n26','n28']:
         n_count = int(row.get(f"sample_count_{band}", 0))
-        table_html = f"""
-        <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">
-            Metric Stats <span style="font-weight:normal; font-size:11px;">({n_count} samples)</span>
+
+        header_html = f"""
+        <div style="
+            display:flex;
+            align-items:flex-end;
+            font-size:12px;
+            font-weight:bold;
+            margin-bottom:6px;
+        ">
+            <span style="
+                background-color:#424242;   
+                color:#FFFFFF;              
+                border-radius:3px;
+                padding:1px 5px;
+                margin-right:5px;
+                font-size:11px;
+                box-shadow:0 0 1px rgba(0,0,0,0.2);
+            ">{loc_id}</span>
+            Statistic
+            <span style="font-size:11px; font-weight:normal; color:#333; margin-left:4px;">
+                ({n_count} samples)
+            </span>
         </div>
         """
-        table_html += f"""
+
+        table_html = f"""
+        {header_html}
         <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">
         <tr style="background-color:#e0e0e0;">
             <th style="{align_left};">Metric</th>
@@ -353,9 +394,6 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
 
             mean_val = row[mean_col]
             std_val  = row[std_col]
-
-            if pd.isna(mean_val) or pd.isna(std_val) or n_count <= 1:
-                continue
 
             # cv = (std_val / abs(mean_val) * 100) if mean_val != 0 else np.nan
             se = std_val / np.sqrt(n_count)
@@ -420,8 +458,6 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
 
     if not band or band in ['n26','n28']:
         test_list = row.get("test_list", [])
-        loc_id = row.get("loc_id", np.nan)
-
         if isinstance(test_list, list) and len(test_list) > 0:
 
             test_by_date = defaultdict(list)
@@ -434,7 +470,6 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             <div style="margin-top:10px; font-size:12px;">
                 <div style="font-weight:bold; color:#000; margin-bottom:2px;">
                     View Test Results
-                    <span style="font-size:11px; font-weight:normal;">(loc_id: {loc_id})</span>
                 </div>
                 <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
                     <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
@@ -471,13 +506,11 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
 
     return table_html
 
-def map_pct(df, out_dir, grid_size, rb_min, sample_min):
-
-    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+def map_pct(df, out_dir, grid_size):
 
     lat_factor, lon_factor = 111320, 88000
-    lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
-    lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
+    lat = (df["lat_bin"] + 0.5) * (grid_size / lat_factor)
+    lon = (df["lon_bin"] + 0.5) * (grid_size / lon_factor)
     
     metrics_pct = [
         "DL_Tput",
@@ -487,8 +520,8 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
     ]
 
     for metric_pct in metrics_pct:
-        n26 = df_pair[f"{metric_pct}_mean_n26"].astype(float)
-        n28 = df_pair[f"{metric_pct}_mean_n28"].astype(float)
+        n26 = df[f"{metric_pct}_mean_n26"].astype(float)
+        n28 = df[f"{metric_pct}_mean_n28"].astype(float)
 
         ratio = (n28 / n26.replace(0, np.nan)) * 100.0
         ratio = ratio.replace([np.inf, -np.inf], np.nan).dropna()
@@ -509,7 +542,7 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
         out_file = os.path.join(out_dir, f"cmpr_{metric_pct}.html")
         caption = f"{metric_pct} Δ(n28/n26) [%-100]"
         render_step_map(
-            df_pair=df_pair,
+            df=df,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
@@ -522,13 +555,11 @@ def map_pct(df, out_dir, grid_size, rb_min, sample_min):
             caption=caption
         )
 
-def map_db(df, out_dir, grid_size, rb_min, sample_min):
-
-    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+def map_db(df, out_dir, grid_size):
 
     lat_factor, lon_factor = 111320, 88000
-    lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
-    lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
+    lat = (df["lat_bin"] + 0.5) * (grid_size / lat_factor)
+    lon = (df["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
     metrics = [
         {"name": "RSRP",           "vmin": -10,   "vmax": 10,  "unit": "dB"},
@@ -540,8 +571,8 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
         vmin, vmax = m['vmin'], m['vmax']
         unit = m['unit']
 
-        n26 = df_pair[f"{metric}_mean_n26"].astype(float)
-        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
+        n26 = df[f"{metric}_mean_n26"].astype(float)
+        n28 = df[f"{metric}_mean_n28"].astype(float)
         diff = n28 - n26
 
         cmap = make_step_cmap(vmin, vmax)
@@ -550,7 +581,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
         out_file = os.path.join(out_dir, f"cmpr_{metric}.html")
         caption = f"Δ{metric} (n28-n26) [{unit}]"
         render_step_map(
-            df_pair=df_pair,
+            df=df,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
@@ -563,13 +594,11 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
             caption=caption
         )
 
-def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band):
-
-    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+def map_coverage(df, out_dir, grid_size, band):
 
     lat_factor, lon_factor = 111320, 88000
-    lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
-    lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
+    lat = (df["lat_bin"] + 0.5) * (grid_size / lat_factor)
+    lon = (df["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
     metrics = [
         {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
@@ -584,14 +613,14 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band):
         vmin, vmax = m['vmin'], m['vmax']
         unit = m['unit']
 
-        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
+        n28 = df[f"{metric}_mean_n28"].astype(float)
         cmap = make_step_cmap(vmin, vmax)
         caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
 
         os.makedirs(out_dir, exist_ok=True)
         out_file = os.path.join(out_dir, f"{band}_{metric}.html")
         render_step_map(
-            df_pair=df_pair,
+            df=df,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
