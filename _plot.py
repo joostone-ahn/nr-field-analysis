@@ -117,6 +117,7 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
                         line=dict(color=color, width=1.3),
                         marker=dict(size=5, color=color),
                         text=stats["hover_text"],
+                        customdata=stats["RSRP_left"],
                         hovertemplate="%{text}<extra></extra>",
                         hoverlabel=dict(
                             font=dict(size=11, color="white"),
@@ -217,8 +218,30 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"kpis_group_by_site.html")
-    fig.write_html(out_path)
+    out_path = os.path.join(out_dir, f"kpis_site_{rsrp_bin}dB.html")
+    fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
+
+    js_script = f"""
+    <script>
+        const RSRP_BIN = {rsrp_bin};
+        var plot = document.getElementsByClassName('plotly-graph-div')[0];
+        plot.on('plotly_click', function(data) {{
+            var rsrp_left = data.points[0].customdata;
+            var rsrp_right = rsrp_left + RSRP_BIN;
+
+            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_group_by_site/RSRP_bin_" + RSRP_BIN + "dB/";
+            var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
+            var full_url = base_url + file_name;
+
+            console.log("Opening:", full_url);
+            window.open(full_url, "_blank");
+        }});
+    </script>
+    """
+
+    with open(out_path, "a", encoding="utf-8") as f:
+        f.write(js_script)
+
     print(f"✅ Saved: {out_path}")
 
 def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
@@ -315,6 +338,7 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
                             line=dict(color=color, width=1.3),
                             marker=dict(size=5, color=color),
                             text=stats["hover_text"],
+                            customdata=stats["RSRP_left"],
                             hovertemplate="%{text}<extra></extra>",
                             hoverlabel=dict(
                                 font=dict(size=11, color="white"),
@@ -518,7 +542,30 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         else:
             os.makedirs(os.path.join("results", "_fixed-point"), exist_ok=True)
             out_path = os.path.join('results', "_fixed-point", f"{fixed_route}.html")
-        fig.write_html(out_path)
+
+        fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
+
+        js_script = f"""
+        <script>
+            const RSRP_BIN = {rsrp_bin};
+            var plot = document.getElementsByClassName('plotly-graph-div')[0];
+            plot.on('plotly_click', function(data) {{
+                var rsrp_left = data.points[0].customdata;
+                var rsrp_right = rsrp_left + RSRP_BIN;
+
+                var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_group_by_band/RSRP_bin_" + RSRP_BIN + "dB/";
+                var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
+                var full_url = base_url + file_name;
+
+                console.log("Opening:", full_url);
+                window.open(full_url, "_blank");
+            }});
+        </script>
+        """
+
+        with open(out_path, "a", encoding="utf-8") as f:
+            f.write(js_script)
+
         print(f"✅ Saved: {out_path}")
 
 def plot_kpis_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min):
