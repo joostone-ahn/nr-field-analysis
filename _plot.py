@@ -516,7 +516,7 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         if fixed_route == '':
             out_path = os.path.join(out_dir, "kpis_group_by_band.html")
         else:
-            out_path = os.path.join(out_dir, "kpis_fixed-point", f"{fixed_route}.html")
+            out_path = os.path.join('results', "_fixed-point", "plot_kpis_group_by_band", f"{fixed_route}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
