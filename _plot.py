@@ -56,7 +56,6 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     ]
 
     route_colors = {
-        # "All": "#1E90FF",
         "Namsan": "#FF4500",
         "Huam345-5": "#FFD700",
         "Huam415-1": "#32CD32",
@@ -66,7 +65,9 @@ def plot_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
 
     df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
-    plot_df = df[df['route'].isin(route_list)].copy()
+
+    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
 
     fig = make_subplots(
         rows=len(metrics),
@@ -259,8 +260,8 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
     df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
-    plot_df = df[df['route'].isin(route_list)].copy()
-    fixed_df = _common.update_fixed_point(df)
+    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     fixed_routes = [''] + sorted(fixed_df["route"].unique().tolist())
 
     for fixed_route in fixed_routes:
@@ -511,11 +512,11 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
             margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         )
 
-        os.makedirs(out_dir, exist_ok=True)
-        os.makedirs(os.path.join(out_dir, "kpis_fixed-point"), exist_ok=True)
         if fixed_route == '':
+            os.makedirs(out_dir, exist_ok=True)
             out_path = os.path.join(out_dir, "kpis_group_by_band.html")
         else:
+            os.makedirs(os.path.join("results", "_fixed-point", "plot_kpis_group_by_band"), exist_ok=True)
             out_path = os.path.join('results', "_fixed-point", "plot_kpis_group_by_band", f"{fixed_route}.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")

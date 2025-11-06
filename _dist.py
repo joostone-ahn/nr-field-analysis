@@ -236,11 +236,14 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     }
     band_list = ["n28", "n26"]
 
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
+    df = df[df["DL_RB"] > rb_min].copy()
+    df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
+
+    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    route_list = list(route_colors.keys())
+    plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
 
     bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
-
     for b_idx, b in enumerate(bins[:-1]):
         rsrp_min, rsrp_max = b, b + rsrp_bin
         bin_df = plot_df[(plot_df["RSRP"] >= rsrp_min) & (plot_df["RSRP"] < rsrp_max)].copy()
@@ -444,11 +447,13 @@ def dist_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
     order = ["n28", "n26"]
     route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
 
-    plot_df = df[df["DL_RB"] > rb_min].copy()
-    plot_df = plot_df[(plot_df["RSRP"] <= RSRP_HIGH) & (plot_df["RSRP"] >= RSRP_LOW)]
+    df = df[df["DL_RB"] > rb_min].copy()
+    df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
+
+    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
 
     bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
-
     for b_idx, b in enumerate(bins[:-1]):
         rsrp_min, rsrp_max = b, b + rsrp_bin
         bin_df = plot_df[(plot_df["RSRP"] >= rsrp_min) & (plot_df["RSRP"] < rsrp_max)].copy()

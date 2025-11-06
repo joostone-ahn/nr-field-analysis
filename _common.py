@@ -221,8 +221,9 @@ def analyze_kpi(fname, date_list):
 
     return df
 
-def update_fixed_point(df):
+def separate_fixed_point(df):
     fixed_df = df[df["route"].str.contains("fixed", case=False, na=False)].copy()
+    non_fixed_df = df[~df["route"].str.contains("fixed", case=False, na=False)].copy()
     # unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
     # display(unique_pairs)
 
@@ -274,7 +275,7 @@ def update_fixed_point(df):
     # unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)
     # display(unique_check.sort_values(["route", "test_no"]))
 
-    return fixed_df
+    return fixed_df, non_fixed_df
 
 def assign_uhd_pwr(df, grid_size):
     # df_uhd = read_UHD_csv(uhd_dir='UHD_power')
