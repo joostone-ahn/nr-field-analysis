@@ -126,9 +126,9 @@ def add_basestation(map_name):
         (391, 37.55118544, 126.9881064),
         # (417, 37.54985218, 126.98487871),
         # (420, 37.5524474, 126.98724844),
-        (437, 37.546339, 126.976871),
-        (439, 37.546339, 126.976871),
-        (440, 37.546339, 126.976871),
+        # (437, 37.546339, 126.976871),
+        # (439, 37.546339, 126.976871),
+        # (440, 37.546339, 126.976871),
         # (442, 37.546339, 126.976871),
         (443, 37.544483, 126.985776),
         (444, 37.544483, 126.985776),
@@ -153,7 +153,11 @@ def add_basestation(map_name):
             ),
             radius=4,
         )
-        folium.Marker([lat, lon], icon=icon).add_to(map_name)
+        folium.Marker(
+            [lat, lon],
+            icon=icon,
+            # popup=f"{pci}"
+        ).add_to(map_name)
 
 def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     uhd_lat, uhd_lon = 37.551130, 126.987443
