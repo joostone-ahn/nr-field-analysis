@@ -291,6 +291,14 @@ def assign_loc_id(df, grid_size, rb_min, sample_min):
     df[f"loc_id"] = df[f"loc_id"].astype("Int64")
     return df
 
+def assign_uhd_pwr(df_pair, grid_size):
+    # df_uhd = read_UHD_csv(uhd_dir='UHD_power')
+    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
+    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
+    df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+
+    return df_pair
+
 def grid_kpi(df, grid_size, rb_min, sample_min):
     kpi_cols = [
         "RSRP", "RSRQ",
@@ -402,11 +410,6 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
             raise ValueError(f"❌ Multiple places found: {unique_places}, {test_list}")
     df_pair[f"route"] = df_pair[f"test_list"].apply(extract_route)
 
-    # df_uhd = read_UHD_csv(uhd_dir='UHD_power')
-    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
-    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
-    df_pair = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
-
     df_pair = df_pair[
         (df_pair["sample_count_n26"] >= sample_min)
         & (df_pair["sample_count_n28"] >= sample_min)
@@ -414,6 +417,7 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
 
     df_pair = df_pair.sort_values(["lat_bin", "lon_bin"], ascending=[True, True])
     df_pair = df_pair.reset_index().rename(columns={"index": "loc_id"})
+    df_pair = assign_uhd_pwr(df_pair, grid_size=grid_size)
 
     common_cols = ["loc_id", "lat_bin", "lon_bin", "test_list", "route"]
     sample_cols = [c for c in ["sample_count_n26", "sample_count_n28", "sample_count_diff"] if c in df_pair.columns]

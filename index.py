@@ -133,6 +133,7 @@ def generate_list_html(root_dir, depth=0):
                 "map",
                 "map/grid_30m",
                 "plot",
+                "dist",
             )
 
             html += (

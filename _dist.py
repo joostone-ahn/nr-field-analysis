@@ -5,6 +5,85 @@ import os
 import pandas as pd
 import _common
 
+def dist_uhd_pwr(df, out_dir, grid_size, rb_min, sample_min):
+    # --- Layout 상수 (dist_kpis_group_by_site와 동일하게) ---
+    SUBPLOT_HEIGHT = 600
+    TOP_MARGIN = 70
+    LEGEND_Y = 1.03
+    LEGEND_FONT_SIZE = 13
+
+    df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+    metrics = ["uhd_avg", "uhd_max", "uhd_min"]
+    df_pair = df_pair.dropna(subset=metrics).copy()
+
+    colors = {
+        "uhd_avg": "#1976D2",  # 파랑
+        "uhd_max": "#D32F2F",  # 빨강
+        "uhd_min": "#388E3C",  # 초록
+    }
+
+    fig = go.Figure()
+
+    for metric in metrics:
+        data = df_pair[metric].dropna().values
+        total = len(data)
+
+        bins = np.arange(np.floor(data.min()), np.ceil(data.max()) + 1, 1)
+        counts, bin_edges = np.histogram(data, bins=bins)
+        cdf = np.cumsum(counts) / total
+        centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        hover_text = [f"{int(x)}/{total}" for x in np.cumsum(counts)]
+
+        fig.add_trace(
+            go.Scatter(
+                x=centers,
+                y=cdf,
+                mode="lines+markers",
+                name=metric.replace("uhd_", "").upper(),
+                line=dict(color=colors[metric], width=2),
+                text=hover_text,
+                hovertemplate=(
+                    "Power: %{x:.1f} dBm<br>"
+                    "CDF: %{y:.2f}<br>"
+                    "Count: %{text}<extra></extra>"
+                ),
+            )
+        )
+
+    fig.update_layout(
+        title=f"UHD Power Distribution (Grid {grid_size} m)",
+        template="plotly_white",
+        autosize=True,
+        height=SUBPLOT_HEIGHT,
+        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+        xaxis=dict(
+            title="UHD Power [dBm/12MHz]",
+            gridcolor="rgba(0,0,0,0.15)",
+            dtick=3,
+        ),
+        yaxis=dict(
+            title_text="CDF (Cumulative Distribution Function)",
+            gridcolor="rgba(0,0,0,0.15)",
+            dtick=0.2,
+            range=[-0.05, 1.05],
+        ),
+        legend=dict(
+            title="Metric",
+            orientation="h",
+            yanchor="top",
+            y=LEGEND_Y,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=LEGEND_FONT_SIZE),
+        ),
+    )
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+    fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
+    print(f"✅ Saved: {out_file}")
+
 def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
@@ -13,7 +92,6 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     LEGEND_FONT_SIZE = 13
     RSRP_LOW = -120
     RSRP_HIGH = -50
-    DIST_BIN_SIZE = 10
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
@@ -28,7 +106,6 @@ def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
         "Huam345-5": "#FFD700",
         "Huam415-1": "#32CD32",
     }
-    route_list = list(route_colors.keys())
     band_list = ["n28", "n26"]
 
     plot_df = df[df["DL_RB"] > rb_min].copy()

@@ -571,58 +571,31 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band):
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
-    if band in ['n26','n28']:
-        metrics = [
-            {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
-            {"name": "SINR",           "vmin": -5,    "vmax": 45,   "unit": "dB"},
-            {"name": "DL_Tput",        "vmin": 0,    "vmax": 120,  "unit": "Mbps"},
-            # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
-            # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
-        ]
+    metrics = [
+        {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
+        {"name": "SINR",           "vmin": -5,    "vmax": 45,   "unit": "dB"},
+        {"name": "DL_Tput",        "vmin": 0,    "vmax": 120,  "unit": "Mbps"},
+        # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
+        # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
+    ]
 
-        for m in metrics:
-            metric = m['name']
-            vmin, vmax = m['vmin'], m['vmax']
-            unit = m['unit']
+    for m in metrics:
+        metric = m['name']
+        vmin, vmax = m['vmin'], m['vmax']
+        unit = m['unit']
 
-            n28 = df_pair[f"{metric}_mean_n28"].astype(float)
-            cmap = make_step_cmap(vmin, vmax)
-            caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
-
-            os.makedirs(out_dir, exist_ok=True)
-            out_file = os.path.join(out_dir, f"{band}_{metric}.html")
-            render_step_map(
-                df_pair=df_pair,
-                grid_size=grid_size,
-                lat=lat,
-                lon=lon,
-                values=n28,
-                metric=metric,
-                popup_func=popup_table,
-                band=band,
-                cmap=cmap,
-                out_file=out_file,
-                caption=caption,
-            )
-    elif band == 'uhd':
-        metric = 'uhd_avg'
-        unit = 'dBm/12MHz'
-
-        vmin = df_pair[metric].min()
-        vmax = df_pair[metric].max()
-
-        uhd_avg = df_pair[metric].astype(float)
+        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
         cmap = make_step_cmap(vmin, vmax)
-        caption = f"UHD Power Avg [{unit}]"
+        caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
 
         os.makedirs(out_dir, exist_ok=True)
-        out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+        out_file = os.path.join(out_dir, f"{band}_{metric}.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
-            values=uhd_avg,
+            values=n28,
             metric=metric,
             popup_func=popup_table,
             band=band,
@@ -630,3 +603,38 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band):
             out_file=out_file,
             caption=caption,
         )
+
+def map_uhd_pwr(out_dir, grid_size):
+
+    df_uhd = _common.read_UHD_xlsx(uhd_dir='UHD_power')
+    df_uhd_grid = _common.grid_uhd(df_uhd, grid_size=grid_size)
+
+    lat_factor, lon_factor = 111320, 88000
+    lat = (df_uhd_grid["lat_bin"] + 0.5) * (grid_size / lat_factor)
+    lon = (df_uhd_grid["lon_bin"] + 0.5) * (grid_size / lon_factor)
+
+    metric = 'uhd_avg'
+    unit = 'dBm/12MHz'
+
+    vmin = df_uhd_grid[metric].min()
+    vmax = df_uhd_grid[metric].max()
+
+    uhd_avg = df_uhd_grid[metric].astype(float)
+    cmap = make_step_cmap(vmin, vmax)
+    caption = f"UHD Power Avg [{unit}]"
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+    render_step_map(
+        df_pair=df_uhd_grid,
+        grid_size=grid_size,
+        lat=lat,
+        lon=lon,
+        values=uhd_avg,
+        metric=metric,
+        popup_func=popup_table,
+        band='uhd',
+        cmap=cmap,
+        out_file=out_file,
+        caption=caption,
+    )

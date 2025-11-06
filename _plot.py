@@ -520,6 +520,203 @@ def plot_kpis_group_by_band(df, out_dir, rb_min, rsrp_bin):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
+def plot_kpis_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min):
+
+    metrics = [
+        "SINR_TRS",
+        "DL_Tput",
+        # "DL_Tput_per_RB",
+    ]
+
+    for metric in metrics:
+        df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
+        df_n26, df_n28 = split_band_df(df_pair)
+        plot_df = df_n28.copy() if band == "n28" else df_n26.copy()
+        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
+        # print(plot_df.info())
+
+        group_name = 'UHD Power'
+        color_col = "uhd_max"
+
+        # valid_vals = plot_df[color_col].dropna()
+        # if len(valid_vals) > 0:
+        plot_df = plot_df.dropna(subset=[color_col])
+        if not plot_df.empty:
+            q1, q2, q3 = -40, -35, -30
+            def color_by_uhd(v):
+                if v >= q3:
+                    return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
+                elif v >= q2:
+                    return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
+                elif v >= q1:
+                    return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
+                else:
+                    return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
+
+            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
+            order = [
+                f"PWR ≥ {q3:.0f}",
+                f"{q2:.0f} ≤ PWR < {q3:.0f}",
+                f"{q1:.0f} ≤ PWR < {q2:.0f}",
+                f"PWR < {q1:.0f}",
+                "null",
+            ]
+
+        plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
+        plot_df = plot_df.sort_values("color_label")
+
+        def make_hover_text(row):
+            def ci95(std, n):
+                if pd.isna(std) or pd.isna(n) or n <= 1:
+                    return None
+                return 1.96 * std / np.sqrt(n)
+
+            ci = {
+                "DL_Tput": ci95(row.get("DL_Tput_std"), row.get("count")),
+                "DL_RB": ci95(row.get("DL_RB_std"), row.get("count")),
+                "DL_Tput_per_RB": ci95(row.get("DL_Tput_per_RB_std"), row.get("count")),
+                "RSRP": ci95(row.get("RSRP_std"), row.get("count")),
+                "SINR_TRS": ci95(row.get("SINR_TRS_std"), row.get("count")),
+            }
+
+            def fmt(val, ci_val):
+                if pd.isna(val):
+                    return "null"
+                if ci_val is None:
+                    return f"{val:.1f}"
+                return f"{val:.1f} <span style='color:#777;'>(±{ci_val:.2f})</span>"
+
+            lines = [
+                "────────────────────────",
+                f"<b>UHD_PWR</b> : {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "<b>UHD_PWR</b>: null",
+                f"<b>route / loc_id</b> : {row['route']} / {row['loc_id']}",
+                "────────────────────────",
+                f"<b>samples</b> : {row['count']}",
+                f"<b>RSRP</b> : {fmt(row['RSRP'], ci['RSRP'])}",
+                f"<b>SINR_TRS</b> : {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
+                f"<b>DL_Tput</b> : {fmt(row['DL_Tput'], ci['DL_Tput'])}",
+                f"<b>DL_RB</b> : {fmt(row['DL_RB'], ci['DL_RB'])}",
+                f"<b>DL_Tput_per_RB</b> : {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
+                "────────────────────────",
+            ]
+            return "<br>".join(lines)
+
+        plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
+
+        fig = go.Figure()
+
+        for label in order:
+            group = plot_df[plot_df["color_label"] == label]
+            if group.empty:
+                continue
+
+            color = group["color"].iloc[0]
+
+            fig.add_trace(
+                go.Scatter(
+                    x=group["RSRP"],
+                    y=group[metric],
+                    mode="markers",
+                    name=label,
+                    legendgroup=label,
+                    marker=dict(size=10, color=color),
+                    text=group["hover_text"],
+                    hovertemplate="%{text}<extra></extra>",
+                )
+            )
+
+            # valid = (
+            #     group.dropna(subset=["RSRP", metric])
+            #     .replace([np.inf, -np.inf], np.nan)
+            #     .dropna(subset=[metric, "RSRP"])
+            #     .copy()
+            # )
+            # if len(valid) < 5:
+            #     continue
+            #
+            # bin_size = 1
+            # bins = np.arange(-120, -59, bin_size)
+            # valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+            #
+            # mean_df = (
+            #     valid.groupby("RSRP_bin", observed=True)[metric]
+            #     .mean()
+            #     .reset_index()
+            #     .dropna()
+            # )
+            # mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+            #
+            # if not mean_df.empty:
+            #     fig.add_trace(
+            #         go.Scatter(
+            #             x=mean_df["RSRP_center"],
+            #             y=mean_df[metric],
+            #             mode="lines+markers",
+            #             name=f"{label} avg({bin_size}dB)",
+            #             legendgroup=label,
+            #             line=dict(color=color, width=3, dash="dot"),
+            #             marker=dict(size=10, color=color),
+            #             hoverinfo="skip",
+            #             showlegend=True,
+            #         )
+            #     )
+
+        title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name} ({band})"
+
+        fig.update_layout(
+            title=title_text,
+            template="plotly_white",
+            hoverlabel=dict(
+                bgcolor="white",
+                bordercolor="gray",
+                font=dict(size=10),
+                align="left",
+            ),
+            legend=dict(
+                title=dict(
+                    text=f"<span><b>  {group_name}</b></span><br>",
+                    font=dict(size=13),
+                    side="top"
+                ),
+                font=dict(size=13),
+                itemsizing="constant",
+                itemclick="toggle",
+                itemdoubleclick="toggleothers",
+                tracegroupgap=8,
+                yanchor="top",
+                y=1.0,
+                xanchor="left",
+            )
+        )
+        fig.update_xaxes(
+            title="RSRP [dBm]",
+            autorange="reversed",
+            dtick=5,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="rgba(0,0,0,0.15)",
+            griddash="dot",
+        )
+
+        if metric == "SINR_TRS":
+            y_title = "SINR TRS [dB]"
+        elif metric == "DL_Tput":
+            y_title = "DL Throughput [Mbps]"
+        elif metric == "DL_Tput_per_RB":
+            y_title = "DL Throughput per RB [Mbps]"
+        fig.update_yaxes(
+            title=y_title,
+            # dtick=10,
+            showgrid=True,
+            gridwidth=1,
+            gridcolor="rgba(0,0,0,0.15)",
+            griddash="dot",
+        )
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"{band}_{metric}_by_uhd.html")
+        fig.write_html(out_path)
+        print(f"✅ Saved: {out_path}")
+
 def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
     metrics = [
         "RSRP", "RSRQ",
@@ -918,205 +1115,5 @@ def plot_grid_kpi(df, out_dir, grid_size, rb_min, sample_min):
 
         os.makedirs(out_dir, exist_ok=True)
         out_path = os.path.join(out_dir, f"cmpr_{metric}.html")
-        fig.write_html(out_path)
-        print(f"✅ Saved: {out_path}")
-
-def plot_grid_kpi_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min, band):
-
-    if band not in ["n26", "n28"]:
-        ValueError("band must be n28 or n26")
-
-    metrics = [
-        "SINR_TRS",
-        "DL_Tput",
-        # "DL_Tput_per_RB",
-    ]
-
-    for metric in metrics:
-        df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
-        df_n26, df_n28 = split_band_df(df_pair)
-        plot_df = df_n28.copy() if band == "n28" else df_n26.copy()
-        plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
-        # print(plot_df.info())
-
-        group_name = 'UHD Power'
-        color_col = "uhd_max"
-
-        # valid_vals = plot_df[color_col].dropna()
-        # if len(valid_vals) > 0:
-        plot_df = plot_df.dropna(subset=[color_col])
-        if not plot_df.empty:
-            q1, q2, q3 = -40, -35, -30
-            def color_by_uhd(v):
-                if v >= q3:
-                    return "#FF4500", f"PWR ≥ {q3:.0f}"  # 빨강 (높음)
-                elif v >= q2:
-                    return "#FFD700", f"{q2:.0f} ≤ PWR < {q3:.0f}"  # 노랑
-                elif v >= q1:
-                    return "#32CD32", f"{q1:.0f} ≤ PWR < {q2:.0f}"  # 초록
-                else:
-                    return "#1E90FF", f"PWR < {q1:.0f}"  # 파랑 (낮음)
-
-            plot_df[["color", "color_label"]] = plot_df[color_col].apply(lambda v: pd.Series(color_by_uhd(v)))
-            order = [
-                f"PWR ≥ {q3:.0f}",
-                f"{q2:.0f} ≤ PWR < {q3:.0f}",
-                f"{q1:.0f} ≤ PWR < {q2:.0f}",
-                f"PWR < {q1:.0f}",
-                "null",
-            ]
-
-        plot_df["color_label"] = pd.Categorical(plot_df["color_label"], categories=order, ordered=True)
-        plot_df = plot_df.sort_values("color_label")
-
-        def make_hover_text(row):
-            def ci95(std, n):
-                if pd.isna(std) or pd.isna(n) or n <= 1:
-                    return None
-                return 1.96 * std / np.sqrt(n)
-
-            ci = {
-                "DL_Tput": ci95(row.get("DL_Tput_std"), row.get("count")),
-                "DL_RB": ci95(row.get("DL_RB_std"), row.get("count")),
-                "DL_Tput_per_RB": ci95(row.get("DL_Tput_per_RB_std"), row.get("count")),
-                "RSRP": ci95(row.get("RSRP_std"), row.get("count")),
-                "SINR_TRS": ci95(row.get("SINR_TRS_std"), row.get("count")),
-            }
-
-            def fmt(val, ci_val):
-                if pd.isna(val):
-                    return "null"
-                if ci_val is None:
-                    return f"{val:.1f}"
-                return f"{val:.1f} <span style='color:#777;'>(±{ci_val:.2f})</span>"
-
-            lines = [
-                "────────────────────────",
-                f"<b>UHD_PWR</b> : {row['uhd_max']:.1f}" if not pd.isna(row['uhd_max']) else "<b>UHD_PWR</b>: null",
-                f"<b>route / loc_id</b> : {row['route']} / {row['loc_id']}",
-                "────────────────────────",
-                f"<b>samples</b> : {row['count']}",
-                f"<b>RSRP</b> : {fmt(row['RSRP'], ci['RSRP'])}",
-                f"<b>SINR_TRS</b> : {fmt(row['SINR_TRS'], ci['SINR_TRS'])}",
-                f"<b>DL_Tput</b> : {fmt(row['DL_Tput'], ci['DL_Tput'])}",
-                f"<b>DL_RB</b> : {fmt(row['DL_RB'], ci['DL_RB'])}",
-                f"<b>DL_Tput_per_RB</b> : {fmt(row['DL_Tput_per_RB'], ci['DL_Tput_per_RB'])}",
-                "────────────────────────",
-            ]
-            return "<br>".join(lines)
-
-        plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
-
-        fig = go.Figure()
-
-        for label in order:
-            group = plot_df[plot_df["color_label"] == label]
-            if group.empty:
-                continue
-
-            color = group["color"].iloc[0]
-
-            fig.add_trace(
-                go.Scatter(
-                    x=group["RSRP"],
-                    y=group[metric],
-                    mode="markers",
-                    name=label,
-                    legendgroup=label,
-                    marker=dict(size=10, color=color),
-                    text=group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                )
-            )
-
-            # valid = (
-            #     group.dropna(subset=["RSRP", metric])
-            #     .replace([np.inf, -np.inf], np.nan)
-            #     .dropna(subset=[metric, "RSRP"])
-            #     .copy()
-            # )
-            # if len(valid) < 5:
-            #     continue
-            #
-            # bin_size = 1
-            # bins = np.arange(-120, -59, bin_size)
-            # valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-            #
-            # mean_df = (
-            #     valid.groupby("RSRP_bin", observed=True)[metric]
-            #     .mean()
-            #     .reset_index()
-            #     .dropna()
-            # )
-            # mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-            #
-            # if not mean_df.empty:
-            #     fig.add_trace(
-            #         go.Scatter(
-            #             x=mean_df["RSRP_center"],
-            #             y=mean_df[metric],
-            #             mode="lines+markers",
-            #             name=f"{label} avg({bin_size}dB)",
-            #             legendgroup=label,
-            #             line=dict(color=color, width=3, dash="dot"),
-            #             marker=dict(size=10, color=color),
-            #             hoverinfo="skip",
-            #             showlegend=True,
-            #         )
-            #     )
-
-        title_text = f"{metric.replace("_", " ")} over RSRP group by {group_name} ({band})"
-
-        fig.update_layout(
-            title=title_text,
-            template="plotly_white",
-            hoverlabel=dict(
-                bgcolor="white",
-                bordercolor="gray",
-                font=dict(size=10),
-                align="left",
-            ),
-            legend=dict(
-                title=dict(
-                    text=f"<span><b>  {group_name}</b></span><br>",
-                    font=dict(size=13),
-                    side="top"
-                ),
-                font=dict(size=13),
-                itemsizing="constant",
-                itemclick="toggle",
-                itemdoubleclick="toggleothers",
-                tracegroupgap=8,
-                yanchor="top",
-                y=1.0,
-                xanchor="left",
-            )
-        )
-        fig.update_xaxes(
-            title="RSRP [dBm]",
-            autorange="reversed",
-            dtick=5,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
-        )
-
-        if metric == "SINR_TRS":
-            y_title = "SINR TRS [dB]"
-        elif metric == "DL_Tput":
-            y_title = "DL Throughput [Mbps]"
-        elif metric == "DL_Tput_per_RB":
-            y_title = "DL Throughput per RB [Mbps]"
-        fig.update_yaxes(
-            title=y_title,
-            # dtick=10,
-            showgrid=True,
-            gridwidth=1,
-            gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
-        )
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"{band}_{metric}_by_uhd.html")
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
