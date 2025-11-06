@@ -67,6 +67,7 @@ def add_basestation(map_name):
         ).add_to(map_name)
 
     uhd_lat, uhd_lon = 37.551130, 126.987443
+
     folium.Marker(
         [uhd_lat, uhd_lon],
         icon=folium.Icon(color="darkblue", icon="tower-cell", prefix='fa'),
@@ -76,7 +77,7 @@ def add_basestation(map_name):
     folium.Circle(
         location=[uhd_lat, uhd_lon],
         radius=1000,
-        color="gray",
+        color="blue",
         weight=1,
         dash_array="3,3",
         fill=False,
