@@ -718,6 +718,13 @@ def plot_kpis_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min):
         print(f"✅ Saved: {out_path}")
 
 def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
+
+    lat_factor, lon_factor = 111320, 88000
+    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df = pd.merge(df, df_grid, on=["lat_bin", "lon_bin"], how="left")
+    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
+
     metrics = [
         "RSRP", "RSRQ",
         "SINR_SSB", "SINR_TRS",
@@ -727,8 +734,6 @@ def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
         "CQI", "RI", "DL_MCS",
         "DL_BLER", "UL_BLER",
     ]
-
-    df = pd.merge(df, df_grid, on=["lat_bin", "lon_bin"], how="left")
 
     test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
@@ -856,7 +861,7 @@ def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
         route = target_no.split("_")[2]
 
         os.makedirs(out_dir, exist_ok=True)
-        save_dir = os.path.join(out_dir, f"grid_{grid_size}m", date, route)
+        save_dir = os.path.join(out_dir, date, route)
         os.makedirs(save_dir, exist_ok=True)
         out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
