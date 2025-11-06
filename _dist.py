@@ -96,7 +96,7 @@ def dist_uhd_pwr(df, out_dir, grid_size):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"uhd_pwr_all_.html")
+    out_file = os.path.join(out_dir, f"cmpr_min-avg-max.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
 
@@ -150,7 +150,7 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
                 x=centers,
                 y=cdf,
                 mode="lines+markers",
-                name=f"{route} ({total})",
+                name=f"{route}",
                 line=dict(color=color, width=1.2),
                 text=hover_text,
                 hovertemplate=(
@@ -174,7 +174,7 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
     x_upper = center_x + half_range
 
     fig.update_layout(
-        title=f"UHD Power CDF by Site (Grid {grid_size}m)",
+        title=f"UHD Average Power CDF by Site (Grid {grid_size}m)",
         template="plotly_white",
         autosize=True,
         height=SUBPLOT_HEIGHT,
@@ -208,7 +208,7 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"uhd_pwr_group_by_site.html")
+    out_file = os.path.join(out_dir, f"cmpr_site.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
 
