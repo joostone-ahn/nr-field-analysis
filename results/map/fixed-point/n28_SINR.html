@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_f342f85b94b3a66e9feefa4951d53f83 {
+                #map_86c7745f3ba45493691f0633b5f60766 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -51,18 +51,20 @@
 
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.css"/>
 </head>
 <body>
     
     
-            <div class="folium-map" id="map_f342f85b94b3a66e9feefa4951d53f83" ></div>
+            <div class="folium-map" id="map_86c7745f3ba45493691f0633b5f60766" ></div>
         
 </body>
 <script>
     
     
-            var map_f342f85b94b3a66e9feefa4951d53f83 = L.map(
-                "map_f342f85b94b3a66e9feefa4951d53f83",
+            var map_86c7745f3ba45493691f0633b5f60766 = L.map(
+                "map_86c7745f3ba45493691f0633b5f60766",
                 {
                     center: [37.55113, 126.987443],
                     crs: L.CRS.EPSG3857,
@@ -79,7 +81,7 @@
 
         
     
-            var tile_layer_ab2facaac5e452af60649f658e9c8171 = L.tileLayer(
+            var tile_layer_d3e3fee4e52ad8568711557856dfaf3a = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {
   "minZoom": 0,
@@ -96,138 +98,138 @@
             );
         
     
-            tile_layer_ab2facaac5e452af60649f658e9c8171.addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            tile_layer_d3e3fee4e52ad8568711557856dfaf3a.addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-            var rectangle_2ee9bf9593eb14ec8015ebc93a83b8b9 = L.rectangle(
+            var rectangle_0e17cf16908de54fc325e1398415d43d = L.rectangle(
                 [[37.55165289256198, 126.97982954545454], [37.55169780812073, 126.97988636363637]],
                 {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff8000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-        var popup_8d35edd12db0ad2421c86d118d6cef1f = L.popup({
+        var popup_ab8c723cd00f31dc3a8c229143606696 = L.popup({
   "maxWidth": 300,
 });
 
         
             
-                var html_f71fe43065988d962a09b8cea7d0cdc9 = $(`<div id="html_f71fe43065988d962a09b8cea7d0cdc9" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(307 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Mean</th>             <th style="text-align:right; padding:2px 6px;;">Std</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-96.2</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.13</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-12.8</td>                 <td style="text-align:right; padding:2px 6px;">0.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.07</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">23.0</td>                 <td style="text-align:right; padding:2px 6px;">3.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.38</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.0</td>                 <td style="text-align:right; padding:2px 6px;">4.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.46</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">29.1</td>                 <td style="text-align:right; padding:2px 6px;">6.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.72</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.6</td>                 <td style="text-align:right; padding:2px 6px;">0.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">9.8</td>                 <td style="text-align:right; padding:2px 6px;">1.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.20</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.3</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.05</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">12.2</td>                 <td style="text-align:right; padding:2px 6px;">3.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.35</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.0</td>                 <td style="text-align:right; padding:2px 6px;">1.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.15</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">4.2</td>                 <td style="text-align:right; padding:2px 6px;">4.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.49</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id: 0)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251103 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_11.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">11</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_12.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">12</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_13.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">13</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_14.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">14</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_15.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">15</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
-                popup_8d35edd12db0ad2421c86d118d6cef1f.setContent(html_f71fe43065988d962a09b8cea7d0cdc9);
+                var html_7c9a17058988377b104be45d5dcad094 = $(`<div id="html_7c9a17058988377b104be45d5dcad094" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(307 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Avg</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:9px;">(95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-96.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.13</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-12.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.07</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">23.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.38</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.46</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">29.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.72</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">9.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.20</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.05</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">12.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.35</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.15</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">4.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.49</td>             </tr>             </table>             <div style="margin-top:10px; font-size:12px;">                 <div style="font-weight:bold; color:#000; margin-bottom:2px;">                     View Test Results                     <span style="font-size:11px; font-weight:normal;">(loc_id: 0)</span>                 </div>                 <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                     <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                         click to expand                     </summary>                     <div style="margin-top:6px; padding-left:10px;">                              <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251103 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_11.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">11</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_12.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">12</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_13.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">13</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_14.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">14</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_15.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">15</a></div></div>                      </div>                 </details>             </div>             </div>`)[0];
+                popup_ab8c723cd00f31dc3a8c229143606696.setContent(html_7c9a17058988377b104be45d5dcad094);
             
         
 
-        rectangle_2ee9bf9593eb14ec8015ebc93a83b8b9.bindPopup(popup_8d35edd12db0ad2421c86d118d6cef1f)
+        rectangle_0e17cf16908de54fc325e1398415d43d.bindPopup(popup_ab8c723cd00f31dc3a8c229143606696)
         ;
 
         
     
     
-            var rectangle_6f9ff23e925a616f39f8a14f581f29f5 = L.rectangle(
+            var rectangle_a0d26cd6fbd52cc997adcec3fe82eb29 = L.rectangle(
                 [[37.55174272367948, 126.98039772727272], [37.55178763923823, 126.98045454545455]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff8000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+                {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ff8000ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-        var popup_673feef7f84eabb8faa95a2f01caa730 = L.popup({
+        var popup_ac12ed63b7b6e100e3f06bc4ccbfc9df = L.popup({
   "maxWidth": 300,
 });
 
         
             
-                var html_87d0a6e27760f902be720c4d52924ff3 = $(`<div id="html_87d0a6e27760f902be720c4d52924ff3" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(1256 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Mean</th>             <th style="text-align:right; padding:2px 6px;;">Std</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-103.9</td>                 <td style="text-align:right; padding:2px 6px;">3.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.17</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-12.3</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.07</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">4.9</td>                 <td style="text-align:right; padding:2px 6px;">1.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.10</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">20.1</td>                 <td style="text-align:right; padding:2px 6px;">6.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.33</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.5</td>                 <td style="text-align:right; padding:2px 6px;">2.9</td>                 <td style="text-align:right; padding:2px 6px;">±0.16</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">25.8</td>                 <td style="text-align:right; padding:2px 6px;">13.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.74</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.5</td>                 <td style="text-align:right; padding:2px 6px;">0.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">8.1</td>                 <td style="text-align:right; padding:2px 6px;">1.7</td>                 <td style="text-align:right; padding:2px 6px;">±0.09</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.4</td>                 <td style="text-align:right; padding:2px 6px;">0.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.03</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">3.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.19</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.06</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">14.3</td>                 <td style="text-align:right; padding:2px 6px;">10.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.56</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="margin-bottom:4px; text-align:left; font-size:12px;">                 <span style="font-weight:bold;">UHD Power</span>                 <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>             </div>             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">                 <tr style="background-color:#cfd8dc;">                     <th style="text-align:right; padding:2px 6px;">max</th>                     <th style="text-align:right; padding:2px 6px;">min</th>                     <th style="text-align:right; padding:2px 6px;">avg</th>                     <th style="text-align:right; padding:2px 6px;">cnt</th>                 </tr>                 <tr style="background-color:#f2f2f2;">                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-23.2</span></td>                     <td style="text-align:right; padding:2px 6px;">-37.0</td>                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-30.4</span></td>                     <td style="text-align:right; padding:2px 6px;">22</td>                 </tr>             </table>         </div>                  <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id: 1)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_25.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_26.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">26</a></div></div>              <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251103 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_02.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">02</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_03.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">03</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_04.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">04</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_05.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">05</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_06.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">06</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_07.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">07</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_08.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">08</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_09.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">09</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_10.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">10</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
-                popup_673feef7f84eabb8faa95a2f01caa730.setContent(html_87d0a6e27760f902be720c4d52924ff3);
+                var html_be2b9301bda7068dc190d00921d133cf = $(`<div id="html_be2b9301bda7068dc190d00921d133cf" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(1256 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Avg</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:9px;">(95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-103.9</td>                 <td style="text-align:right; padding:2px 6px;">±0.17</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-12.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.07</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">4.9</td>                 <td style="text-align:right; padding:2px 6px;">±0.10</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">20.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.33</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.16</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">25.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.74</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">8.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.09</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.03</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.19</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.06</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">14.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.56</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="margin-bottom:4px; text-align:left; font-size:12px;">                 <span style="font-weight:bold;">UHD Power</span>                 <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>             </div>             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">                 <tr style="background-color:#cfd8dc;">                     <th style="text-align:right; padding:2px 6px;">cnt</th>                     <th style="text-align:right; padding:2px 6px;">max</th>                     <th style="text-align:right; padding:2px 6px;">min</th>                       <th style="text-align:right; padding:2px 6px;">avg</th>                     <th style="text-align:right; padding:2px 6px;;">                         CI<span style="font-weight:normal; font-size:9px;">(95%)</span>                     </th>                                </tr>                 <tr style="background-color:#f2f2f2;">                     <td style="text-align:right; padding:2px 6px;">22</td>                     <td style="text-align:right; padding:2px 6px;">-23.2</td>                     <td style="text-align:right; padding:2px 6px;">-37.0</td>                     <td style="text-align:right; padding:2px 6px;">-30.4</td>                     <td style="text-align:right; padding:2px 6px;">1.88</td>                 </tr>             </table>         </div>                      <div style="margin-top:10px; font-size:12px;">                 <div style="font-weight:bold; color:#000; margin-bottom:2px;">                     View Test Results                     <span style="font-size:11px; font-weight:normal;">(loc_id: 1)</span>                 </div>                 <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                     <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                         click to expand                     </summary>                     <div style="margin-top:6px; padding-left:10px;">                              <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251024 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_25.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_26.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">26</a></div></div>                  <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251103 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_02.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">02</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_03.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">03</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_04.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">04</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_05.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">05</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_06.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">06</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_07.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">07</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_08.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">08</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_09.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">09</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_10.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">10</a></div></div>                      </div>                 </details>             </div>             </div>`)[0];
+                popup_ac12ed63b7b6e100e3f06bc4ccbfc9df.setContent(html_be2b9301bda7068dc190d00921d133cf);
             
         
 
-        rectangle_6f9ff23e925a616f39f8a14f581f29f5.bindPopup(popup_673feef7f84eabb8faa95a2f01caa730)
+        rectangle_a0d26cd6fbd52cc997adcec3fe82eb29.bindPopup(popup_ac12ed63b7b6e100e3f06bc4ccbfc9df)
         ;
 
         
     
     
-            var rectangle_00b5bca5c2b8d8cd633df5a8d87322e3 = L.rectangle(
+            var rectangle_15a1818512a50ca73912dc679b942987 = L.rectangle(
                 [[37.551787639238235, 126.98039772727272], [37.55183255479698, 126.98045454545455]],
-                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffd700ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffd700ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 1}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-        var popup_d0f351467dc3e5c2ac91cd862e731c7c = L.popup({
+        var popup_2e17ef74bd340e203d5907768842b14c = L.popup({
   "maxWidth": 300,
 });
 
         
             
-                var html_9e10811c9d2a47b0296c025f0cd944e9 = $(`<div id="html_9e10811c9d2a47b0296c025f0cd944e9" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(79 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Mean</th>             <th style="text-align:right; padding:2px 6px;;">Std</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-102.2</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.27</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.4</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.08</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">6.0</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.27</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">26.0</td>                 <td style="text-align:right; padding:2px 6px;">2.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.56</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">45.5</td>                 <td style="text-align:right; padding:2px 6px;">13.1</td>                 <td style="text-align:right; padding:2px 6px;">±2.89</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">28.6</td>                 <td style="text-align:right; padding:2px 6px;">11.6</td>                 <td style="text-align:right; padding:2px 6px;">±2.57</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.6</td>                 <td style="text-align:right; padding:2px 6px;">0.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.05</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">10.1</td>                 <td style="text-align:right; padding:2px 6px;">1.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.21</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.4</td>                 <td style="text-align:right; padding:2px 6px;">0.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">11.7</td>                 <td style="text-align:right; padding:2px 6px;">4.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.90</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">8.6</td>                 <td style="text-align:right; padding:2px 6px;">2.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.57</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">4.6</td>                 <td style="text-align:right; padding:2px 6px;">5.5</td>                 <td style="text-align:right; padding:2px 6px;">±1.22</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="margin-bottom:4px; text-align:left; font-size:12px;">                 <span style="font-weight:bold;">UHD Power</span>                 <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>             </div>             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">                 <tr style="background-color:#cfd8dc;">                     <th style="text-align:right; padding:2px 6px;">max</th>                     <th style="text-align:right; padding:2px 6px;">min</th>                     <th style="text-align:right; padding:2px 6px;">avg</th>                     <th style="text-align:right; padding:2px 6px;">cnt</th>                 </tr>                 <tr style="background-color:#f2f2f2;">                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-24.6</span></td>                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-29.5</span></td>                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-26.8</span></td>                     <td style="text-align:right; padding:2px 6px;">14</td>                 </tr>             </table>         </div>                  <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id: 2)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_25.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a></div></div>              <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251103 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_01.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">01</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_04.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">04</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_08.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">08</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
-                popup_d0f351467dc3e5c2ac91cd862e731c7c.setContent(html_9e10811c9d2a47b0296c025f0cd944e9);
+                var html_5ab1ead7da72f18ef030a5cda3760b9d = $(`<div id="html_5ab1ead7da72f18ef030a5cda3760b9d" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(79 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Avg</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:9px;">(95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-102.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.27</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-11.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.08</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">6.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.27</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">26.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.56</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">45.5</td>                 <td style="text-align:right; padding:2px 6px;">±2.89</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">28.6</td>                 <td style="text-align:right; padding:2px 6px;">±2.57</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">0.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.05</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">10.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.21</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">1.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">11.7</td>                 <td style="text-align:right; padding:2px 6px;">±0.90</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">8.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.57</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">4.6</td>                 <td style="text-align:right; padding:2px 6px;">±1.22</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="margin-bottom:4px; text-align:left; font-size:12px;">                 <span style="font-weight:bold;">UHD Power</span>                 <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>             </div>             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">                 <tr style="background-color:#cfd8dc;">                     <th style="text-align:right; padding:2px 6px;">cnt</th>                     <th style="text-align:right; padding:2px 6px;">max</th>                     <th style="text-align:right; padding:2px 6px;">min</th>                       <th style="text-align:right; padding:2px 6px;">avg</th>                     <th style="text-align:right; padding:2px 6px;;">                         CI<span style="font-weight:normal; font-size:9px;">(95%)</span>                     </th>                                </tr>                 <tr style="background-color:#f2f2f2;">                     <td style="text-align:right; padding:2px 6px;">14</td>                     <td style="text-align:right; padding:2px 6px;">-24.6</td>                     <td style="text-align:right; padding:2px 6px;">-29.5</td>                     <td style="text-align:right; padding:2px 6px;"><span style="color:#C00000;">-26.8</span></td>                     <td style="text-align:right; padding:2px 6px;">0.92</td>                 </tr>             </table>         </div>                      <div style="margin-top:10px; font-size:12px;">                 <div style="font-weight:bold; color:#000; margin-bottom:2px;">                     View Test Results                     <span style="font-size:11px; font-weight:normal;">(loc_id: 2)</span>                 </div>                 <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                     <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                         click to expand                     </summary>                     <div style="margin-top:6px; padding-left:10px;">                              <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251024 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_25.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">25</a></div></div>                  <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251103 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_01.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">01</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_04.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">04</a><a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251103/Fixed-point/TEST_08.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">08</a></div></div>                      </div>                 </details>             </div>             </div>`)[0];
+                popup_2e17ef74bd340e203d5907768842b14c.setContent(html_5ab1ead7da72f18ef030a5cda3760b9d);
             
         
 
-        rectangle_00b5bca5c2b8d8cd633df5a8d87322e3.bindPopup(popup_d0f351467dc3e5c2ac91cd862e731c7c)
+        rectangle_15a1818512a50ca73912dc679b942987.bindPopup(popup_2e17ef74bd340e203d5907768842b14c)
         ;
 
         
     
     
-            var rectangle_93b282643dfdf86aee52918539b6f193 = L.rectangle(
+            var rectangle_b8d4f88250cee2d0f1f0725d2541a063 = L.rectangle(
                 [[37.551877470355734, 126.98039772727272], [37.55192238591448, 126.98045454545455]],
                 {"bubblingMouseEvents": true, "color": null, "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#ffd700ff", "fillOpacity": 0.4, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 0}
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-        var popup_31221e251953f9f94b6b1925b41a269b = L.popup({
+        var popup_3224b9b78c9e60d079c5923668dce0e6 = L.popup({
   "maxWidth": 300,
 });
 
         
             
-                var html_e33378e7c21dbcfe346fd1f2a17cf121 = $(`<div id="html_e33378e7c21dbcfe346fd1f2a17cf121" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(596 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Mean</th>             <th style="text-align:right; padding:2px 6px;;">Std</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-93.3</td>                 <td style="text-align:right; padding:2px 6px;">1.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.10</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-10.8</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.03</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">8.2</td>                 <td style="text-align:right; padding:2px 6px;">2.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.20</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">32.3</td>                 <td style="text-align:right; padding:2px 6px;">0.4</td>                 <td style="text-align:right; padding:2px 6px;">±0.04</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.5</td>                 <td style="text-align:right; padding:2px 6px;">2.9</td>                 <td style="text-align:right; padding:2px 6px;">±0.23</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">61.6</td>                 <td style="text-align:right; padding:2px 6px;">8.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.66</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">0.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">10.3</td>                 <td style="text-align:right; padding:2px 6px;">0.7</td>                 <td style="text-align:right; padding:2px 6px;">±0.06</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">2.0</td>                 <td style="text-align:right; padding:2px 6px;">0.1</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">15.5</td>                 <td style="text-align:right; padding:2px 6px;">2.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.16</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.5</td>                 <td style="text-align:right; padding:2px 6px;">1.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">0.9</td>                 <td style="text-align:right; padding:2px 6px;">1.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.12</td>             </tr>             </table>         <div style="margin-top:10px; font-size:12px;">             <div style="font-weight:bold; color:#000; margin-bottom:2px;">                 View Test Results                 <span style="font-size:11px; font-weight:normal;">(loc_id: 3)</span>             </div>             <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                 <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                     click to expand                 </summary>                 <div style="margin-top:6px; padding-left:10px;">                      <div style="margin:2px 0; line-height:1.4;">                 <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                     251024 :                 </div>                 <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">             <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_27.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">27</a></div></div>                  </div>             </details>         </div>         </div>`)[0];
-                popup_31221e251953f9f94b6b1925b41a269b.setContent(html_e33378e7c21dbcfe346fd1f2a17cf121);
+                var html_2d7090c346889b95e67b48e38d4c9d46 = $(`<div id="html_2d7090c346889b95e67b48e38d4c9d46" style="width: 100.0%; height: 100.0%;">         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">             Metric Stats <span style="font-weight:normal; font-size:11px;">(596 samples)</span>         </div>                  <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">         <tr style="background-color:#e0e0e0;">             <th style="text-align:left; padding:2px 6px;;">Metric</th>             <th style="text-align:right; padding:2px 6px;;">Avg</th>             <th style="text-align:right; padding:2px 6px;;">                 CI<span style="font-weight:normal; font-size:9px;">(95%)</span>             </th>         </tr>                      <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">RSRP</td>                 <td style="text-align:right; padding:2px 6px;">-93.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.10</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RSRQ</td>                 <td style="text-align:right; padding:2px 6px;">-10.8</td>                 <td style="text-align:right; padding:2px 6px;">±0.03</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">SINR</td>                 <td style="text-align:right; padding:2px 6px;">8.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.20</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">SINR_TRS</td>                 <td style="text-align:right; padding:2px 6px;">32.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.04</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_RB</td>                 <td style="text-align:right; padding:2px 6px;">49.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.23</td>             </tr>                          <tr style="background-color:#e3f2fd;">                 <td style="text-align:left; padding:2px 6px;">DL_Tput</td>                 <td style="text-align:right; padding:2px 6px;">61.6</td>                 <td style="text-align:right; padding:2px 6px;">±0.66</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_Tput_per_RB</td>                 <td style="text-align:right; padding:2px 6px;">1.2</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">CQI</td>                 <td style="text-align:right; padding:2px 6px;">10.3</td>                 <td style="text-align:right; padding:2px 6px;">±0.06</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">RI</td>                 <td style="text-align:right; padding:2px 6px;">2.0</td>                 <td style="text-align:right; padding:2px 6px;">±0.01</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_MCS</td>                 <td style="text-align:right; padding:2px 6px;">15.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.16</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">DL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">9.5</td>                 <td style="text-align:right; padding:2px 6px;">±0.11</td>             </tr>                          <tr style="">                 <td style="text-align:left; padding:2px 6px;">UL_BLER</td>                 <td style="text-align:right; padding:2px 6px;">0.9</td>                 <td style="text-align:right; padding:2px 6px;">±0.12</td>             </tr>             </table>             <div style="margin-top:10px; font-size:12px;">                 <div style="font-weight:bold; color:#000; margin-bottom:2px;">                     View Test Results                     <span style="font-size:11px; font-weight:normal;">(loc_id: 3)</span>                 </div>                 <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">                     <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">                         click to expand                     </summary>                     <div style="margin-top:6px; padding-left:10px;">                              <div style="margin:2px 0; line-height:1.4;">                     <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">                         251024 :                     </div>                     <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">                 <a href="https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/fixed-point/251024/Fixed-point/TEST_27.html" target="_blank" style="text-decoration:none; color:#0066cc; margin-right:6px;">27</a></div></div>                      </div>                 </details>             </div>             </div>`)[0];
+                popup_3224b9b78c9e60d079c5923668dce0e6.setContent(html_2d7090c346889b95e67b48e38d4c9d46);
             
         
 
-        rectangle_93b282643dfdf86aee52918539b6f193.bindPopup(popup_31221e251953f9f94b6b1925b41a269b)
+        rectangle_b8d4f88250cee2d0f1f0725d2541a063.bindPopup(popup_3224b9b78c9e60d079c5923668dce0e6)
         ;
 
         
     
     
-    var color_map_6caecf5936e1c11fd4eb2a653505280c = {};
+    var color_map_671f881ad0b7044e7bd4b5c7024c1aac = {};
 
     
-    color_map_6caecf5936e1c11fd4eb2a653505280c.color = d3.scale.threshold()
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.color = d3.scale.threshold()
               .domain([-5.0, -4.8997995991983965, -4.799599198396794, -4.69939879759519, -4.599198396793587, -4.498997995991984, -4.398797595190381, -4.298597194388778, -4.198396793587174, -4.098196392785571, -3.9979959919839683, -3.8977955911823647, -3.797595190380761, -3.6973947895791586, -3.597194388777555, -3.496993987975952, -3.396793587174349, -3.2965931863727453, -3.1963927855711423, -3.096192384769539, -2.995991983967936, -2.8957915831663326, -2.7955911823647295, -2.6953907815631264, -2.595190380761523, -2.49498997995992, -2.3947895791583167, -2.2945891783567136, -2.19438877755511, -2.094188376753507, -1.993987975951904, -1.8937875751503004, -1.7935871743486973, -1.6933867735470942, -1.5931863727454911, -1.4929859719438876, -1.3927855711422845, -1.2925851703406814, -1.1923847695390783, -1.0921843687374748, -0.9919839679358722, -0.8917835671342687, -0.7915831663326651, -0.6913827655310625, -0.591182364729459, -0.4909819639278554, -0.3907815631262528, -0.29058116232464926, -0.19038076152304573, -0.09018036072144309, 0.010020040080160442, 0.11022044088176397, 0.2104208416833666, 0.31062124248497014, 0.4108216432865728, 0.5110220440881763, 0.6112224448897798, 0.7114228456913825, 0.811623246492986, 0.9118236472945895, 1.0120240480961922, 1.1122244488977957, 1.2124248496993992, 1.3126252505010019, 1.4128256513026054, 1.513026052104208, 1.6132264529058116, 1.713426853707415, 1.8136272545090177, 1.9138276553106213, 2.014028056112225, 2.1142284569138274, 2.214428857715431, 2.3146292585170345, 2.414829659318637, 2.5150300601202407, 2.6152304609218433, 2.715430861723447, 2.8156312625250504, 2.915831663326653, 3.0160320641282556, 3.11623246492986, 3.2164328657314627, 3.3166332665330653, 3.4168336673346698, 3.5170340681362724, 3.617234468937875, 3.7174348697394795, 3.817635270541082, 3.9178356713426847, 4.018036072144289, 4.118236472945892, 4.218436873747494, 4.318637274549099, 4.4188376753507015, 4.519038076152304, 4.6192384769539085, 4.719438877755511, 4.819639278557114, 4.919839679358718, 5.020040080160321, 5.1202404809619235, 5.220440881763528, 5.320641282565131, 5.420841683366733, 5.521042084168336, 5.62124248496994, 5.721442885771543, 5.821643286573146, 5.92184368737475, 6.022044088176353, 6.122244488977955, 6.22244488977956, 6.322645290581162, 6.422845691382765, 6.523046092184369, 6.623246492985972, 6.723446893787575, 6.823647294589179, 6.923847695390782, 7.024048096192384, 7.124248496993989, 7.224448897795591, 7.324649298597194, 7.4248496993987985, 7.525050100200401, 7.625250501002004, 7.725450901803606, 7.825651302605211, 7.925851703406813, 8.026052104208416, 8.12625250501002, 8.226452905811623, 8.326653306613226, 8.42685370741483, 8.527054108216433, 8.627254509018035, 8.72745490981964, 8.827655310621243, 8.927855711422845, 9.02805611222445, 9.128256513026052, 9.228456913827655, 9.32865731462926, 9.428857715430862, 9.529058116232465, 9.629258517034069, 9.729458917835672, 9.829659318637274, 9.929859719438877, 10.030060120240481, 10.130260521042084, 10.230460921843687, 10.330661322645291, 10.430861723446894, 10.531062124248496, 10.6312625250501, 10.731462925851703, 10.831663326653306, 10.93186372745491, 11.032064128256511, 11.132264529058116, 11.23246492985972, 11.332665330661321, 11.432865731462925, 11.53306613226453, 11.63326653306613, 11.733466933867735, 11.83366733466934, 11.93386773547094, 12.034068136272545, 12.13426853707415, 12.23446893787575, 12.334669338677354, 12.434869739478959, 12.53507014028056, 12.635270541082164, 12.735470941883769, 12.83567134268537, 12.935871743486974, 13.036072144288578, 13.13627254509018, 13.236472945891784, 13.336673346693388, 13.436873747494989, 13.537074148296593, 13.637274549098198, 13.737474949899799, 13.837675350701403, 13.937875751503007, 14.038076152304608, 14.138276553106213, 14.238476953907817, 14.338677354709418, 14.438877755511022, 14.539078156312627, 14.639278557114228, 14.739478957915832, 14.839679358717436, 14.939879759519037, 15.040080160320642, 15.140280561122246, 15.240480961923847, 15.340681362725451, 15.440881763527056, 15.541082164328657, 15.641282565130261, 15.741482965931862, 15.841683366733466, 15.94188376753507, 16.04208416833667, 16.142284569138276, 16.24248496993988, 16.34268537074148, 16.442885771543086, 16.54308617234469, 16.64328657314629, 16.743486973947896, 16.8436873747495, 16.9438877755511, 17.044088176352705, 17.14428857715431, 17.24448897795591, 17.344689378757515, 17.44488977955912, 17.54509018036072, 17.645290581162325, 17.74549098196393, 17.84569138276553, 17.945891783567134, 18.04609218436874, 18.14629258517034, 18.246492985971944, 18.34669338677355, 18.44689378757515, 18.547094188376754, 18.647294589178358, 18.74749498997996, 18.847695390781563, 18.947895791583168, 19.04809619238477, 19.148296593186373, 19.248496993987978, 19.34869739478958, 19.448897795591183, 19.549098196392787, 19.649298597194388, 19.749498997995993, 19.849699398797597, 19.949899799599198, 20.050100200400802, 20.150300601202403, 20.250501002004007, 20.350701402805612, 20.450901803607213, 20.551102204408817, 20.65130260521042, 20.751503006012022, 20.851703406813627, 20.95190380761523, 21.052104208416832, 21.152304609218437, 21.25250501002004, 21.352705410821642, 21.452905811623246, 21.55310621242485, 21.65330661322645, 21.753507014028056, 21.85370741482966, 21.95390781563126, 22.054108216432866, 22.15430861723447, 22.25450901803607, 22.354709418837675, 22.45490981963928, 22.55511022044088, 22.655310621242485, 22.75551102204409, 22.85571142284569, 22.955911823647295, 23.0561122244489, 23.1563126252505, 23.256513026052104, 23.35671342685371, 23.45691382765531, 23.557114228456914, 23.65731462925852, 23.75751503006012, 23.857715430861724, 23.95791583166333, 24.05811623246493, 24.158316633266534, 24.258517034068138, 24.35871743486974, 24.458917835671343, 24.559118236472944, 24.65931863727455, 24.759519038076153, 24.859719438877754, 24.95991983967936, 25.060120240480963, 25.160320641282564, 25.260521042084168, 25.360721442885772, 25.460921843687373, 25.561122244488978, 25.661322645290582, 25.761523046092183, 25.861723446893787, 25.96192384769539, 26.062124248496993, 26.162324649298597, 26.2625250501002, 26.362725450901802, 26.462925851703407, 26.56312625250501, 26.663326653306612, 26.763527054108216, 26.86372745490982, 26.96392785571142, 27.064128256513023, 27.164328657314627, 27.26452905811623, 27.364729458917836, 27.46492985971944, 27.565130260521045, 27.665330661322642, 27.765531062124246, 27.86573146292585, 27.965931863727455, 28.06613226452906, 28.166332665330664, 28.26653306613226, 28.366733466933866, 28.46693386773547, 28.567134268537075, 28.66733466933868, 28.767535070140283, 28.86773547094188, 28.967935871743485, 29.06813627254509, 29.168336673346694, 29.2685370741483, 29.368737474949903, 29.4689378757515, 29.569138276553105, 29.66933867735471, 29.769539078156313, 29.869739478957918, 29.969939879759522, 30.07014028056112, 30.170340681362724, 30.27054108216433, 30.370741482965933, 30.470941883767537, 30.57114228456914, 30.67134268537074, 30.771543086172343, 30.871743486973948, 30.971943887775552, 31.072144288577157, 31.17234468937876, 31.27254509018036, 31.372745490981963, 31.472945891783567, 31.57314629258517, 31.673346693386776, 31.773547094188373, 31.873747494989978, 31.973947895791582, 32.07414829659319, 32.17434869739479, 32.274549098196395, 32.37474949899799, 32.4749498997996, 32.5751503006012, 32.675350701402806, 32.77555110220441, 32.875751503006015, 32.97595190380761, 33.07615230460922, 33.17635270541082, 33.276553106212425, 33.37675350701403, 33.476953907815634, 33.57715430861723, 33.677354709418836, 33.77755511022044, 33.877755511022045, 33.97795591182365, 34.078156312625254, 34.17835671342685, 34.278557114228455, 34.37875751503006, 34.478957915831664, 34.57915831663327, 34.67935871743487, 34.77955911823647, 34.879759519038075, 34.97995991983968, 35.08016032064128, 35.18036072144289, 35.28056112224449, 35.38076152304609, 35.480961923847694, 35.5811623246493, 35.6813627254509, 35.78156312625251, 35.88176352705411, 35.98196392785571, 36.08216432865731, 36.18236472945892, 36.28256513026052, 36.38276553106213, 36.482965931863724, 36.58316633266533, 36.68336673346693, 36.78356713426854, 36.88376753507014, 36.983967935871746, 37.08416833667334, 37.18436873747495, 37.28456913827655, 37.38476953907816, 37.48496993987976, 37.585170340681366, 37.68537074148296, 37.78557114228457, 37.88577154308617, 37.985971943887776, 38.08617234468938, 38.186372745490985, 38.28657314629258, 38.38677354709419, 38.48697394789579, 38.587174348697395, 38.687374749499, 38.787575150300604, 38.8877755511022, 38.987975951903806, 39.08817635270541, 39.188376753507015, 39.28857715430862, 39.388777555110224, 39.48897795591182, 39.589178356713425, 39.68937875751503, 39.789579158316634, 39.88977955911824, 39.98997995991984, 40.09018036072144, 40.190380761523045, 40.29058116232465, 40.390781563126254, 40.49098196392786, 40.591182364729455, 40.69138276553106, 40.791583166332664, 40.89178356713427, 40.99198396793587, 41.09218436873748, 41.192384769539075, 41.29258517034068, 41.392785571142284, 41.49298597194389, 41.59318637274549, 41.6933867735471, 41.793587174348694, 41.8937875751503, 41.9939879759519, 42.09418837675351, 42.19438877755511, 42.294589178356716, 42.394789579158314, 42.49498997995992, 42.59519038076152, 42.69539078156313, 42.79559118236473, 42.895791583166336, 42.99599198396793, 43.09619238476954, 43.19639278557114, 43.296593186372746, 43.39679358717435, 43.496993987975955, 43.59719438877755, 43.69739478957916, 43.79759519038076, 43.897795591182366, 43.99799599198397, 44.098196392785574, 44.19839679358717, 44.298597194388776, 44.39879759519038, 44.498997995991985, 44.59919839679359, 44.699398797595194, 44.79959919839679, 44.899799599198396, 45.0])
               .range(['#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff0000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ff8000ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#ffd700ff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#adff2fff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#008000ff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#00ffffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#3399ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#0066ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#8b00ffff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff', '#ff66ccff']);
     
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.x = d3.scale.linear()
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.x = d3.scale.linear()
               .domain([-5.0, 45.0])
               .range([0, 450 - 50]);
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.legend = L.control({position: 'topright'});
-    color_map_6caecf5936e1c11fd4eb2a653505280c.legend.onAdd = function (map) {var div = L.DomUtil.create('div', 'legend'); return div};
-    color_map_6caecf5936e1c11fd4eb2a653505280c.legend.addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.legend = L.control({position: 'topright'});
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.legend.onAdd = function (map) {var div = L.DomUtil.create('div', 'legend'); return div};
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.legend.addTo(map_86c7745f3ba45493691f0633b5f60766);
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.xAxis = d3.svg.axis()
-        .scale(color_map_6caecf5936e1c11fd4eb2a653505280c.x)
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.xAxis = d3.svg.axis()
+        .scale(color_map_671f881ad0b7044e7bd4b5c7024c1aac.x)
         .orient("top")
         .tickSize(1)
         .tickValues(['-5.0', '0.0', '5.0', '10.0', '15.0', '20.0', '25.0', '30.0', '35.0', '40.0', '45.0']);
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.svg = d3.select(".legend.leaflet-control").append("svg")
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.svg = d3.select(".legend.leaflet-control").append("svg")
         .attr("id", 'legend')
         .attr("width", 450)
         .attr("height", 40);
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.g = color_map_6caecf5936e1c11fd4eb2a653505280c.svg.append("g")
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.g = color_map_671f881ad0b7044e7bd4b5c7024c1aac.svg.append("g")
         .attr("class", "key")
         .attr("fill", "black")
         .attr("transform", "translate(25,16)");
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.g.selectAll("rect")
-        .data(color_map_6caecf5936e1c11fd4eb2a653505280c.color.range().map(function(d, i) {
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.g.selectAll("rect")
+        .data(color_map_671f881ad0b7044e7bd4b5c7024c1aac.color.range().map(function(d, i) {
           return {
-            x0: i ? color_map_6caecf5936e1c11fd4eb2a653505280c.x(color_map_6caecf5936e1c11fd4eb2a653505280c.color.domain()[i - 1]) : color_map_6caecf5936e1c11fd4eb2a653505280c.x.range()[0],
-            x1: i < color_map_6caecf5936e1c11fd4eb2a653505280c.color.domain().length ? color_map_6caecf5936e1c11fd4eb2a653505280c.x(color_map_6caecf5936e1c11fd4eb2a653505280c.color.domain()[i]) : color_map_6caecf5936e1c11fd4eb2a653505280c.x.range()[1],
+            x0: i ? color_map_671f881ad0b7044e7bd4b5c7024c1aac.x(color_map_671f881ad0b7044e7bd4b5c7024c1aac.color.domain()[i - 1]) : color_map_671f881ad0b7044e7bd4b5c7024c1aac.x.range()[0],
+            x1: i < color_map_671f881ad0b7044e7bd4b5c7024c1aac.color.domain().length ? color_map_671f881ad0b7044e7bd4b5c7024c1aac.x(color_map_671f881ad0b7044e7bd4b5c7024c1aac.color.domain()[i]) : color_map_671f881ad0b7044e7bd4b5c7024c1aac.x.range()[1],
             z: d
           };
         }))
@@ -237,136 +239,136 @@
         .attr("width", function(d) { return d.x1 - d.x0; })
         .style("fill", function(d) { return d.z; });
 
-    color_map_6caecf5936e1c11fd4eb2a653505280c.g.call(color_map_6caecf5936e1c11fd4eb2a653505280c.xAxis).append("text")
+    color_map_671f881ad0b7044e7bd4b5c7024c1aac.g.call(color_map_671f881ad0b7044e7bd4b5c7024c1aac.xAxis).append("text")
         .attr("class", "caption")
         .attr("y", 21)
         .attr("fill", "black")
         .text("n28 SINR [dB]");
     
-            var marker_b2bc286d9340b45438da70e1051c6909 = L.marker(
-                [37.5472288, 126.9815217],
+            var marker_5056fbc9ebd4130afe7c44138dce8fc9 = L.marker(
+                [37.54721361, 126.98147333],
                 {
 }
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-            var icon_28e3055a5660ffe65f4e572818f94cce = L.AwesomeMarkers.icon(
+            var icon_6be5169e763b921a607d22cae2769553 = L.AwesomeMarkers.icon(
                 {
-  "markerColor": "black",
+  "markerColor": "red",
   "iconColor": "white",
-  "icon": "signal",
-  "prefix": "glyphicon",
+  "icon": "broadcast-tower",
+  "prefix": "fa",
   "extraClasses": "fa-rotate-0",
 }
             );
         
     
-        var popup_ae9db39dd9f226446242122f34455927 = L.popup({
+        var popup_735bf2517a6018c227e0bf9ffd191b7f = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_6e63f5990a907ae7f2a22bfab590a97a = $(`<div id="html_6e63f5990a907ae7f2a22bfab590a97a" style="width: 100.0%; height: 100.0%;">Huam 415-1</div>`)[0];
-                popup_ae9db39dd9f226446242122f34455927.setContent(html_6e63f5990a907ae7f2a22bfab590a97a);
+                var html_b1db9cade8c6b9300694ffcb7112a24e = $(`<div id="html_b1db9cade8c6b9300694ffcb7112a24e" style="width: 100.0%; height: 100.0%;">Huam 415-1</div>`)[0];
+                popup_735bf2517a6018c227e0bf9ffd191b7f.setContent(html_b1db9cade8c6b9300694ffcb7112a24e);
             
         
 
-        marker_b2bc286d9340b45438da70e1051c6909.bindPopup(popup_ae9db39dd9f226446242122f34455927)
+        marker_5056fbc9ebd4130afe7c44138dce8fc9.bindPopup(popup_735bf2517a6018c227e0bf9ffd191b7f)
         ;
 
         
     
     
-                marker_b2bc286d9340b45438da70e1051c6909.setIcon(icon_28e3055a5660ffe65f4e572818f94cce);
+                marker_5056fbc9ebd4130afe7c44138dce8fc9.setIcon(icon_6be5169e763b921a607d22cae2769553);
             
     
-            var marker_74336099f6707d3ad2350ac5bf6b526d = L.marker(
-                [37.549636, 126.981512],
+            var marker_98dea07e8e3ff3f0c05b8122b667f446 = L.marker(
+                [37.54963306, 126.98153194],
                 {
 }
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-            var icon_1bcca5286b7a1d41b24d87f85c533686 = L.AwesomeMarkers.icon(
+            var icon_5d3722bff1e97a5f7f947765144a8364 = L.AwesomeMarkers.icon(
                 {
-  "markerColor": "black",
+  "markerColor": "red",
   "iconColor": "white",
-  "icon": "signal",
-  "prefix": "glyphicon",
+  "icon": "broadcast-tower",
+  "prefix": "fa",
   "extraClasses": "fa-rotate-0",
 }
             );
         
     
-        var popup_12db37761c049e46d46a513404cea1a0 = L.popup({
+        var popup_4b92f51d8a4a09301fcd3d7a4b15e9f7 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_5a2ec2fa8aee8fa75231943e4103990e = $(`<div id="html_5a2ec2fa8aee8fa75231943e4103990e" style="width: 100.0%; height: 100.0%;">Huam 345-5</div>`)[0];
-                popup_12db37761c049e46d46a513404cea1a0.setContent(html_5a2ec2fa8aee8fa75231943e4103990e);
+                var html_9ec276848aa6c70dd4ede52c9e578f5f = $(`<div id="html_9ec276848aa6c70dd4ede52c9e578f5f" style="width: 100.0%; height: 100.0%;">Huam 345-5</div>`)[0];
+                popup_4b92f51d8a4a09301fcd3d7a4b15e9f7.setContent(html_9ec276848aa6c70dd4ede52c9e578f5f);
             
         
 
-        marker_74336099f6707d3ad2350ac5bf6b526d.bindPopup(popup_12db37761c049e46d46a513404cea1a0)
+        marker_98dea07e8e3ff3f0c05b8122b667f446.bindPopup(popup_4b92f51d8a4a09301fcd3d7a4b15e9f7)
         ;
 
         
     
     
-                marker_74336099f6707d3ad2350ac5bf6b526d.setIcon(icon_1bcca5286b7a1d41b24d87f85c533686);
+                marker_98dea07e8e3ff3f0c05b8122b667f446.setIcon(icon_5d3722bff1e97a5f7f947765144a8364);
             
     
-            var marker_eba8ec9ab4c17410d8d958b7e8787f82 = L.marker(
-                [37.552596, 126.987184],
+            var marker_9a65fc44ced50df56cc418e58a10497d = L.marker(
+                [37.5524474, 126.98724844],
                 {
 }
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-            var icon_d83b63980e6ea8dfca6d9f686031f6dd = L.AwesomeMarkers.icon(
+            var icon_205afde03859bbf2a06873c2d7a0d985 = L.AwesomeMarkers.icon(
                 {
-  "markerColor": "black",
+  "markerColor": "red",
   "iconColor": "white",
-  "icon": "signal",
-  "prefix": "glyphicon",
+  "icon": "broadcast-tower",
+  "prefix": "fa",
   "extraClasses": "fa-rotate-0",
 }
             );
         
     
-        var popup_7fb4ff4dd9cbf88f516fc9bf13495db2 = L.popup({
+        var popup_90121a9cb01d54e14f57643ee27ba307 = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_262502dca307aa1f1af21d49fc498409 = $(`<div id="html_262502dca307aa1f1af21d49fc498409" style="width: 100.0%; height: 100.0%;">NamsanTower</div>`)[0];
-                popup_7fb4ff4dd9cbf88f516fc9bf13495db2.setContent(html_262502dca307aa1f1af21d49fc498409);
+                var html_240ff254d013722076a7b605f142fa21 = $(`<div id="html_240ff254d013722076a7b605f142fa21" style="width: 100.0%; height: 100.0%;">NamsanTower</div>`)[0];
+                popup_90121a9cb01d54e14f57643ee27ba307.setContent(html_240ff254d013722076a7b605f142fa21);
             
         
 
-        marker_eba8ec9ab4c17410d8d958b7e8787f82.bindPopup(popup_7fb4ff4dd9cbf88f516fc9bf13495db2)
+        marker_9a65fc44ced50df56cc418e58a10497d.bindPopup(popup_90121a9cb01d54e14f57643ee27ba307)
         ;
 
         
     
     
-                marker_eba8ec9ab4c17410d8d958b7e8787f82.setIcon(icon_d83b63980e6ea8dfca6d9f686031f6dd);
+                marker_9a65fc44ced50df56cc418e58a10497d.setIcon(icon_205afde03859bbf2a06873c2d7a0d985);
             
     
-            var marker_15c93576d205f57d17b1f28333443fd5 = L.marker(
+            var marker_50fc0bfa86a9bc273827f8a3c2a3a7ea = L.marker(
                 [37.55113, 126.987443],
                 {
 }
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-            var icon_499c2360f67b807a6d7112c0a0b373e8 = L.AwesomeMarkers.icon(
+            var icon_54af2d7f4ce7408aaddf5560e3e44a41 = L.AwesomeMarkers.icon(
                 {
-  "markerColor": "red",
+  "markerColor": "darkblue",
   "iconColor": "white",
   "icon": "tower-cell",
   "prefix": "fa",
@@ -375,47 +377,776 @@
             );
         
     
-        var popup_5a39d1fd09cea143ce6988dcc75f8637 = L.popup({
+        var popup_3674ccefb36ade763978f042740fc84e = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_3c91ea48d8c48d6a08e4ba477f09235e = $(`<div id="html_3c91ea48d8c48d6a08e4ba477f09235e" style="width: 100.0%; height: 100.0%;">UHD Broadcasting Tower</div>`)[0];
-                popup_5a39d1fd09cea143ce6988dcc75f8637.setContent(html_3c91ea48d8c48d6a08e4ba477f09235e);
+                var html_0a5170d26abd26fa165632e9a46bebcf = $(`<div id="html_0a5170d26abd26fa165632e9a46bebcf" style="width: 100.0%; height: 100.0%;">UHD Broadcasting Tower</div>`)[0];
+                popup_3674ccefb36ade763978f042740fc84e.setContent(html_0a5170d26abd26fa165632e9a46bebcf);
             
         
 
-        marker_15c93576d205f57d17b1f28333443fd5.bindPopup(popup_5a39d1fd09cea143ce6988dcc75f8637)
+        marker_50fc0bfa86a9bc273827f8a3c2a3a7ea.bindPopup(popup_3674ccefb36ade763978f042740fc84e)
         ;
 
         
     
     
-                marker_15c93576d205f57d17b1f28333443fd5.setIcon(icon_499c2360f67b807a6d7112c0a0b373e8);
+                marker_50fc0bfa86a9bc273827f8a3c2a3a7ea.setIcon(icon_54af2d7f4ce7408aaddf5560e3e44a41);
             
     
-            var circle_f0c9dd7faa0b507b99b086d5353e7830 = L.circle(
+            var circle_9b4922245857cab54d6238038fe3c355 = L.circle(
                 [37.55113, 126.987443],
                 {"bubblingMouseEvents": true, "color": "gray", "dashArray": "3,3", "dashOffset": null, "fill": false, "fillColor": "gray", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 1000, "stroke": true, "weight": 1}
-            ).addTo(map_f342f85b94b3a66e9feefa4951d53f83);
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
         
     
-        var popup_a127cc4925ba1a954dfe2cbc742c7f09 = L.popup({
+        var popup_841e794c1326e53440dfc9499b2e737b = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_7bff888d2f1fef9c6635225293f0b462 = $(`<div id="html_7bff888d2f1fef9c6635225293f0b462" style="width: 100.0%; height: 100.0%;">1km</div>`)[0];
-                popup_a127cc4925ba1a954dfe2cbc742c7f09.setContent(html_7bff888d2f1fef9c6635225293f0b462);
+                var html_cea47002ab677f2391f99fed5a32792e = $(`<div id="html_cea47002ab677f2391f99fed5a32792e" style="width: 100.0%; height: 100.0%;">1km</div>`)[0];
+                popup_841e794c1326e53440dfc9499b2e737b.setContent(html_cea47002ab677f2391f99fed5a32792e);
             
         
 
-        circle_f0c9dd7faa0b507b99b086d5353e7830.bindPopup(popup_a127cc4925ba1a954dfe2cbc742c7f09)
+        circle_9b4922245857cab54d6238038fe3c355.bindPopup(popup_841e794c1326e53440dfc9499b2e737b)
         ;
 
         
     
+    
+            var marker_74501b4470f9bd85ec42901e6ef1ad0c = L.marker(
+                [37.54800111, 126.98397667],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_d9f14020adbb1de449402b94a2d392d5 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_74501b4470f9bd85ec42901e6ef1ad0c.setIcon(beautify_icon_d9f14020adbb1de449402b94a2d392d5);
+        
+    
+                marker_74501b4470f9bd85ec42901e6ef1ad0c.setIcon(beautify_icon_d9f14020adbb1de449402b94a2d392d5);
+            
+    
+            var marker_e254908739fa8e8dc1665466204cd72b = L.marker(
+                [37.54541233, 126.9854189],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_0b4dc147f3da6be214fe944acc68980f = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_e254908739fa8e8dc1665466204cd72b.setIcon(beautify_icon_0b4dc147f3da6be214fe944acc68980f);
+        
+    
+                marker_e254908739fa8e8dc1665466204cd72b.setIcon(beautify_icon_0b4dc147f3da6be214fe944acc68980f);
+            
+    
+            var marker_7a8d58b3d82ab1158d51a22dff42ec77 = L.marker(
+                [37.54935417, 126.97933694],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_d7be60464af8432e13cbacf301f8a958 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_7a8d58b3d82ab1158d51a22dff42ec77.setIcon(beautify_icon_d7be60464af8432e13cbacf301f8a958);
+        
+    
+                marker_7a8d58b3d82ab1158d51a22dff42ec77.setIcon(beautify_icon_d7be60464af8432e13cbacf301f8a958);
+            
+    
+            var marker_431ff8fed55070fe40f759693ed0b8ee = L.marker(
+                [37.5512825, 126.97917694],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_fd9cb56dfbe6d138beec0d8cebe632ed = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_431ff8fed55070fe40f759693ed0b8ee.setIcon(beautify_icon_fd9cb56dfbe6d138beec0d8cebe632ed);
+        
+    
+                marker_431ff8fed55070fe40f759693ed0b8ee.setIcon(beautify_icon_fd9cb56dfbe6d138beec0d8cebe632ed);
+            
+    
+            var marker_0ce2c1c063fd9539ac8a9529dfd597a3 = L.marker(
+                [37.54406611, 126.98321917],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_2efd66c177d77b254bf8bc29071043f7 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_0ce2c1c063fd9539ac8a9529dfd597a3.setIcon(beautify_icon_2efd66c177d77b254bf8bc29071043f7);
+        
+    
+                marker_0ce2c1c063fd9539ac8a9529dfd597a3.setIcon(beautify_icon_2efd66c177d77b254bf8bc29071043f7);
+            
+    
+            var marker_9fc84a61605fc3abf399eb405c966ee7 = L.marker(
+                [37.5466775, 126.98423639],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_776a4ebdccc1c010220a6f60c012284e = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_9fc84a61605fc3abf399eb405c966ee7.setIcon(beautify_icon_776a4ebdccc1c010220a6f60c012284e);
+        
+    
+                marker_9fc84a61605fc3abf399eb405c966ee7.setIcon(beautify_icon_776a4ebdccc1c010220a6f60c012284e);
+            
+    
+            var marker_9807b60a60193f25b81c206781af5830 = L.marker(
+                [37.54764344, 126.98631522],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_cb60cf7c6b74824ec56aabc07f83a3a0 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_9807b60a60193f25b81c206781af5830.setIcon(beautify_icon_cb60cf7c6b74824ec56aabc07f83a3a0);
+        
+    
+                marker_9807b60a60193f25b81c206781af5830.setIcon(beautify_icon_cb60cf7c6b74824ec56aabc07f83a3a0);
+            
+    
+            var marker_8419b8f3e38d898ce6f997f90dc4b757 = L.marker(
+                [37.551974, 126.980083],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_f9ab963f8aa9753110fd6dc43dcebcd2 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_8419b8f3e38d898ce6f997f90dc4b757.setIcon(beautify_icon_f9ab963f8aa9753110fd6dc43dcebcd2);
+        
+    
+                marker_8419b8f3e38d898ce6f997f90dc4b757.setIcon(beautify_icon_f9ab963f8aa9753110fd6dc43dcebcd2);
+            
+    
+            var marker_ccd58458acdd6c9f18809128d21f8a50 = L.marker(
+                [37.54511622, 126.98382172],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_991cfbacd63966bc8082eacb7356f196 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_ccd58458acdd6c9f18809128d21f8a50.setIcon(beautify_icon_991cfbacd63966bc8082eacb7356f196);
+        
+    
+                marker_ccd58458acdd6c9f18809128d21f8a50.setIcon(beautify_icon_991cfbacd63966bc8082eacb7356f196);
+            
+    
+            var marker_d75a381f6ad38a6ec514ddbf8abd6073 = L.marker(
+                [37.55286576, 126.98172569],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_86341d8e1ad0035546e3dcf33541a62b = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_d75a381f6ad38a6ec514ddbf8abd6073.setIcon(beautify_icon_86341d8e1ad0035546e3dcf33541a62b);
+        
+    
+                marker_d75a381f6ad38a6ec514ddbf8abd6073.setIcon(beautify_icon_86341d8e1ad0035546e3dcf33541a62b);
+            
+    
+            var marker_d51d0c79b251fafb3d08e46d06100f2b = L.marker(
+                [37.54479389, 126.9817375],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_a3d4d7b678799e56427ae38530c795c1 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_d51d0c79b251fafb3d08e46d06100f2b.setIcon(beautify_icon_a3d4d7b678799e56427ae38530c795c1);
+        
+    
+                marker_d51d0c79b251fafb3d08e46d06100f2b.setIcon(beautify_icon_a3d4d7b678799e56427ae38530c795c1);
+            
+    
+            var marker_109ba5ff13d065789f96dd6e49b6ae88 = L.marker(
+                [37.54935417, 126.97933694],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_d54337ff08512aaccd16408ef7583c28 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_109ba5ff13d065789f96dd6e49b6ae88.setIcon(beautify_icon_d54337ff08512aaccd16408ef7583c28);
+        
+    
+                marker_109ba5ff13d065789f96dd6e49b6ae88.setIcon(beautify_icon_d54337ff08512aaccd16408ef7583c28);
+            
+    
+            var marker_c176f59b14d6850275a6b16026eb029e = L.marker(
+                [37.54596253, 126.98509033],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_be133aac5e42cc07bcd1499dfd97c805 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_c176f59b14d6850275a6b16026eb029e.setIcon(beautify_icon_be133aac5e42cc07bcd1499dfd97c805);
+        
+    
+                marker_c176f59b14d6850275a6b16026eb029e.setIcon(beautify_icon_be133aac5e42cc07bcd1499dfd97c805);
+            
+    
+            var marker_fccb37dc0a0823b6c3ed2135ce50e71e = L.marker(
+                [37.55008833, 126.98204222],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_c9d8ffe9d7545e0476cdf2a91b9062c2 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_fccb37dc0a0823b6c3ed2135ce50e71e.setIcon(beautify_icon_c9d8ffe9d7545e0476cdf2a91b9062c2);
+        
+    
+                marker_fccb37dc0a0823b6c3ed2135ce50e71e.setIcon(beautify_icon_c9d8ffe9d7545e0476cdf2a91b9062c2);
+            
+    
+            var marker_1efc0b8cd5faa562f75d3508deb9f8b7 = L.marker(
+                [37.5518942, 126.97919868],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_efc4ef6dc575da0e66c4514e15919075 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_1efc0b8cd5faa562f75d3508deb9f8b7.setIcon(beautify_icon_efc4ef6dc575da0e66c4514e15919075);
+        
+    
+                marker_1efc0b8cd5faa562f75d3508deb9f8b7.setIcon(beautify_icon_efc4ef6dc575da0e66c4514e15919075);
+            
+    
+            var marker_f33c55a34ae925150790f92076712b42 = L.marker(
+                [37.54764344, 126.98631522],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_e50757f30f981d243555494c1d759b68 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_f33c55a34ae925150790f92076712b42.setIcon(beautify_icon_e50757f30f981d243555494c1d759b68);
+        
+    
+                marker_f33c55a34ae925150790f92076712b42.setIcon(beautify_icon_e50757f30f981d243555494c1d759b68);
+            
+    
+            var marker_fe0276fc409ce0065e3654c57b7e5f36 = L.marker(
+                [37.54764344, 126.98631522],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_15ff5b2c9efb6cce6e087782a5d7fc47 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_fe0276fc409ce0065e3654c57b7e5f36.setIcon(beautify_icon_15ff5b2c9efb6cce6e087782a5d7fc47);
+        
+    
+                marker_fe0276fc409ce0065e3654c57b7e5f36.setIcon(beautify_icon_15ff5b2c9efb6cce6e087782a5d7fc47);
+            
+    
+            var marker_c69d9210765d4e6388e7db77f2519cb1 = L.marker(
+                [37.54566688, 126.98288902],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_7533d826999f7ff0f5914c6c98304752 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_c69d9210765d4e6388e7db77f2519cb1.setIcon(beautify_icon_7533d826999f7ff0f5914c6c98304752);
+        
+    
+                marker_c69d9210765d4e6388e7db77f2519cb1.setIcon(beautify_icon_7533d826999f7ff0f5914c6c98304752);
+            
+    
+            var marker_7546a1d133121238cc68b81976544fa5 = L.marker(
+                [37.55118544, 126.9881064],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_8e3c41abddffd41b7a2db89d1cd218d3 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_7546a1d133121238cc68b81976544fa5.setIcon(beautify_icon_8e3c41abddffd41b7a2db89d1cd218d3);
+        
+    
+                marker_7546a1d133121238cc68b81976544fa5.setIcon(beautify_icon_8e3c41abddffd41b7a2db89d1cd218d3);
+            
+    
+            var marker_6ba491cc36035e3212e9db3fb13e6f2a = L.marker(
+                [37.55118544, 126.9881064],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_876191f4ebd73d555f5f2e60b2ae4181 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_6ba491cc36035e3212e9db3fb13e6f2a.setIcon(beautify_icon_876191f4ebd73d555f5f2e60b2ae4181);
+        
+    
+                marker_6ba491cc36035e3212e9db3fb13e6f2a.setIcon(beautify_icon_876191f4ebd73d555f5f2e60b2ae4181);
+            
+    
+            var marker_abbf1d2ca1edb1e50dc30d8511d35e0e = L.marker(
+                [37.546339, 126.976871],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_0db7ee2710bb3d86a19021bac6a6af75 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_abbf1d2ca1edb1e50dc30d8511d35e0e.setIcon(beautify_icon_0db7ee2710bb3d86a19021bac6a6af75);
+        
+    
+                marker_abbf1d2ca1edb1e50dc30d8511d35e0e.setIcon(beautify_icon_0db7ee2710bb3d86a19021bac6a6af75);
+            
+    
+            var marker_c2734e158dbe425f4b7c1d89d0bcf8d9 = L.marker(
+                [37.546339, 126.976871],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_ef2b633f149908477b31b06c09499d98 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_c2734e158dbe425f4b7c1d89d0bcf8d9.setIcon(beautify_icon_ef2b633f149908477b31b06c09499d98);
+        
+    
+                marker_c2734e158dbe425f4b7c1d89d0bcf8d9.setIcon(beautify_icon_ef2b633f149908477b31b06c09499d98);
+            
+    
+            var marker_3973fbb09cdf9b76b4c5c8340cec458e = L.marker(
+                [37.546339, 126.976871],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_35f23436448c5cda6770b6d64c357c09 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_3973fbb09cdf9b76b4c5c8340cec458e.setIcon(beautify_icon_35f23436448c5cda6770b6d64c357c09);
+        
+    
+                marker_3973fbb09cdf9b76b4c5c8340cec458e.setIcon(beautify_icon_35f23436448c5cda6770b6d64c357c09);
+            
+    
+            var marker_5971e55ba39a1da956d7b760752ce618 = L.marker(
+                [37.544483, 126.985776],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_55bb9f11f19868881d65fcb92e4a96cc = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_5971e55ba39a1da956d7b760752ce618.setIcon(beautify_icon_55bb9f11f19868881d65fcb92e4a96cc);
+        
+    
+                marker_5971e55ba39a1da956d7b760752ce618.setIcon(beautify_icon_55bb9f11f19868881d65fcb92e4a96cc);
+            
+    
+            var marker_e39652350dda2e6b5d5a8c503b92ec42 = L.marker(
+                [37.544483, 126.985776],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_cba0497ddf1b40089364593aa381ab5f = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_e39652350dda2e6b5d5a8c503b92ec42.setIcon(beautify_icon_cba0497ddf1b40089364593aa381ab5f);
+        
+    
+                marker_e39652350dda2e6b5d5a8c503b92ec42.setIcon(beautify_icon_cba0497ddf1b40089364593aa381ab5f);
+            
+    
+            var marker_080134179f73083c0d110bd43686c444 = L.marker(
+                [37.544483, 126.985776],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_a4cf4500fd4a8c051e32d4f3bb792267 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_080134179f73083c0d110bd43686c444.setIcon(beautify_icon_a4cf4500fd4a8c051e32d4f3bb792267);
+        
+    
+                marker_080134179f73083c0d110bd43686c444.setIcon(beautify_icon_a4cf4500fd4a8c051e32d4f3bb792267);
+            
+    
+            var marker_a6f16509edc57e43644d12855ad77f4c = L.marker(
+                [37.55160578, 126.99030941],
+                {
+}
+            ).addTo(map_86c7745f3ba45493691f0633b5f60766);
+        
+    
+            var beautify_icon_2e2f41b76f82f29fc5ccb37e7a1bdb8b = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "circle",
+  "borderWidth": 0,
+  "borderColor": "#000",
+  "textColor": "white",
+  "backgroundColor": "#9E9E9E",
+  "innerIconStyle": "font-size:9px;font-weight:bold;position: relative;top:50%;transform:translateY(-47%);text-align:center;",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": "B5",
+  "radius": 4,
+}
+            )
+            marker_a6f16509edc57e43644d12855ad77f4c.setIcon(beautify_icon_2e2f41b76f82f29fc5ccb37e7a1bdb8b);
+        
+    
+                marker_a6f16509edc57e43644d12855ad77f4c.setIcon(beautify_icon_2e2f41b76f82f29fc5ccb37e7a1bdb8b);
+            
 </script>
 </html>

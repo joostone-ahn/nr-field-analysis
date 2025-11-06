@@ -424,7 +424,7 @@ def grid_kpi(df, grid_size, rb_min, sample_min):
                 col = f"{kpi}_{stat}_{band}"
                 if col in df_pair.columns:
                     metric_cols.append(col)
-    uhd_cols = [c for c in ["uhd_cnt", "uhd_avg", "uhd_max", "uhd_min"] if c in df_pair.columns]
+    uhd_cols = [c for c in ["uhd_cnt", "uhd_ci95", "uhd_std", "uhd_avg", "uhd_max", "uhd_min"] if c in df_pair.columns]
     ordered_cols = common_cols + sample_cols + metric_cols + uhd_cols
     df_pair = df_pair[[c for c in ordered_cols if c in df_pair.columns]]
 

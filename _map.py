@@ -4,11 +4,12 @@ import pandas as pd
 import numpy as np
 import matplotlib
 import folium
+from folium.plugins import BeautifyIcon
 from branca.colormap import StepColormap
 import _common
 from collections import defaultdict
 
-uhd_th = -32
+uhd_th = -30
 
 def make_step_cmap(vmin, vmax):
 
@@ -53,21 +54,22 @@ def make_step_cmap(vmin, vmax):
     
 def add_basestation(map_name):
     site_list = [
-        {"name": "Huam 415-1", "lat": 37.5472288, "lon": 126.9815217},
-        {"name": "Huam 345-5", "lat": 37.549636, "lon": 126.981512},
-        {"name": "NamsanTower", "lat": 37.552596, "lon": 126.987184},
+        {"name": "Huam 415-1", "lat": 37.54721361, "lon": 126.98147333},
+        {"name": "Huam 345-5", "lat": 37.54963306, "lon": 126.98153194},
+        {"name": "NamsanTower", "lat": 37.5524474, "lon": 126.98724844},
+
     ]
     for site in site_list:
         folium.Marker(
             [site["lat"], site["lon"]],
-            icon=folium.Icon(color="black", icon="signal"),
+            icon=folium.Icon(color="red", icon="broadcast-tower", prefix="fa"),
             popup=f"{site['name']}"
         ).add_to(map_name)
 
     uhd_lat, uhd_lon = 37.551130, 126.987443
     folium.Marker(
         [uhd_lat, uhd_lon],
-        icon=folium.Icon(color="red", icon="tower-cell", prefix='fa'),
+        icon=folium.Icon(color="darkblue", icon="tower-cell", prefix='fa'),
         popup="UHD Broadcasting Tower"
     ).add_to(map_name)
 
@@ -80,6 +82,78 @@ def add_basestation(map_name):
         fill=False,
         popup="1km"
     ).add_to(map_name)
+
+    lte_b5_pci_list = [
+        (3, 37.54800111, 126.98397667),
+        (15, 37.54541233, 126.9854189),
+        # (19, 37.54303361, 126.98501861),
+        (25, 37.54935417, 126.97933694),
+        # (37, 37.54443639, 126.98671278),
+        (73, 37.5512825, 126.97917694),
+        # (84, 37.5524474, 126.98724844),
+        (136, 37.54406611, 126.98321917),
+        # (155, 37.54721361, 126.98147333),
+        # (156, 37.54211961, 126.98399833),
+        # (159, 37.54696835, 126.97931584),
+        # (175, 37.54614703, 126.97893946),
+        (181, 37.5466775, 126.98423639),
+        (190, 37.54764344, 126.98631522),
+        (201, 37.551974, 126.980083),
+        (204, 37.54511622, 126.98382172),
+        # (207, 37.54313435, 126.98617105),
+        # (212, 37.54603684, 126.97798664),
+        (233, 37.55286576, 126.98172569),
+        # (241, 37.54963306, 126.98153194),
+        # (255, 37.5480225, 126.97774083),
+        (265, 37.54479389, 126.9817375),
+        # (270, 37.54997333, 126.9775925),
+        (273, 37.54935417, 126.97933694),
+        # (296, 37.543597, 126.984315),
+        # (299, 37.54935417, 126.97933694),
+        # (301, 37.54884417, 126.98626278),
+        (303, 37.54596253, 126.98509033),
+        (307, 37.55008833, 126.98204222),
+        (308, 37.5518942, 126.97919868),
+        # (354, 37.5524474, 126.98724844),
+        (359, 37.54764344, 126.98631522),
+        (364, 37.54764344, 126.98631522),
+        # (365, 37.54764344, 126.98631522),
+        # (366, 37.5448412, 126.9882567),
+        (366, 37.54566688, 126.98288902),
+        # (368, 37.5524474, 126.98724844),
+        # (369, 37.5448267, 126.9882279),
+        (390, 37.55118544, 126.9881064),
+        (391, 37.55118544, 126.9881064),
+        # (417, 37.54985218, 126.98487871),
+        # (420, 37.5524474, 126.98724844),
+        (437, 37.546339, 126.976871),
+        (439, 37.546339, 126.976871),
+        (440, 37.546339, 126.976871),
+        # (442, 37.546339, 126.976871),
+        (443, 37.544483, 126.985776),
+        (444, 37.544483, 126.985776),
+        (446, 37.544483, 126.985776),
+        (459, 37.55160578, 126.99030941),
+    ]
+
+    for pci, lat, lon in lte_b5_pci_list:
+        icon = BeautifyIcon(
+            icon_shape='circle',
+            background_color='#9E9E9E',
+            text_color='white',
+            number='B5',
+            border_width=0,
+            inner_icon_style=(
+                'font-size:9px;'
+                'font-weight:bold;'
+                'position: relative;'
+                'top:50%;'
+                'transform:translateY(-47%);'
+                'text-align:center;'
+            ),
+            radius=4,
+        )
+        folium.Marker([lat, lon], icon=icon).add_to(map_name)
 
 def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     uhd_lat, uhd_lon = 37.551130, 126.987443
@@ -103,12 +177,14 @@ def render_step_map(df_pair, grid_size, lat, lon, values, metric, popup_func, ba
 
         border_weight = 0
         border_color = None
-        if "uhd_max" in df_pair.columns:
-            uhd = df_pair.iloc[idx]["uhd_max"]
-
+        if "uhd_avg" in df_pair.columns:
+            uhd = df_pair.iloc[idx]["uhd_avg"]
             if pd.notna(uhd) and uhd > uhd_th:
                 border_color = "blue"
-                border_weight = 2
+                if grid_size >= 15:
+                    border_weight = 2
+                if grid_size <= 5:
+                    border_weight = 1
 
         bounds = [
             [lat_c - dlat, lon_c - dlon],  # 남서(SW)
@@ -245,7 +321,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         table_html += "</table>"
         table_html = header_html + table_html
 
-    else:
+    elif band in ['n26','n28']:
         n_count = int(row.get(f"sample_count_{band}", 0))
         table_html = f"""
         <div style="font-weight:bold; text-align:left; margin-bottom:4px; font-size:13px;">
@@ -256,10 +332,9 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         <table style="border-collapse:collapse; font-size:12px; white-space:nowrap;">
         <tr style="background-color:#e0e0e0;">
             <th style="{align_left};">Metric</th>
-            <th style="{align_right};">Mean</th>
-            <th style="{align_right};">Std</th>
+            <th style="{align_right};">Avg</th>
             <th style="{align_right};">
-                CI<span style="font-weight:normal; font-size:11px;"> (95%)</span>
+                CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
             </th>
         </tr>
         """
@@ -290,17 +365,19 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             <tr style="{highlight}">
                 <td style="{align_left}">{metric_name}</td>
                 <td style="{align_right}">{mean_val:.1f}</td>
-                <td style="{align_right}">{std_val:.1f}</td>
                 <td style="{align_right}">±{ci_delta:.2f}</td>
             </tr>
             """
         table_html += "</table>"
+    elif band in ['uhd']:
+        table_html = f""
 
     # --- UHD Power 섹션 ---
     uhd_cnt = row.get("uhd_cnt", np.nan)
     uhd_avg = row.get("uhd_avg", np.nan)
     uhd_max = row.get("uhd_max", np.nan)
     uhd_min = row.get("uhd_min", np.nan)
+    uhd_ci95 = row.get("uhd_ci95", np.nan)
 
     def colorize(val):
         if pd.isna(val):
@@ -316,71 +393,76 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             </div>
             <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">
                 <tr style="background-color:#cfd8dc;">
-                    <th style="{align_right}">max</th>
-                    <th style="{align_right}">min</th>
-                    <th style="{align_right}">avg</th>
                     <th style="{align_right}">cnt</th>
+                    <th style="{align_right}">max</th>
+                    <th style="{align_right}">min</th>  
+                    <th style="{align_right}">avg</th>
+                    <th style="{align_right};">
+                        CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
+                    </th>               
                 </tr>
                 <tr style="background-color:#f2f2f2;">
-                    <td style="{align_right}">{colorize(uhd_max)}</td>
-                    <td style="{align_right}">{colorize(uhd_min)}</td>
-                    <td style="{align_right}">{colorize(uhd_avg)}</td>
                     <td style="{align_right}">{int(uhd_cnt)}</td>
+                    <td style="{align_right}">{round(uhd_max, 1)}</td>
+                    <td style="{align_right}">{round(uhd_min, 1)}</td>
+                    <td style="{align_right}">{colorize(round(uhd_avg, 1))}</td>
+                    <td style="{align_right}">{round(uhd_ci95, 2)}</td>
                 </tr>
             </table>
         </div>
         """
         table_html += uhd_table
 
-    test_list = row.get("test_list", [])
-    loc_id = row.get("loc_id", np.nan)
+    if not band or band in ['n26','n28']:
+        test_list = row.get("test_list", [])
+        loc_id = row.get("loc_id", np.nan)
 
-    if isinstance(test_list, list) and len(test_list) > 0:
+        if isinstance(test_list, list) and len(test_list) > 0:
 
-        test_by_date = defaultdict(list)
-        for test in test_list:
-            parts = test.split("_")
-            date, num, site = parts[0], parts[1], parts[2]
-            test_by_date[date].append((num, site))
+            test_by_date = defaultdict(list)
+            for test in test_list:
+                parts = test.split("_")
+                date, num, site = parts[0], parts[1], parts[2]
+                test_by_date[date].append((num, site))
 
-        test_html = f"""
-        <div style="margin-top:10px; font-size:12px;">
-            <div style="font-weight:bold; color:#000; margin-bottom:2px;">
-                View Test Results
-                <span style="font-size:11px; font-weight:normal;">(loc_id: {loc_id})</span>
-            </div>
-            <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
-                <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
-                    click to expand
-                </summary>
-                <div style="margin-top:6px; padding-left:10px;">
-        """
-        grid_dir = out_file.split("/")[2]
-        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/{grid_dir}"
-
-        for date, entries in sorted(test_by_date.items()):
-            test_html += f"""
-            <div style="margin:2px 0; line-height:1.4;">
-                <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">
-                    {date} :
+            test_html = f"""
+            <div style="margin-top:10px; font-size:12px;">
+                <div style="font-weight:bold; color:#000; margin-bottom:2px;">
+                    View Test Results
+                    <span style="font-size:11px; font-weight:normal;">(loc_id: {loc_id})</span>
                 </div>
-                <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
+                <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
+                    <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
+                        click to expand
+                    </summary>
+                    <div style="margin-top:6px; padding-left:10px;">
             """
-            for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
-                url = f"{base_url}/{date}/{site}/TEST_{num}.html"
-                test_html += (
-                    f'<a href="{url}" target="_blank" '
-                    f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
-                )
-            test_html += "</div></div>\n"
+            grid_dir = out_file.split("/")[2]
+            base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/{grid_dir}"
 
-        test_html += """
-                </div>
-            </details>
-        </div>
-        """
+            for date, entries in sorted(test_by_date.items()):
+                test_html += f"""
+                <div style="margin:2px 0; line-height:1.4;">
+                    <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">
+                        {date} :
+                    </div>
+                    <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
+                """
+                for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
+                    url = f"{base_url}/{date}/{site}/TEST_{num}.html"
+                    test_html += (
+                        f'<a href="{url}" target="_blank" '
+                        f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
+                    )
+                test_html += "</div></div>\n"
 
-        table_html += test_html
+            test_html += """
+                    </div>
+                </details>
+            </div>
+            """
+
+            table_html += test_html
 
     return table_html
 
@@ -476,7 +558,7 @@ def map_db(df, out_dir, grid_size, rb_min, sample_min):
             caption=caption
         )
 
-def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
+def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band):
 
     df_pair = _common.grid_kpi(df, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
 
@@ -484,31 +566,58 @@ def map_coverage(df, out_dir, grid_size, rb_min, sample_min, band="n28"):
     lat = (df_pair["lat_bin"] + 0.5) * (grid_size / lat_factor)
     lon = (df_pair["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
-    metrics = [
-        {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
-        {"name": "SINR",           "vmin": -5,    "vmax": 45,   "unit": "dB"},
-        {"name": "DL_Tput",        "vmin": 0,    "vmax": 120,  "unit": "Mbps"},
-        # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
-        # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
-    ]
+    if band in ['n26','n28']:
+        metrics = [
+            {"name": "RSRP",           "vmin": -120, "vmax": -50,  "unit": "dBm"},
+            {"name": "SINR",           "vmin": -5,    "vmax": 45,   "unit": "dB"},
+            {"name": "DL_Tput",        "vmin": 0,    "vmax": 120,  "unit": "Mbps"},
+            # {"name": "DL_Tput_per_RB", "vmin": 0,    "vmax": 2,    "unit": "Mbps"},
+            # {"name": "DL_RB",          "vmin": 0,    "vmax": 50,   "unit": ""},
+        ]
 
-    for m in metrics:
-        metric = m['name']
-        vmin, vmax = m['vmin'], m['vmax']
-        unit = m['unit']
+        for m in metrics:
+            metric = m['name']
+            vmin, vmax = m['vmin'], m['vmax']
+            unit = m['unit']
 
-        n28 = df_pair[f"{metric}_mean_n28"].astype(float)
+            n28 = df_pair[f"{metric}_mean_n28"].astype(float)
+            cmap = make_step_cmap(vmin, vmax)
+            caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
+
+            os.makedirs(out_dir, exist_ok=True)
+            out_file = os.path.join(out_dir, f"{band}_{metric}.html")
+            render_step_map(
+                df_pair=df_pair,
+                grid_size=grid_size,
+                lat=lat,
+                lon=lon,
+                values=n28,
+                metric=metric,
+                popup_func=popup_table,
+                band=band,
+                cmap=cmap,
+                out_file=out_file,
+                caption=caption,
+            )
+    elif band == 'uhd':
+        metric = 'uhd_avg'
+        unit = 'dBm/12MHz'
+
+        vmin = df_pair[metric].min()
+        vmax = df_pair[metric].max()
+
+        uhd_avg = df_pair[metric].astype(float)
         cmap = make_step_cmap(vmin, vmax)
-        caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
+        caption = f"UHD Power Avg [{unit}]"
 
         os.makedirs(out_dir, exist_ok=True)
-        out_file = os.path.join(out_dir, f"{band}_{metric}.html")
+        out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
         render_step_map(
             df_pair=df_pair,
             grid_size=grid_size,
             lat=lat,
             lon=lon,
-            values=n28,
+            values=uhd_avg,
             metric=metric,
             popup_func=popup_table,
             band=band,
