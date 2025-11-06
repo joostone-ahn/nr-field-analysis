@@ -6,10 +6,9 @@ import pandas as pd
 import _common
 
 def dist_uhd_pwr(df, out_dir, grid_size):
-    # --- Layout 상수 (dist_kpis_group_by_site와 동일하게) ---
     SUBPLOT_HEIGHT = 600
     TOP_MARGIN = 70
-    LEGEND_Y = 1.03
+    LEGEND_Y = 1.08
     LEGEND_FONT_SIZE = 13
 
     metrics = [
@@ -54,25 +53,32 @@ def dist_uhd_pwr(df, out_dir, grid_size):
             )
         )
 
+    center_x = -30
+    x_min, x_max = df["uhd_min"].min(), df["uhd_max"].max()
+    left_dist = abs(center_x - x_min)
+    right_dist = abs(x_max - center_x)
+    half_range = max(left_dist, right_dist)
+    x_lower = center_x - half_range -2
+    x_upper = center_x + half_range
+
     fig.update_layout(
-        title=f"UHD Power Distribution (Grid {grid_size}m)",
+        title=f"UHD Power CDF (Grid {grid_size}m)",
         template="plotly_white",
         autosize=True,
         height=SUBPLOT_HEIGHT,
         margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         xaxis=dict(
             title="UHD Power [dBm/12MHz]",
+            range=[x_lower, x_upper],
             gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
             dtick=3,
         ),
         yaxis=dict(
             title_text="CDF (Cumulative Distribution Function)",
             gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
             tickvals=[0, 0.25, 0.5, 0.75, 1.0],
             tickformat=".2f",
-            range=[-0.1, 1.1],
+            range=[-0.05, 1.05],
         ),
         legend=dict(
             orientation="h",
@@ -84,38 +90,59 @@ def dist_uhd_pwr(df, out_dir, grid_size):
         ),
     )
 
+    fig.add_vline(
+        x=center_x,
+        line=dict(color="black", width=1, dash="dot"),
+    )
+
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+    out_file = os.path.join(out_dir, f"uhd_pwr_all_.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
 
 def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
-    # --- Layout 상수 (dist_kpis_group_by_site와 동일하게) ---
     SUBPLOT_HEIGHT = 600
     TOP_MARGIN = 70
-    LEGEND_Y = 1.03
+    LEGEND_Y = 1.08
     LEGEND_FONT_SIZE = 13
 
-    metrics = [
-        {"name": "uhd_avg", "label": "AVG", "color": "#1976D2"},
-        {"name": "uhd_max", "label": "MAX", "color": "#D32F2F"},
-        {"name": "uhd_min", "label": "MIN", "color": "#388E3C"},
-    ]
+    route_colors = {
+        "Namsan": "#FF4500",
+        "Huam345-5": "#FFD700",
+        "Huam415-1": "#32CD32",
+    }
+
+    if grid_size == 30:
+        loc_ranges = {
+            "Huam345-5": (1, 82),
+            "Huam415-1": (83, 121),
+            "Namsan": (122, 145),
+        }
+    elif grid_size == 5:
+        loc_ranges = {
+            "Huam345-5": (1, 503),
+            "Huam415-1": (504, 726),
+            "Namsan": (727, 933),
+        }
+    else:
+        raise ValueError("grid_size must be either 5 or 30")
+
     fig = go.Figure()
+    metric = "uhd_avg"
 
-    for m in metrics:
-        metric = m["name"]
-        label = m["label"]
-        color = m["color"]
+    for route, (min_id, max_id) in loc_ranges.items():
+        color = route_colors.get(route, "#000000")
+        subset = df[(df["loc_id"] >= min_id) & (df["loc_id"] <= max_id)]
+        data = subset[metric].dropna().values
 
-        data = df[metric].dropna().values
+        if len(data) == 0:
+            continue
+
         total = len(data)
-
-        bins = np.arange(np.floor(data.min())-0.5, np.ceil(data.max())+0.5, 1)
+        bins = np.arange(np.floor(data.min()) - 0.5, np.ceil(data.max()) + 0.5, 1)
         counts, bin_edges = np.histogram(data, bins=bins)
         cdf = np.cumsum(counts) / total
         centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
         hover_text = [f"{int(x)}/{total}" for x in np.cumsum(counts)]
 
         fig.add_trace(
@@ -123,7 +150,7 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
                 x=centers,
                 y=cdf,
                 mode="lines+markers",
-                name=label,
+                name=f"{route} ({total})",
                 line=dict(color=color, width=1.2),
                 text=hover_text,
                 hovertemplate=(
@@ -138,25 +165,32 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
             )
         )
 
+    center_x = -30
+    x_min, x_max = df["uhd_avg"].min(), df["uhd_avg"].max()
+    left_dist = abs(center_x - x_min)
+    right_dist = abs(x_max - center_x)
+    half_range = max(left_dist, right_dist)
+    x_lower = center_x - half_range -2
+    x_upper = center_x + half_range
+
     fig.update_layout(
-        title=f"UHD Power Distribution (Grid {grid_size}m)",
+        title=f"UHD Power CDF by Site (Grid {grid_size}m)",
         template="plotly_white",
         autosize=True,
         height=SUBPLOT_HEIGHT,
         margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         xaxis=dict(
             title="UHD Power [dBm/12MHz]",
+            range=[x_lower, x_upper],
             gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
             dtick=3,
         ),
         yaxis=dict(
-            title_text="CDF (Cumulative Distribution Function)",
+            title="CDF (Cumulative Distribution Function)",
             gridcolor="rgba(0,0,0,0.15)",
-            griddash="dot",
             tickvals=[0, 0.25, 0.5, 0.75, 1.0],
             tickformat=".2f",
-            range=[-0.1, 1.1],
+            range=[-0.05, 1.05],
         ),
         legend=dict(
             orientation="h",
@@ -168,11 +202,15 @@ def dist_uhd_pwr_group_by_site(df, out_dir, grid_size):
         ),
     )
 
+    fig.add_vline(
+        x=center_x,
+        line=dict(color="black", width=1, dash="dot"),
+    )
+
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+    out_file = os.path.join(out_dir, f"uhd_pwr_group_by_site.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
-
 
 def dist_kpis_group_by_site(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
