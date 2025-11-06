@@ -477,7 +477,7 @@ def popup_table(idx, val, df, metric, band):
                 </summary>
                 <div style="margin-top:6px; padding-left:10px;">
         """
-        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test"
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot/plot_each_test"
 
         for date, entries in sorted(test_by_date.items()):
             test_html += f"""
