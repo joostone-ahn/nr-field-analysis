@@ -6,6 +6,7 @@ import matplotlib
 import folium
 from folium.plugins import BeautifyIcon
 from branca.colormap import StepColormap
+import ast
 import _common
 from collections import defaultdict
 
@@ -174,7 +175,7 @@ def render_step_map(df, grid_size, lat, lon, values, metric, popup_func, band, c
             continue
 
         color = cmap(val)
-        popup_html = popup_func(idx, val, df, metric, out_file, band)
+        popup_html = popup_func(idx, val, df, metric, band)
         popup = folium.Popup(popup_html, max_width=300)
 
         lat_c = lat.iloc[idx]
@@ -216,20 +217,10 @@ def render_step_map(df, grid_size, lat, lon, values, metric, popup_func, band, c
 
     print(f"✅ Saved: {out_file} (rows={len(values)})")
 
-def popup_table(idx, val, df_pair, metric, out_file, band):
-
-    row = df_pair.iloc[idx]
-    loc_id = row.get("loc_id", None)
-
+def popup_table(idx, val, df, metric, band):
     cell_padding = "padding:2px 6px;"
     align_left  = f"text-align:left; {cell_padding}"
     align_right = f"text-align:right; {cell_padding}"
-
-    color = (
-        "color:#0070C0;" if val > 0 else
-        "color:#C00000;" if val < 0 else
-        "color:#000000;"
-    )
 
     table_items = [
         "RSRP", "RSRQ",
@@ -242,38 +233,48 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
         "DL_BLER", "UL_BLER",
     ]
 
+    row = df.iloc[idx]
+    loc_id = row.get("loc_id", None)
+
     if not band:
         if metric == "DL_Tput":
             title = f"{metric.replace('_', ' ')} Δ"
             subtitle = "n28/n26"
             unit = "%"
+        elif metric == "RSRP":
+            title =  f"{metric} Δ"
+            subtitle = "n28-n26"
+            unit = "dB"
 
-            header_html = f"""
-            <div style="
-                display:flex;
-                align-items:flex-end;
-                font-size:12px;
-                font-weight:bold;
-                margin-bottom:6px;
-            ">
-                <span style="
-                    background-color:#424242;   
-                    color:#FFFFFF;              
-                    border-radius:3px;
-                    padding:1px 5px;
-                    margin-right:5px;
-                    font-size:11px;
-                    box-shadow:0 0 1px rgba(0,0,0,0.2);
-                ">{loc_id}</span>
-                <span>{title}</span>
-                <span style="font-size:11px;font-weight:normal;margin-left:4px;">({subtitle})</span>
-                <span style="font-weight:normal;margin-left:4px;">:</span>
-                <span style="{color};margin-left:4px;">{val:+.1f} {unit}</span>
-            </div>
-            """
+        color = (
+            "color:#0070C0;" if val > 0 else
+            "color:#C00000;" if val < 0 else
+            "color:#000000;"
+        )
 
-        else:
-            header_html = ""
+        header_html = f"""
+        <div style="
+            display:flex;
+            align-items:flex-end;
+            font-size:12px;
+            font-weight:bold;
+            margin-bottom:6px;
+        ">
+            <span style="
+                background-color:#424242;   
+                color:#FFFFFF;              
+                border-radius:3px;
+                padding:1px 5px;
+                margin-right:5px;
+                font-size:11px;
+                box-shadow:0 0 1px rgba(0,0,0,0.2);
+            ">{loc_id}</span>
+            <span>{title}</span>
+            <span style="font-size:11px;font-weight:normal;margin-left:4px;">({subtitle})</span>
+            <span style="font-weight:normal;margin-left:4px;">:</span>
+            <span style="{color};margin-left:4px;">{val:+.1f} {unit}</span>
+        </div>
+        """
 
         n26 = int(row.get("sample_count_n26", 0))
         n28 = int(row.get("sample_count_n28", 0))
@@ -307,7 +308,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             c_diff_mean = f"{metric_name}_mean_diff"
             c_diff_std = f"{metric_name}_std_diff"
 
-            if not all(c in df_pair.columns for c in [c26_mean, c28_mean, c_diff_mean, c_diff_std]):
+            if not all(c in df.columns for c in [c26_mean, c28_mean, c_diff_mean, c_diff_std]):
                 continue
 
             v26 = row[c26_mean]
@@ -318,11 +319,9 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             if any(pd.isna(x) for x in [v26, v28, diff_mean, diff_std]) or n_diff <= 1:
                 continue
 
-            # 95% CI 계산
             se_diff = diff_std / np.sqrt(n_diff)
             ci_delta = 1.96 * se_diff
 
-            # 색상 처리
             if diff_mean > 0:
                 diff_color = "color:#0070C0;"
                 highlight = 'background-color:#d6eaff;' if metric_name == metric else ''
@@ -389,7 +388,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             mean_col = f"{metric_name}_mean_{band}"
             std_col  = f"{metric_name}_std_{band}"
 
-            if mean_col not in df_pair.columns or std_col not in df_pair.columns:
+            if mean_col not in df.columns or std_col not in df.columns:
                 continue
 
             mean_val = row[mean_col]
@@ -412,10 +411,7 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             </tr>
             """
         table_html += "</table>"
-    elif band in ['uhd']:
-        table_html = f""
 
-    # --- UHD Power 섹션 ---
     uhd_cnt = row.get("uhd_cnt", np.nan)
     uhd_avg = row.get("uhd_avg", np.nan)
     uhd_max = row.get("uhd_max", np.nan)
@@ -427,84 +423,84 @@ def popup_table(idx, val, df_pair, metric, out_file, band):
             return f"{val}"
         return f'<span style="color:#C00000;">{val:.1f}</span>' if val > uhd_th else f"{val:.1f}"
 
-    if not pd.isna(uhd_cnt):
-        uhd_table = f"""
+    uhd_html = f"""
+    {table_html}
+    <div style="margin-top:10px; font-size:12px;">
+        <div style="margin-bottom:4px; text-align:left; font-size:12px;">
+            <span style="font-weight:bold;">UHD Power</span>
+            <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>
+        </div>
+        <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">
+            <tr style="background-color:#cfd8dc;">
+                <th style="{align_right}">cnt</th>
+                <th style="{align_right}">max</th>
+                <th style="{align_right}">min</th>  
+                <th style="{align_right}">avg</th>
+                <th style="{align_right};">
+                    CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
+                </th>               
+            </tr>
+            <tr style="background-color:#f2f2f2;">
+                <td style="{align_right}">{int(uhd_cnt)}</td>
+                <td style="{align_right}">{round(uhd_max, 1)}</td>
+                <td style="{align_right}">{round(uhd_min, 1)}</td>
+                <td style="{align_right}">{colorize(round(uhd_avg, 1))}</td>
+                <td style="{align_right}">{round(uhd_ci95, 2)}</td>
+            </tr>
+        </table>
+    </div>
+    """
+
+    test_list = row.get("test_list", [])
+    if isinstance(test_list, str):
+        test_list = ast.literal_eval(test_list)
+
+    test_html = f"""
+    {uhd_html}
+    """
+    if isinstance(test_list, list) and len(test_list) > 0:
+        test_by_date = defaultdict(list)
+
+        for test in test_list:
+            parts = test.split("_")
+            date, num, site = parts[0], parts[1], parts[2]
+            test_by_date[date].append((num, site))
+
+        test_html += f"""
         <div style="margin-top:10px; font-size:12px;">
-            <div style="margin-bottom:4px; text-align:left; font-size:12px;">
-                <span style="font-weight:bold;">UHD Power</span>
-                <span style="font-weight:normal; font-size:11px;"> [dBm/12MHz]</span>
+            <div style="font-weight:bold; color:#000; margin-bottom:2px;">
+                View Test Results
             </div>
-            <table style="border-collapse:collapse; font-size:12px; margin-top:2px;">
-                <tr style="background-color:#cfd8dc;">
-                    <th style="{align_right}">cnt</th>
-                    <th style="{align_right}">max</th>
-                    <th style="{align_right}">min</th>  
-                    <th style="{align_right}">avg</th>
-                    <th style="{align_right};">
-                        CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
-                    </th>               
-                </tr>
-                <tr style="background-color:#f2f2f2;">
-                    <td style="{align_right}">{int(uhd_cnt)}</td>
-                    <td style="{align_right}">{round(uhd_max, 1)}</td>
-                    <td style="{align_right}">{round(uhd_min, 1)}</td>
-                    <td style="{align_right}">{colorize(round(uhd_avg, 1))}</td>
-                    <td style="{align_right}">{round(uhd_ci95, 2)}</td>
-                </tr>
-            </table>
+            <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
+                <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
+                    click to expand
+                </summary>
+                <div style="margin-top:6px; padding-left:10px;">
+        """
+        base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test"
+
+        for date, entries in sorted(test_by_date.items()):
+            test_html += f"""
+            <div style="margin:2px 0; line-height:1.4;">
+                <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">
+                    {date} :
+                </div>
+                <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
+            """
+            for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
+                url = f"{base_url}/{date}/{site}/TEST_{num}.html"
+                test_html += (
+                    f'<a href="{url}" target="_blank" '
+                    f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
+                )
+            test_html += "</div></div>\n"
+
+        test_html += """
+                </div>
+            </details>
         </div>
         """
-        table_html += uhd_table
-
-    if not band or band in ['n26','n28']:
-        test_list = row.get("test_list", [])
-        if isinstance(test_list, list) and len(test_list) > 0:
-
-            test_by_date = defaultdict(list)
-            for test in test_list:
-                parts = test.split("_")
-                date, num, site = parts[0], parts[1], parts[2]
-                test_by_date[date].append((num, site))
-
-            test_html = f"""
-            <div style="margin-top:10px; font-size:12px;">
-                <div style="font-weight:bold; color:#000; margin-bottom:2px;">
-                    View Test Results
-                </div>
-                <details style="border:1px solid #ccc; border-radius:4px; padding:4px;">
-                    <summary style="cursor:pointer; font-weight:normal; font-size:11px; color:#777;">
-                        click to expand
-                    </summary>
-                    <div style="margin-top:6px; padding-left:10px;">
-            """
-            grid_dir = out_file.split("/")[2]
-            base_url = f"https://joostone-ahn.github.io/nr-field-analysis/results/plot_each_test/{grid_dir}"
-
-            for date, entries in sorted(test_by_date.items()):
-                test_html += f"""
-                <div style="margin:2px 0; line-height:1.4;">
-                    <div style="display:inline-block; width:60px; font-weight:bold; color:#333; text-align:right; vertical-align:top; white-space:nowrap;">
-                        {date} :
-                    </div>
-                    <div style="display:inline-block; width:calc(100% - 70px); vertical-align:top;">
-                """
-                for num, site in sorted(entries, key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
-                    url = f"{base_url}/{date}/{site}/TEST_{num}.html"
-                    test_html += (
-                        f'<a href="{url}" target="_blank" '
-                        f'style="text-decoration:none; color:#0066cc; margin-right:6px;">{num}</a>'
-                    )
-                test_html += "</div></div>\n"
-
-            test_html += """
-                    </div>
-                </details>
-            </div>
-            """
-
-            table_html += test_html
-
-    return table_html
+    return test_html
 
 def map_pct(df, out_dir, grid_size):
 
@@ -633,36 +629,33 @@ def map_coverage(df, out_dir, grid_size, band):
             caption=caption,
         )
 
-def map_uhd_pwr(out_dir, grid_size):
-
-    df_uhd = _common.read_UHD_xlsx(uhd_dir='UHD_power')
-    df_uhd_grid = _common.grid_uhd(df_uhd, grid_size=grid_size)
+def map_uhd_pwr(df, out_dir, grid_size):
 
     lat_factor, lon_factor = 111320, 88000
-    lat = (df_uhd_grid["lat_bin"] + 0.5) * (grid_size / lat_factor)
-    lon = (df_uhd_grid["lon_bin"] + 0.5) * (grid_size / lon_factor)
+    lat = (df["lat_bin"] + 0.5) * (grid_size / lat_factor)
+    lon = (df["lon_bin"] + 0.5) * (grid_size / lon_factor)
 
     metric = 'uhd_avg'
     unit = 'dBm/12MHz'
 
-    vmin = df_uhd_grid[metric].min()
-    vmax = df_uhd_grid[metric].max()
+    vmin = df[metric].min()
+    vmax = df[metric].max()
 
-    uhd_avg = df_uhd_grid[metric].astype(float)
+    uhd_avg = df[metric].astype(float)
     cmap = make_step_cmap(vmin, vmax)
     caption = f"UHD Power Avg [{unit}]"
 
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"uhd_pwr_grid_{grid_size}m.html")
+    out_file = os.path.join(out_dir, f"n28_UHD_pwr_avg.html")
     render_step_map(
-        df_pair=df_uhd_grid,
+        df=df,
         grid_size=grid_size,
         lat=lat,
         lon=lon,
         values=uhd_avg,
         metric=metric,
         popup_func=popup_table,
-        band='uhd',
+        band='n28',
         cmap=cmap,
         out_file=out_file,
         caption=caption,
