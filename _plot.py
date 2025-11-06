@@ -717,7 +717,7 @@ def plot_kpis_group_by_uhd(df, out_dir, grid_size, rb_min, sample_min):
         fig.write_html(out_path)
         print(f"✅ Saved: {out_path}")
 
-def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
+def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
     metrics = [
         "RSRP", "RSRQ",
         "SINR_SSB", "SINR_TRS",
@@ -728,7 +728,8 @@ def plot_kpis_each_test(df, out_dir, grid_size, rb_min, sample_min):
         "DL_BLER", "UL_BLER",
     ]
 
-    df = _common.assign_loc_id(df, grid_size, rb_min, sample_min)
+    df = pd.merge(df, df_grid, on=["lat_bin", "lon_bin"], how="left")
+
     test_list = sorted(df["test_no"].unique())
     for target_no in test_list:
         df_sub = df[df["test_no"] == target_no].copy()

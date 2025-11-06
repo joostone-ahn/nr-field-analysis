@@ -276,11 +276,11 @@ def update_fixed_point(df):
 
     return fixed_df
 
-def assign_uhd_pwr(df_pair, grid_size):
+def assign_uhd_pwr(df, grid_size):
     # df_uhd = read_UHD_csv(uhd_dir='UHD_power')
     df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
-    df_merged = pd.merge(df_pair, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+    df_merged = pd.merge(df, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
 
     before_drop = len(df_merged)
     df_merged = df_merged.dropna(subset=["uhd_avg"])
@@ -291,26 +291,26 @@ def assign_uhd_pwr(df_pair, grid_size):
 
     return df_merged
 
-def assign_loc_id(df_pair, grid_size):
+def assign_loc_id(df, grid_size):
 
-    df_pair = df_pair.sort_values(["route","lat_bin", "lon_bin",], ascending=[True, True, True])
-    df_pair = df_pair.reset_index(drop=True)
-    df_pair['loc_id'] = df_pair.index + 1
-    df_pair[f"loc_id"] = df_pair[f"loc_id"].astype("Int64")
+    df = df.sort_values(["route","lat_bin", "lon_bin",], ascending=[True, True, True])
+    df = df.reset_index(drop=True)
+    df['loc_id'] = df.index + 1
+    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
 
     print(f"📍 [Grid {grid_size}m] loc_id Range by Route")
     print("──────────────────────────────────────────────")
     print(f"{'Route':<12} {'loc_id Range':<20} {'Counts':>8}")
     print("──────────────────────────────────────────────")
 
-    for route_name, group in df_pair.groupby("route"):
+    for route_name, group in df.groupby("route"):
         min_id = int(group["loc_id"].min())
         max_id = int(group["loc_id"].max())
         count = len(group)
         print(f"{route_name:<12} {min_id:>5} ~ {max_id:<11} {count:>8}")
     print("──────────────────────────────────────────────\n")
 
-    return df_pair
+    return df
 
 def grid_kpi(device, df, rb_min, grid_size, sample_min):
     kpi_cols = [
