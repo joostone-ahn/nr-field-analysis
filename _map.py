@@ -288,9 +288,9 @@ def popup_table(idx, val, df, metric, band):
             <th style="{align_right}">n26</th>
             <th style="{align_right}">n28</th>
             <th style="{align_right}; vertical-align:middle;">
-                <div style="display:flex; flex-direction:column; align-items:flex-end; line-height:1.1;">
-                    <span>Δ<span style='font-size:8px;'>(n28−n26)</span></span>
-                    <span style='font-size:8px; color:#555;'>(±95% CI)</span>
+                <div style="display:flex; flex-direction:row; justify-content:flex-end; align-items:flex-end; line-height:1.1;">
+                    <span>Δ</span>
+                    <span style="font-size:10px; font-weight:normal; margin-left:2px;">(CI 95%)</span>
                 </div>
             </th>
         </tr>
@@ -379,7 +379,7 @@ def popup_table(idx, val, df, metric, band):
             <th style="{align_left};">Metric</th>
             <th style="{align_right};">Avg</th>
             <th style="{align_right};">
-                CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
+                CI<span style="font-weight:normal; font-size:9px; margin-left:2px;">(95%)</span>
             </th>
         </tr>
         """
@@ -437,7 +437,7 @@ def popup_table(idx, val, df, metric, band):
                 <th style="{align_right}">min</th>  
                 <th style="{align_right}">avg</th>
                 <th style="{align_right};">
-                    CI<span style="font-weight:normal; font-size:9px;">(95%)</span>
+                    CI<span style="font-weight:normal; font-size:9px; margin-left:2px;">(95%)</span>
                 </th>               
             </tr>
             <tr style="background-color:#f2f2f2;">
