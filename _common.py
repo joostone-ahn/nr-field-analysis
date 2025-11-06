@@ -228,30 +228,30 @@ def separate_fixed_point(df):
     # display(unique_pairs)
 
     LOS_groups = {
-        "01-05": [
+        "345-5_01": [
             "251103_01_Fixed-point",
             "251103_02_Fixed-point",
             "251103_03_Fixed-point",
             "251103_04_Fixed-point",
             "251103_05_Fixed-point",
         ],
-        "06-10": [
+        "345-5_02": [
             "251103_06_Fixed-point",
             "251103_07_Fixed-point",
             "251103_08_Fixed-point",
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
         ],
-        "1024_25-26": [
-            "251024_25_Fixed-point",
-            "251024_26_Fixed-point",
-        ],
-        '1024_27':[
-            "251024_27_Fixed-point"
-        ],
+        # "251024_25-26": [
+        #     "251024_25_Fixed-point",
+        #     "251024_26_Fixed-point",
+        # ],
+        # '251024_27':[
+        #     "251024_27_Fixed-point"
+        # ],
     }
     NLOS_groups = {
-        "11-15": [
+        "345-5_01": [
             "251103_11_Fixed-point",
             "251103_12_Fixed-point",
             "251103_13_Fixed-point",
@@ -267,9 +267,10 @@ def separate_fixed_point(df):
         for gid, tlist in NLOS_groups.items():
             if test_no in tlist:
                 return f"Fixed_NLOS_{gid}"
-        return "Fixed-LOS-old"
+        return "Fixed-point"
 
     fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
+    fixed_df = fixed_df[fixed_df['route']!="Fixed-point"]
 
     # check_cols = ["route", "test_no"]
     # unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)
