@@ -543,7 +543,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
             out_path = os.path.join(out_dir, f"kpis_by_band_{rsrp_bin}dB.html")
             fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
         else:
-            if rsrp_bin == 1:
+            if rsrp_bin == 5:
                 os.makedirs(os.path.join("results", "_fixed-point"), exist_ok=True)
                 out_path = os.path.join('results', "_fixed-point", f"{fixed_route}.html")
                 fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
