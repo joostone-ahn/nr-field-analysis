@@ -194,7 +194,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
             var rsrp_left = data.points[0].customdata;
             var rsrp_right = rsrp_left + RSRP_BIN;
 
-            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_site_rsrp_bin_" + RSRP_BIN + "dB/";
+            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_site/";
             var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
             var full_url = base_url + file_name;
 
@@ -438,12 +438,9 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
             out_path = os.path.join(out_dir, f"kpis_by_band.html")
             fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
         else:
-            if rsrp_bin == 5:
-                os.makedirs(os.path.join("results", "_fixed-point"), exist_ok=True)
-                out_path = os.path.join('results', "_fixed-point", f"{fixed_route}.html")
-                fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
-            else:
-                continue
+            os.makedirs(os.path.join("results", "_fixed-point"), exist_ok=True)
+            out_path = os.path.join('results', "_fixed-point", f"{fixed_route}.html")
+            fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
         <script>
@@ -453,7 +450,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
                 var rsrp_left = data.points[0].customdata;
                 var rsrp_right = rsrp_left + RSRP_BIN;
 
-                var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_site_rsrp_bin_" + RSRP_BIN + "dB/";
+                var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_band/";
                 var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
                 var full_url = base_url + file_name;
 
