@@ -98,6 +98,7 @@ def dist_uhd_by_minmax(df, out_dir):
     out_file = os.path.join(out_dir, f"uhd_minmax.html")
     fig.write_html(out_file)
     print(f"✅ Saved: {out_file}")
+
 def dist_uhd_by_site(df, out_dir, grid_size):
     SUBPLOT_HEIGHT = 600
     TOP_MARGIN = 70
@@ -200,149 +201,6 @@ def dist_uhd_by_site(df, out_dir, grid_size):
 
     os.makedirs(out_dir, exist_ok=True)
     out_file = os.path.join(out_dir, f"uhd_by_site.html")
-    fig.write_html(out_file)
-    print(f"✅ Saved: {out_file}")
-def dist_uhd_by_site_pdf_cdf(df, out_dir, grid_size):
-    SUBPLOT_HEIGHT = 600
-    TOP_MARGIN = 70
-    LEGEND_Y = 1.08
-    LEGEND_FONT_SIZE = 13
-
-    route_colors = {
-        "Namsan": "#FF4500",
-        "Huam345-5": "#FFD700",
-        "Huam415-1": "#32CD32",
-    }
-
-    # --- loc_id 범위 설정 ---
-    if grid_size == 30:
-        loc_ranges = {
-            "Huam345-5": (1, 82),
-            "Huam415-1": (83, 121),
-            "Namsan": (122, 145),
-        }
-    elif grid_size == 5:
-        loc_ranges = {
-            "Huam345-5": (1, 503),
-            "Huam415-1": (504, 726),
-            "Namsan": (727, 933),
-        }
-    else:
-        raise ValueError("grid_size must be either 5 or 30")
-
-    # --- Subplot 생성 (PDF + CDF) ---
-    fig = make_subplots(
-        rows=2, cols=1,
-        shared_xaxes=False,
-        vertical_spacing=0.09
-    )
-
-    metric = "uhd_avg"
-
-    for route, (min_id, max_id) in loc_ranges.items():
-        color = route_colors.get(route, "#000000")
-        subset = df[(df["loc_id"] >= min_id) & (df["loc_id"] <= max_id)]
-        data = subset[metric].dropna().values
-
-        if len(data) == 0:
-            continue
-
-        total = len(data)
-        bins = np.arange(np.floor(data.min()) - 0.5, np.ceil(data.max()) + 0.5, 1)
-        counts, bin_edges = np.histogram(data, bins=bins, density=False)
-        centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-        pdf = counts / counts.sum()
-        cdf = np.cumsum(counts) / total
-        hover_text_cdf = [f"{int(x)}/{total}" for x in np.cumsum(counts)]
-
-        fig.add_trace(
-            go.Scatter(
-                x=centers,
-                y=pdf,
-                mode="lines+markers",
-                name=f"{route}",
-                legendgroup=f"{route}",
-                showlegend=True,
-                line=dict(color=color, width=1.4),
-                text=[f"{v:.3f}" for v in pdf],
-                hovertemplate="Power: %{x:.1f} dBm<br>PDF(norm): %{y:.3f}<extra></extra>",
-                hoverlabel=dict(font=dict(size=11, color="white"), bgcolor=color),
-            ),
-            row=1, col=1
-        )
-
-        fig.add_trace(
-            go.Scatter(
-                x=centers,
-                y=cdf,
-                mode="lines+markers",
-                name=f"{route}_CDF",
-                legendgroup=f"{route}",
-                showlegend=False,
-                line=dict(color=color, width=1.4),
-                text=hover_text_cdf,
-                hovertemplate="Power: %{x:.1f} dBm<br>CDF: %{y:.2f}<br>Count: %{text}<extra></extra>",
-                hoverlabel=dict(font=dict(size=11, color="white"), bgcolor=color),
-            ),
-            row=2, col=1
-        )
-
-    center_x = -30
-    x_min, x_max = df["uhd_avg"].min(), df["uhd_avg"].max()
-    left_dist = abs(center_x - x_min)
-    right_dist = abs(x_max - center_x)
-    half_range = max(left_dist, right_dist)
-    x_lower = center_x - half_range - 2
-    x_upper = center_x + half_range
-
-    fig.update_layout(
-        template="plotly_white",
-        height=SUBPLOT_HEIGHT * 1.6,
-        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
-        legend=dict(
-            orientation="h",
-            yanchor="top",
-            y=LEGEND_Y,
-            xanchor="center",
-            x=0.5,
-            font=dict(size=LEGEND_FONT_SIZE),
-        ),
-    )
-
-    fig.update_xaxes(
-        title="UHD Power [dBm/12MHz]",
-        range=[x_lower, x_upper],
-        gridcolor="rgba(0,0,0,0.15)",
-        dtick=3,
-        row=1, col=1
-    )
-    fig.update_yaxes(
-        title="Probability Density Function (PDF)",
-        gridcolor="rgba(0,0,0,0.15)",
-        row=1, col=1
-    )
-
-    fig.update_xaxes(
-        title="UHD Power [dBm/12MHz]",
-        range=[x_lower, x_upper],
-        gridcolor="rgba(0,0,0,0.15)",
-        dtick=3,
-        row=2, col=1
-    )
-    fig.update_yaxes(
-        title="Cumulative Distribution Function (CDF)",
-        gridcolor="rgba(0,0,0,0.15)",
-        tickvals=[0, 0.25, 0.5, 0.75, 1.0],
-        range=[-0.05, 1.05],
-        row=2, col=1
-    )
-
-    for r in [1, 2]:
-        fig.add_vline(x=center_x, line=dict(color="black", width=1, dash="dot"), row=r, col=1)
-
-    os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, "uhd_by_site.html")
     fig.write_html(out_file)
     print(f"✅ Saved: {out_file}")
 
@@ -704,6 +562,7 @@ def dist_kpis_pdf_by_band(df, out_dir, rb_min):
     out_path = os.path.join(out_dir, f"kpis_pdf_by_band.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
+
 def dist_kpis_pdf_by_site(df, out_dir, rb_min):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
@@ -878,6 +737,7 @@ def dist_kpis_pdf_by_site(df, out_dir, rb_min):
     out_path = os.path.join(out_dir, f"kpis_pdf_by_site.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
+
 def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
@@ -1074,6 +934,152 @@ def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
+
+
+
+def dist_uhd_by_site_pdf_cdf(df, out_dir, grid_size):
+    SUBPLOT_HEIGHT = 600
+    TOP_MARGIN = 70
+    LEGEND_Y = 1.08
+    LEGEND_FONT_SIZE = 13
+
+    route_colors = {
+        "Namsan": "#FF4500",
+        "Huam345-5": "#FFD700",
+        "Huam415-1": "#32CD32",
+    }
+
+    # --- loc_id 범위 설정 ---
+    if grid_size == 30:
+        loc_ranges = {
+            "Huam345-5": (1, 82),
+            "Huam415-1": (83, 121),
+            "Namsan": (122, 145),
+        }
+    elif grid_size == 5:
+        loc_ranges = {
+            "Huam345-5": (1, 503),
+            "Huam415-1": (504, 726),
+            "Namsan": (727, 933),
+        }
+    else:
+        raise ValueError("grid_size must be either 5 or 30")
+
+    # --- Subplot 생성 (PDF + CDF) ---
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=False,
+        vertical_spacing=0.09
+    )
+
+    metric = "uhd_avg"
+
+    for route, (min_id, max_id) in loc_ranges.items():
+        color = route_colors.get(route, "#000000")
+        subset = df[(df["loc_id"] >= min_id) & (df["loc_id"] <= max_id)]
+        data = subset[metric].dropna().values
+
+        if len(data) == 0:
+            continue
+
+        total = len(data)
+        bins = np.arange(np.floor(data.min()) - 0.5, np.ceil(data.max()) + 0.5, 1)
+        counts, bin_edges = np.histogram(data, bins=bins, density=False)
+        centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        pdf = counts / counts.sum()
+        cdf = np.cumsum(counts) / total
+        hover_text_cdf = [f"{int(x)}/{total}" for x in np.cumsum(counts)]
+
+        fig.add_trace(
+            go.Scatter(
+                x=centers,
+                y=pdf,
+                mode="lines+markers",
+                name=f"{route}",
+                legendgroup=f"{route}",
+                showlegend=True,
+                line=dict(color=color, width=1.4),
+                text=[f"{v:.3f}" for v in pdf],
+                hovertemplate="Power: %{x:.1f} dBm<br>PDF(norm): %{y:.3f}<extra></extra>",
+                hoverlabel=dict(font=dict(size=11, color="white"), bgcolor=color),
+            ),
+            row=1, col=1
+        )
+
+        fig.add_trace(
+            go.Scatter(
+                x=centers,
+                y=cdf,
+                mode="lines+markers",
+                name=f"{route}_CDF",
+                legendgroup=f"{route}",
+                showlegend=False,
+                line=dict(color=color, width=1.4),
+                text=hover_text_cdf,
+                hovertemplate="Power: %{x:.1f} dBm<br>CDF: %{y:.2f}<br>Count: %{text}<extra></extra>",
+                hoverlabel=dict(font=dict(size=11, color="white"), bgcolor=color),
+            ),
+            row=2, col=1
+        )
+
+    center_x = -30
+    x_min, x_max = df["uhd_avg"].min(), df["uhd_avg"].max()
+    left_dist = abs(center_x - x_min)
+    right_dist = abs(x_max - center_x)
+    half_range = max(left_dist, right_dist)
+    x_lower = center_x - half_range - 2
+    x_upper = center_x + half_range
+
+    fig.update_layout(
+        template="plotly_white",
+        height=SUBPLOT_HEIGHT * 1.6,
+        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=LEGEND_Y,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=LEGEND_FONT_SIZE),
+        ),
+    )
+
+    fig.update_xaxes(
+        title="UHD Power [dBm/12MHz]",
+        range=[x_lower, x_upper],
+        gridcolor="rgba(0,0,0,0.15)",
+        dtick=3,
+        row=1, col=1
+    )
+    fig.update_yaxes(
+        title="Probability Density Function (PDF)",
+        gridcolor="rgba(0,0,0,0.15)",
+        row=1, col=1
+    )
+
+    fig.update_xaxes(
+        title="UHD Power [dBm/12MHz]",
+        range=[x_lower, x_upper],
+        gridcolor="rgba(0,0,0,0.15)",
+        dtick=3,
+        row=2, col=1
+    )
+    fig.update_yaxes(
+        title="Cumulative Distribution Function (CDF)",
+        gridcolor="rgba(0,0,0,0.15)",
+        tickvals=[0, 0.25, 0.5, 0.75, 1.0],
+        range=[-0.05, 1.05],
+        row=2, col=1
+    )
+
+    for r in [1, 2]:
+        fig.add_vline(x=center_x, line=dict(color="black", width=1, dash="dot"), row=r, col=1)
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_file = os.path.join(out_dir, "uhd_by_site.html")
+    fig.write_html(out_file)
+    print(f"✅ Saved: {out_file}")
 def dist_kpis_cdf_by_band(df, out_dir, rb_min):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
