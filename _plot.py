@@ -402,6 +402,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     fixed_routes = [''] + sorted(fixed_df["route"].unique().tolist())
+    fixed_iphone = pd.read_excel(os.path.join("logs", "IPhone16e_fixed-point.xlsx"))
 
     for fixed_route in fixed_routes:
 
