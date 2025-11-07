@@ -290,7 +290,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
             )
             fig.update_yaxes(
                 title=y_title,
-                range=y_range,
+                # range=y_range,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
             )
@@ -461,7 +461,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
             )
             fig.update_yaxes(
                 title=y_title,
-                range=y_range,
+                # range=y_range,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
             )
@@ -572,10 +572,16 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
 
-    uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_colors = {
+    #     "UHD PWR < -30 dBm": "#0D9488",
+    #     "UHD PWR ≥ -30 dBm": "#EA580C",
+    # }
+    uhd_bins = [-float("inf"), -30, -27, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#0D9488",
-        "UHD PWR ≥ -30 dBm": "#EA580C",
+        "UHD PWR < -30 dBm": "#16A34A",
+        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
+        "UHD PWR ≥ -27 dBm": "#DC2626",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
@@ -653,7 +659,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
             )
             fig.update_yaxes(
                 title=y_title,
-                range=y_range,
+                # range=y_range,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
             )
@@ -735,7 +741,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
+def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -753,34 +759,46 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
         ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
-    band_colors = {
-        "n28": "#FF4500",
-        "n26": "#1E90FF"
-    }
-
-    fixed_colors = {
-        "n28": "#FF8C00",  # 주황색 계열 (Orange)
-        "n26": "#32CD32",  # 초록색 계열 (LimeGreen)
-    }
-
-    order = ["n28", "n26"]
     route_list = [
-        "All",
         "Namsan",
         "Huam345-5",
-        "Huam415-1"
     ]
+
+    fixed_colors = {
+        "n28": "#DC2626",
+        "n26": "#2563EB"
+    }
+
+    band_list = ['n28', 'n26']
 
     df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    fixed_routes = [''] + sorted(fixed_df["route"].unique().tolist())
-    fixed_routes = fixed_routes + ['iPhone16e']
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+
+    fixed_routes = sorted(fixed_df["route"].unique().tolist())
+    # fixed_routes += ['iPhone16e']
+
+    rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
+    plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
+
+    # uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_colors = {
+    #     "UHD PWR < -30 dBm": "#0D9488",  # 청록
+    #     "UHD PWR ≥ -30 dBm": "#EA580C",  # 주황
+    # }
+    uhd_bins = [-float("inf"), -30, -27, float("inf")]
+    uhd_colors = {
+        "UHD PWR < -30 dBm": "#16A34A",
+        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
+        "UHD PWR ≥ -27 dBm": "#DC2626",
+    }
+    uhd_labels = list(uhd_colors.keys())
+    plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
 
     for fixed_route in fixed_routes:
-
         fig = make_subplots(
             rows=len(metrics),
             cols=1,
@@ -792,102 +810,91 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
             route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
 
             for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
-                for band in order:
-                    group = route_df[route_df["Band"] == band]
-                    color = band_colors[band] if 'Fixed' not in route_name else fixed_colors[band]
-                    valid = group.copy()
 
-                    bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
-                    valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+                for band in band_list:
+                    band_df = route_df[route_df["Band"] == band]
 
-                    stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
-                    stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-                    stats["RSRP_left"] = stats["RSRP_bin"].apply(lambda x: x.left)
-                    stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.left:.0f} ~ {x.right:.0f}")
-                    stats["SE"] = stats["std"] / np.sqrt(stats["count"])
-                    stats["CI"] = 1.96 * stats["SE"]
+                    for uhd_label, uhd_df in band_df.groupby(by="uhd_bin", observed=True):
+                        color = uhd_colors[uhd_label]
 
-                    stats["hover_text"] = stats.apply(
-                        lambda r: (
-                            f"<b>Counts</b>: {int(r['count'])}<br>"
-                            f"<b>RSRP</b>: {r['RSRP_range']}<br>"
-                            f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
-                        ),
-                        axis=1
-                    )
+                        stats = uhd_df.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
+                        stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                        stats["RSRP_left"] = stats["RSRP_bin"].apply(lambda x: x.left)
+                        stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.left:.0f} ~ {x.right:.0f}")
+                        stats["SE"] = stats["std"] / np.sqrt(stats["count"])
+                        stats["CI"] = 1.96 * stats["SE"]
 
-                    stats = stats[stats['count'] >= sample_min].copy()
-                    fig.add_trace(
-                        go.Scatter(
-                            x=stats["RSRP_center"],
-                            y=stats["mean"],
-                            mode="lines+markers",
-                            name=f"{route_name} | {band}",
-                            legendgroup=f"{band}",
-                            showlegend=(i == 1),
-                            line=dict(color=color, width=1.3),
-                            marker=dict(size=5, color=color),
-                            text=stats["hover_text"],
-                            customdata=stats["RSRP_left"],
-                            hovertemplate="%{text}<extra></extra>",
-                            hoverlabel=dict(
-                                font=dict(size=11, color="white"),
-                                bgcolor=color
-                            )
-                        ),
-                        row=i, col=1
-                    )
+                        uhd_stats = uhd_df.groupby("RSRP_bin", observed=True)["uhd_avg"].agg(
+                            ["mean", "std", "count"]).reset_index()
+                        uhd_stats["SE"] = uhd_stats["std"] / np.sqrt(uhd_stats["count"])
+                        uhd_stats["CI"] = 1.96 * uhd_stats["SE"]
+
+                        stats = stats.merge(uhd_stats[["RSRP_bin", "mean", "CI"]], on="RSRP_bin", suffixes=("", "_uhd"))
+                        stats["hover_text"] = stats.apply(
+                            lambda r: (
+                                f"<b>Counts</b>: {int(r['count'])}<br>"
+                                f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                                f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                                f"<b>UHD PWR</b>: {r['mean_uhd']:.1f} (±{r['CI_uhd']:.2f})"
+                            ),
+                            axis=1
+                        )
+
+                        stats = stats[stats['count'] >= sample_min].copy()
+                        fig.add_trace(
+                            go.Scatter(
+                                x=stats["RSRP_center"],
+                                y=stats["mean"],
+                                mode="lines+markers",
+                                name=f"{route_name} | {band} | {uhd_label}",
+                                legendgroup=uhd_label,
+                                showlegend=(i == 1),
+                                line=dict(color=color, width=1.2),
+                                text=stats["hover_text"],
+                                customdata=stats["RSRP_left"],
+                                hovertemplate="%{text}<extra></extra>",
+                                hoverlabel=dict(
+                                    font=dict(size=11, color="white"),
+                                    bgcolor=color,
+                                )
+                            ),
+                            row=i, col=1
+                        )
 
                     band_fixed = fixed_df[
                         (fixed_df["Band"] == band) &
                         (fixed_df["route"] == fixed_route)
                         ]
 
-                    fig.add_trace(
-                        go.Scatter(
-                            x=band_fixed["RSRP"],
-                            y=band_fixed[metric],
-                            mode="markers",
-                            name=f"{route_name} | {band} | {fixed_route}",
-                            legendgroup=f"{band}_fixed",
-                            showlegend=(i == 1),
-                            marker=dict(size=5, color=color, opacity=0.2),
-                            # hovertemplate=(
-                            #     "<b>%{customdata[0]}</b><br>"
-                            #     "RSRP: %{x:.1f} dBm<br>"
-                            #     f"{metric}: %{{y:.2f}}<extra></extra>"
-                            # ),
-                            # hoverlabel=dict(
-                            #     font=dict(size=11, color="white"),
-                            #     bgcolor=color
-                            # ),
-                            # customdata=np.stack([band_fixed["test_no"]], axis=-1),
-                            hoverinfo="skip",
-                        ),
-                        row=i, col=1
-                    )
+                    # fig.add_trace(
+                    #     go.Scatter(
+                    #         x=band_fixed["RSRP"],
+                    #         y=band_fixed[metric],
+                    #         mode="markers",
+                    #         name=f"{route_name} | {band} | {fixed_route} | raw",
+                    #         legendgroup=fixed_route,
+                    #         showlegend=False,
+                    #         marker=dict(size=5, color=fixed_colors[band], opacity=0.2),
+                    #         hoverinfo="skip",
+                    #     ),
+                    #     row=i, col=1
+                    # )
 
                     mean_rsrp = band_fixed["RSRP"].mean()
                     n_rsrp = band_fixed["RSRP"].count()
-                    # std_rsrp = band_fixed["RSRP"].std()
-                    # ci_rsrp = 1.96 * std_rsrp / np.sqrt(n_rsrp)
-
                     mean_metric = band_fixed[metric].mean()
-                    # n_metric = band_fixed[metric].count()
-                    # std_metric = band_fixed[metric].std()
-                    # ci_metric = 1.96 * std_metric / np.sqrt(n_metric)
 
                     fig.add_trace(
                         go.Scatter(
                             x=[mean_rsrp],
                             y=[mean_metric],
                             mode="markers+text",
-                            name=f"{route_name} | {band} | {fixed_route} | mean+ci",
-                            legendgroup=f"{band}_fixed",
-                            showlegend=False,
+                            name=f"{route_name} | {band} | {fixed_route}",
+                            legendgroup=fixed_route,
+                            showlegend=(i == 1),
                             marker=dict(
-                                size=15,
-                                color=color,
+                                size=20,
+                                color=fixed_colors[band],
                                 opacity=1,
                                 symbol="square",
                                 line=dict(width=1.5, color="white")
@@ -899,7 +906,7 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
                             ),
                             hoverlabel=dict(
                                 font=dict(size=11, color="white"),
-                                bgcolor=color
+                                bgcolor=fixed_colors[band]
                             ),
                         ),
                         row=i, col=1
@@ -917,22 +924,30 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
                 )
                 fig.update_yaxes(
                     title=y_title,
-                    range=y_range,
+                    # range=y_range,
                     gridcolor="rgba(0,0,0,0.15)",
                     row=i, col=1,
                 )
 
         buttons = []
         for route_name in route_list:
-            visible_array = [route_name in trace.name for trace in fig.data]
-            buttons.append(
-                dict(
-                    label=route_name,
-                    method="update",
-                    args=[{"visible": visible_array}],
+            for band in band_list:
+                label = f"{route_name} | {band}"
+                visible_array = [
+                    (route_name in trace.name) and (band in trace.name)
+                    for trace in fig.data
+                ]
+                buttons.append(
+                    dict(
+                        label=label,
+                        method="update",
+                        args=[{"visible": visible_array}],
+                    )
                 )
-            )
-        initial_visible = ["All" in trace.name for trace in fig.data]
+        initial_visible = [
+            ("Namsan" in trace.name) and ("n28" in trace.name)
+            for trace in fig.data
+        ]
         for trace, visible in zip(fig.data, initial_visible):
             trace.visible = visible
 
@@ -969,22 +984,22 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin):
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
-        <script>
-            const RSRP_BIN = {rsrp_bin};
-            var plot = document.getElementsByClassName('plotly-graph-div')[0];
-            plot.on('plotly_click', function(data) {{
-                var rsrp_left = data.points[0].customdata;
-                var rsrp_right = rsrp_left + RSRP_BIN;
+                <script>
+                    const RSRP_BIN = {rsrp_bin};
+                    var plot = document.getElementsByClassName('plotly-graph-div')[0];
+                    plot.on('plotly_click', function(data) {{
+                        var rsrp_left = data.points[0].customdata;
+                        var rsrp_right = rsrp_left + RSRP_BIN;
 
-                var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_pdf_rsrp_bins/";
-                var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
-                var full_url = base_url + file_name;
+                        var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_pdf_rsrp_bins/";
+                        var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
+                        var full_url = base_url + file_name;
 
-                console.log("Opening:", full_url);
-                window.open(full_url, "_blank");
-            }});
-        </script>
-        """
+                        console.log("Opening:", full_url);
+                        window.open(full_url, "_blank");
+                    }});
+                </script>
+                """
 
         with open(out_path, "a", encoding="utf-8") as f:
             f.write(js_script)

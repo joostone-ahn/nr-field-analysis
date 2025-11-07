@@ -770,10 +770,16 @@ def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size):
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
-    uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_colors = {
+    #     "UHD PWR < -30 dBm": "#0D9488",
+    #     "UHD PWR ≥ -30 dBm": "#EA580C",
+    # }
+    uhd_bins = [-float("inf"), -30, -27, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#0D9488",
-        "UHD PWR ≥ -30 dBm": "#EA580C",
+        "UHD PWR < -30 dBm": "#16A34A",
+        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
+        "UHD PWR ≥ -27 dBm": "#DC2626",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
@@ -1470,10 +1476,16 @@ def dist_kpis_cdf_by_uhd(df, out_dir, rb_min, grid_size):
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
-    uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_bins = [-float("inf"), -30, float("inf")]
+    # uhd_colors = {
+    #     "UHD PWR < -30 dBm": "#0D9488",
+    #     "UHD PWR ≥ -30 dBm": "#EA580C",
+    # }
+    uhd_bins = [-float("inf"), -30, -27, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#0D9488",
-        "UHD PWR ≥ -30 dBm": "#EA580C",
+        "UHD PWR < -30 dBm": "#16A34A",
+        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
+        "UHD PWR ≥ -27 dBm": "#DC2626",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
