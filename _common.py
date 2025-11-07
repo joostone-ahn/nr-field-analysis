@@ -269,8 +269,9 @@ def separate_fixed_point(df):
                 return f"Fixed_NLOS_{gid}"
         return "Fixed-point"
 
-    fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
-    fixed_df = fixed_df[fixed_df['route']!="Fixed-point"]
+    if not fixed_df.empty:
+        fixed_df["route"] = fixed_df["test_no"].apply(map_fixed_route)
+        fixed_df = fixed_df[fixed_df['route']!="Fixed-point"]
 
     # check_cols = ["route", "test_no"]
     # unique_check = fixed_df[check_cols].drop_duplicates().reset_index(drop=True)

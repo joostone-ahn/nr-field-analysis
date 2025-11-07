@@ -10,8 +10,158 @@ import _common
 import numpy as np
 import os
 
-def split_band_df(df_pair):
-    common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
+def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
+
+    lat_factor, lon_factor = 111320, 88000
+    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df = pd.merge(df, df_grid, on=["lat_bin", "lon_bin"], how="left")
+    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
+
+    metrics = [
+        "RSRP", "RSRQ",
+        "SINR_SSB", "SINR_TRS",
+        "DL_RB",
+        "DL_Tput",
+        "DL_Tput_per_RB",
+        "CQI", "RI", "DL_MCS",
+        "DL_BLER", "UL_BLER",
+    ]
+
+    test_list = sorted(df["test_no"].unique())
+    for target_no in test_list:
+        df_sub = df[df["test_no"] == target_no].copy()
+        total_rows = len(metrics)
+
+        fig = make_subplots(
+            rows=total_rows, cols=1,
+            shared_xaxes=True,
+            vertical_spacing=0.02,
+            specs=[[{"secondary_y": True}] for _ in range(total_rows)]
+        )
+
+        for i, metric in enumerate(metrics, start=1):
+            df_pivot = (
+                df_sub.pivot_table(index="TIME", columns="Band", values=metrics)
+                .dropna()
+                .reset_index()
+            )
+
+            df_pivot.columns = [
+                f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0]
+                for col in df_pivot.columns
+            ]
+            df_pivot = df_pivot.merge(
+                df_sub[["TIME", f"loc_id"]],
+                on="TIME",
+                how="left"
+            )
+
+            for m in metrics:
+                df_pivot[f"{m}_delta"] = df_pivot[f"{m}_n28"] - df_pivot[f"{m}_n26"]
+
+            hover_texts = []
+            for _, row in df_pivot.iterrows():
+                time_val = row["TIME"].strftime("%H:%M:%S")
+                loc_id_val = row[f"loc_id"]
+                f"<b>loc_id:</b> {loc_id_val} "
+
+                lines = [
+                    f"<b>time:</b> {time_val}<br>"
+                    f"<b>loc_id:</b> {loc_id_val}<br>",
+                    "<b>Metric</b> | <b>n26</b> | <b>n28</b> | <b>Δ(n28−n26)</b>",
+                    "--------------------------------------------"
+                ]
+                for m in metrics:
+                    color = "#009900" if m == metric else "#000000"
+                    delta_val = row[f"{m}_delta"]
+                    delta_color = "blue" if delta_val > 0 else "red" if delta_val < 0 else "black"
+                    line = (
+                        f"<span style='color:{color};'>{m}</span> | "
+                        f"{row[f'{m}_n26']:.2f} | {row[f'{m}_n28']:.2f} | "
+                        f"<span style='color:{delta_color};'>{delta_val:+.2f}</span>"
+                    )
+                    lines.append(line)
+                hover_texts.append("<br>".join(lines))
+
+            fig.add_trace(go.Scatter(
+                x=df_pivot["TIME"],
+                y=df_pivot[f"loc_id"],
+                mode="lines+markers",
+                line=dict(color="gray", width=0.8),
+                marker=dict(size=3),
+                name=f"loc_id",
+                legendgroup="loc_id_group",
+                showlegend=(i == 1),
+                hoverinfo="skip"
+            ), row=i, col=1, secondary_y=True)
+
+            for band, color in zip(["n26", "n28"], ["blue", "red"]):
+                fig.add_trace(go.Scatter(
+                    x=df_pivot["TIME"],
+                    y=df_pivot[f"{metric}_{band}"],
+                    mode="lines+markers",
+                    line=dict(color=color, width=1),
+                    marker=dict(size=3),
+                    name=band,
+                    legendgroup=f"{band}_group",
+                    showlegend=(i == 1),
+                    hoverinfo="text" if band == "n28" else "skip",
+                    text=hover_texts if band == "n28" else None
+                ), row=i, col=1, secondary_y=False)
+
+            fig.update_yaxes(
+                title_text=metric,
+                row=i, col=1,
+                secondary_y=False,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.5)",
+                gridwidth=0.8,
+            )
+            fig.update_yaxes(
+                title_text=f"loc_id",
+                color="gray",
+                row=i, col=1,
+                secondary_y=True,
+                showgrid=True,
+                zeroline=False,
+                gridcolor="rgba(200, 200, 200, 0.4)",
+                gridwidth=0.8,
+                griddash="dot"
+            )
+
+        fig.update_layout(
+            title=f"[{target_no}] KPI trends (n26 vs n28)",
+            height=300 * total_rows,
+            hovermode="x unified",
+            template="plotly_white",
+            legend=dict(
+                orientation="h",
+                yanchor="top", y=1.02,
+                xanchor="center", x=0.5,
+                font=dict(size=11),
+                bgcolor="rgba(255,255,255,0.7)",
+                bordercolor="rgba(200,200,200,0.4)",
+                borderwidth=1
+            ),
+            margin=dict(t=150, b=60),
+            uirevision=True
+        )
+
+        date = target_no.split("_")[0]
+        test_num = target_no.split("_")[1]
+        route = target_no.split("_")[2]
+
+        os.makedirs(out_dir, exist_ok=True)
+        save_dir = os.path.join(out_dir, date, route)
+        os.makedirs(save_dir, exist_ok=True)
+        out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
+        pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
+        print(f"Saved HTML: {out_path_html}")
+
+def split_band_df(df):
+    common_cols = [c for c in df.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
 
     def extract_band(df, band):
         band_cols = [c for c in df.columns if c.endswith(band)]
@@ -32,12 +182,12 @@ def split_band_df(df_pair):
         df_band["Band"] = band
         return df_band
 
-    df_n26 = extract_band(df_pair, "n26")
-    df_n28 = extract_band(df_pair, "n28")
+    df_n26 = extract_band(df, "n26")
+    df_n28 = extract_band(df, "n28")
 
-    return df_n26, df_n28
+    return pd.concat([df_n26, df_n28], axis=0)
 
-def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_by_site(df, out_dir, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -63,7 +213,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
     route_list = list(route_colors.keys())
     band_list = ["n28", "n26"]
 
-    df = df[df["DL_RB"] > rb_min]
+    df = split_band_df(df)
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
@@ -209,7 +359,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_by_band(df, out_dir, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -245,7 +395,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
         "Huam415-1"
     ]
 
-    df = df[df["DL_RB"] > rb_min]
+    df = split_band_df(df)
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
@@ -465,7 +615,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
 
         print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
+def plot_kpis_by_uhd(df, out_dir, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -491,12 +641,11 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
 
     band_list = ["n28", "n26"]
 
-    df = df[df["DL_RB"] > rb_min]
+    df = split_band_df(df)
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
     bins = [-float("inf"), -30, float("inf")]
     uhd_colors = {
@@ -653,7 +802,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd_3colors(df, out_dir, rb_min, rsrp_bin, grid_size):
+def plot_kpis_by_uhd_3colors(df, out_dir, grid_size, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -842,155 +991,11 @@ def plot_kpis_by_uhd_3colors(df, out_dir, rb_min, rsrp_bin, grid_size):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
 
-    lat_factor, lon_factor = 111320, 88000
-    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-    df = pd.merge(df, df_grid, on=["lat_bin", "lon_bin"], how="left")
-    df[f"loc_id"] = df[f"loc_id"].astype("Int64")
 
-    metrics = [
-        "RSRP", "RSRQ",
-        "SINR_SSB", "SINR_TRS",
-        "DL_RB",
-        "DL_Tput",
-        "DL_Tput_per_RB",
-        "CQI", "RI", "DL_MCS",
-        "DL_BLER", "UL_BLER",
-    ]
 
-    test_list = sorted(df["test_no"].unique())
-    for target_no in test_list:
-        df_sub = df[df["test_no"] == target_no].copy()
-        total_rows = len(metrics)
 
-        fig = make_subplots(
-            rows=total_rows, cols=1,
-            shared_xaxes=True,
-            vertical_spacing=0.02,
-            specs=[[{"secondary_y": True}] for _ in range(total_rows)]
-        )
 
-        for i, metric in enumerate(metrics, start=1):
-            df_pivot = (
-                df_sub.pivot_table(index="TIME", columns="Band", values=metrics)
-                .dropna()
-                .reset_index()
-            )
-
-            df_pivot.columns = [
-                f"{col[0]}_{col[1]}" if isinstance(col, tuple) and col[1] != "" else col[0]
-                for col in df_pivot.columns
-            ]
-            df_pivot = df_pivot.merge(
-                df_sub[["TIME", f"loc_id"]],
-                on="TIME",
-                how="left"
-            )
-
-            for m in metrics:
-                df_pivot[f"{m}_delta"] = df_pivot[f"{m}_n28"] - df_pivot[f"{m}_n26"]
-
-            hover_texts = []
-            for _, row in df_pivot.iterrows():
-                time_val = row["TIME"].strftime("%H:%M:%S")
-                loc_id_val = row[f"loc_id"]
-                f"<b>loc_id:</b> {loc_id_val} "
-
-                lines = [
-                    f"<b>time:</b> {time_val}<br>"
-                    f"<b>loc_id:</b> {loc_id_val}<br>",
-                    "<b>Metric</b> | <b>n26</b> | <b>n28</b> | <b>Δ(n28−n26)</b>",
-                    "--------------------------------------------"
-                ]
-                for m in metrics:
-                    color = "#009900" if m == metric else "#000000"
-                    delta_val = row[f"{m}_delta"]
-                    delta_color = "blue" if delta_val > 0 else "red" if delta_val < 0 else "black"
-                    line = (
-                        f"<span style='color:{color};'>{m}</span> | "
-                        f"{row[f'{m}_n26']:.2f} | {row[f'{m}_n28']:.2f} | "
-                        f"<span style='color:{delta_color};'>{delta_val:+.2f}</span>"
-                    )
-                    lines.append(line)
-                hover_texts.append("<br>".join(lines))
-
-            fig.add_trace(go.Scatter(
-                x=df_pivot["TIME"],
-                y=df_pivot[f"loc_id"],
-                mode="lines+markers",
-                line=dict(color="gray", width=0.8),
-                marker=dict(size=3),
-                name=f"loc_id",
-                legendgroup="loc_id_group",
-                showlegend=(i == 1),
-                hoverinfo="skip"
-            ), row=i, col=1, secondary_y=True)
-
-            for band, color in zip(["n26", "n28"], ["blue", "red"]):
-                fig.add_trace(go.Scatter(
-                    x=df_pivot["TIME"],
-                    y=df_pivot[f"{metric}_{band}"],
-                    mode="lines+markers",
-                    line=dict(color=color, width=1),
-                    marker=dict(size=3),
-                    name=band,
-                    legendgroup=f"{band}_group",
-                    showlegend=(i == 1),
-                    hoverinfo="text" if band == "n28" else "skip",
-                    text=hover_texts if band == "n28" else None
-                ), row=i, col=1, secondary_y=False)
-
-            fig.update_yaxes(
-                title_text=metric,
-                row=i, col=1,
-                secondary_y=False,
-                showgrid=True,
-                zeroline=False,
-                gridcolor="rgba(200, 200, 200, 0.5)",
-                gridwidth=0.8,
-            )
-            fig.update_yaxes(
-                title_text=f"loc_id",
-                color="gray",
-                row=i, col=1,
-                secondary_y=True,
-                showgrid=True,
-                zeroline=False,
-                gridcolor="rgba(200, 200, 200, 0.4)",
-                gridwidth=0.8,
-                griddash="dot"
-            )
-
-        fig.update_layout(
-            title=f"[{target_no}] KPI trends (n26 vs n28)",
-            height=300 * total_rows,
-            hovermode="x unified",
-            template="plotly_white",
-            legend=dict(
-                orientation="h",
-                yanchor="top", y=1.02,
-                xanchor="center", x=0.5,
-                font=dict(size=11),
-                bgcolor="rgba(255,255,255,0.7)",
-                bordercolor="rgba(200,200,200,0.4)",
-                borderwidth=1
-            ),
-            margin=dict(t=150, b=60),
-            uirevision=True
-        )
-
-        date = target_no.split("_")[0]
-        test_num = target_no.split("_")[1]
-        route = target_no.split("_")[2]
-
-        os.makedirs(out_dir, exist_ok=True)
-        save_dir = os.path.join(out_dir, date, route)
-        os.makedirs(save_dir, exist_ok=True)
-        out_path_html = os.path.join(save_dir, f"TEST_{test_num}.html")
-        pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
-        print(f"Saved HTML: {out_path_html}")
 
 def rb_each_test(df, out_dir, rb_min):
     metric = "DL_RB"
