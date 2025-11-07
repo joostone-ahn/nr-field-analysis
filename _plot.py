@@ -207,7 +207,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
 
     route_colors = {
         "Namsan": "#FF4500",
-        "Huam345-5": "#FFD700",
+        "Huam345-5": "#FFC107",
         "Huam415-1": "#32CD32",
     }
     route_list = list(route_colors.keys())
@@ -402,7 +402,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     fixed_routes = [''] + sorted(fixed_df["route"].unique().tolist())
-    fixed_iphone = pd.read_excel(os.path.join("logs", "IPhone16e_fixed-point.xlsx"))
+    fixed_routes = fixed_routes + ['iPhone16e']
 
     for fixed_route in fixed_routes:
 
@@ -530,6 +530,9 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                         row=i, col=1
                     )
 
+                    if fixed_route == 'iPhone16e':
+                        fixed_iphone = pd.read_excel(os.path.join("logs", "IPhone16e_fixed-point.xlsx"))
+
                 fig.update_xaxes(
                     title="RSRP [dBm]",
                     autorange="reversed",
@@ -618,7 +621,172 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
 
         print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
+def plot_kpis_by_uhd_each_site(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
+    SUBPLOT_HEIGHT = 600
+    VERTICAL_SPACING = 0.035
+    TOP_MARGIN = 70
+    LEGEND_Y = 1.02
+    LEGEND_FONT_SIZE = 13
+    RSRP_LOW = -120
+    RSRP_HIGH = -50
+
+    metrics = [
+        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
+        ("SINR_SSB", "SINR [dB]", [-5, 45]),
+        # ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
+        ("RSRQ", "RSRQ [dB]", [-20, -10]),
+        ("CQI", "CQI Index", [-0.1, 15.1]),
+        ("RI", "Rank Indicator", [0.9, 2.1]),
+    ]
+
+    route_list = [
+        "All",
+        "Namsan",
+        "Huam345-5",
+        "Huam415-1"
+    ]
+
+    df = df[df['Band']=='n28']
+    df = df[df["DL_RB"] > rb_min]
+    df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
+
+    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+
+    bins = [-float("inf"), -30, float("inf")]
+    uhd_colors = {
+        "UHD PWR < -30 dBm": "#0D9488",
+        "UHD PWR ≥ -30 dBm": "#EA580C",
+    }
+    uhd_labels = list(uhd_colors.keys())
+    plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=bins, labels=uhd_labels)
+    # display(plot_df[['lat_bin','lon_bin','uhd_avg','uhd_bin']])
+
+    fig = make_subplots(
+        rows=len(metrics),
+        cols=1,
+        shared_xaxes=False,
+        vertical_spacing=VERTICAL_SPACING,
+    )
+
+    for route_name in route_list:
+        route_df = plot_df if route_name == "All" else plot_df[plot_df["route"] == route_name]
+
+        for i, (metric, y_title, y_range) in enumerate(metrics, start=1):
+            for uhd_label, group in route_df.groupby(by="uhd_bin", observed=True):
+                color = uhd_colors[uhd_label]
+                if group.empty:
+                    continue
+                valid = group.copy()
+                bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
+                valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
+
+                stats = valid.groupby("RSRP_bin", observed=True)[metric].agg(["mean", "std", "count"]).reset_index()
+                stats["RSRP_center"] = stats["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
+                stats["RSRP_left"] = stats["RSRP_bin"].apply(lambda x: x.left)
+                stats["RSRP_range"] = stats["RSRP_bin"].apply(lambda x: f"{x.left:.0f} ~ {x.right:.0f}")
+                stats["SE"] = stats["std"] / np.sqrt(stats["count"])
+                stats["CI"] = 1.96 * stats["SE"]
+
+                uhd_stats = valid.groupby("RSRP_bin", observed=True)["uhd_avg"].agg(["mean", "std", "count"]).reset_index()
+                uhd_stats["SE"] = uhd_stats["std"] / np.sqrt(uhd_stats["count"])
+                uhd_stats["CI"] = 1.96 * uhd_stats["SE"]
+
+                stats = stats.merge(uhd_stats[["RSRP_bin", "mean", "CI"]], on="RSRP_bin", suffixes=("", "_uhd"))
+                stats["hover_text"] = stats.apply(
+                    lambda r: (
+                        f"<b>Counts</b>: {int(r['count'])}<br>"
+                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                        f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                        f"<b>UHD PWR</b>: {r['mean_uhd']:.1f} (±{r['CI_uhd']:.2f})"
+                    ),
+                    axis=1
+                )
+
+                stats = stats[stats['count'] >= sample_min].copy()
+                fig.add_trace(
+                    go.Scatter(
+                        x=stats["RSRP_center"],
+                        y=stats["mean"],
+                        mode="lines+markers",
+                        name=f"{route_name} | {uhd_label}",
+                        legendgroup=f"{uhd_label}",
+                        showlegend=(i == 1),
+                        line=dict(color=color, width=1.2),
+                        text=stats["hover_text"],
+                        customdata=stats["RSRP_left"],
+                        hovertemplate="%{text}<extra></extra>",
+                        hoverlabel=dict(
+                            font=dict(size=11, color="white"),
+                            bgcolor=color,
+                        )
+                    ),
+                    row=i, col=1
+                )
+
+            fig.update_xaxes(
+                title="RSRP [dBm]",
+                autorange="reversed",
+                dtick=5,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+            fig.update_yaxes(
+                title=y_title,
+                range=y_range,
+                gridcolor="rgba(0,0,0,0.15)",
+                row=i, col=1,
+            )
+
+    buttons = []
+    for route_name in route_list:
+        visible_array = [route_name in trace.name for trace in fig.data]
+        buttons.append(
+            dict(
+                label=route_name,
+                method="update",
+                args=[{"visible": visible_array}],
+            )
+        )
+    initial_visible = ["All" in trace.name for trace in fig.data]
+    for trace, visible in zip(fig.data, initial_visible):
+        trace.visible = visible
+
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type="dropdown",
+                direction="down",
+                x=0.01,
+                y=LEGEND_Y,
+                xanchor="left",
+                buttons=buttons,
+                showactive=True,
+                bgcolor="white",
+                bordercolor="gray",
+            )
+        ],
+        height=SUBPLOT_HEIGHT * len(metrics),
+        template="plotly_white",
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=LEGEND_Y,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=LEGEND_FONT_SIZE),
+            itemsizing="constant",
+        ),
+        margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
+    )
+
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, f"kpis_by_uhd_each_site.html")
+    fig.write_html(out_path)
+    print(f"✅ Saved: {out_path}")
+
+def plot_kpis_by_uhd_each_band(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -653,8 +821,8 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     bins = [-float("inf"), -30, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#1E90FF",  # Green
-        "UHD PWR ≥ -30 dBm": "#FF4500",  # Red
+        "UHD PWR < -30 dBm": "#0D9488",
+        "UHD PWR ≥ -30 dBm": "#EA580C",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=bins, labels=uhd_labels)
@@ -781,30 +949,8 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"kpis_by_uhd.html")
-    fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
-
-    js_script = f"""
-    <script>
-        const RSRP_BIN = {rsrp_bin};
-        var plot = document.getElementsByClassName('plotly-graph-div')[0];
-        plot.on('plotly_click', function(data) {{
-            var rsrp_left = data.points[0].customdata;
-            var rsrp_right = rsrp_left + RSRP_BIN;
-
-            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_uhd/"
-            var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
-            var full_url = base_url + file_name;
-
-            console.log("Opening:", full_url);
-            window.open(full_url, "_blank");
-        }});
-    </script>
-    """
-
-    with open(out_path, "a", encoding="utf-8") as f:
-        f.write(js_script)
-
+    out_path = os.path.join(out_dir, f"kpis_by_uhd_each_band.html")
+    fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
 def plot_kpis_by_uhd_3colors(df, out_dir, rb_min, rsrp_bin, grid_size):
