@@ -891,11 +891,12 @@ def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
     RSRP_HIGH = -50
 
     metrics = [
-        ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SINR [dB]", [-5, 45]),
-        ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("CQI", "CQI Index", [-0.1, 15.1]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
+        ("RSRP", "RSRP [dBm]", [-120, -50], 5),
+        ("DL_Tput", "DL Throughput [Mbps]", [0, 120], 10),
+        ("SINR_SSB", "SINR [dB]", [-5, 45], 3),
+        ("RSRQ", "RSRQ [dB]", [-20, -10], 0.5),
+        ("CQI", "CQI Index", [-0.1, 15.1], 1),
+        ("RI", "Rank Indicator", [0.9, 2.1], 0.05),
     ]
 
     band_colors = {"n28": "#FF4500", "n26": "#1E90FF"}
