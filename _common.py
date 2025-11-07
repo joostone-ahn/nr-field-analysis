@@ -293,6 +293,25 @@ def assign_uhd_pwr(df, grid_size):
 
     return df_merged
 
+def assign_uhd_pwr_raw(df, grid_size):
+    lat_factor, lon_factor = 111320, 88000
+    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df = df.drop(columns=["Lat", "Lon"])
+
+    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
+    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size)
+    df_merged = pd.merge(df, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+
+    before_drop = len(df_merged)
+    df_merged = df_merged.dropna(subset=["uhd_avg"])
+    after_drop = len(df_merged)
+    dropped = before_drop - after_drop
+    print(f"⚠️ Locations without UHD Power measurements have been removed "
+          f"(dropped: {dropped}, remaining: {after_drop}/{before_drop})")
+
+    return df_merged
+
 def assign_loc_id(df, grid_size):
 
     df = df.sort_values(["route","lat_bin", "lon_bin",], ascending=[True, True, True])
