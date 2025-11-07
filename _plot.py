@@ -187,7 +187,7 @@ def split_band_df(df_pair):
 
     return df_n26, df_n28
 
-def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -359,7 +359,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
+def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -615,7 +615,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
 
         print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
+def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -788,7 +788,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
             var rsrp_left = data.points[0].customdata;
             var rsrp_right = rsrp_left + RSRP_BIN;
 
-            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_site_" + RSRP_BIN + "dB/";
+            var base_url = "https://joostone-ahn.github.io/nr-field-analysis/results/dist/kpis_by_uhd/"
             var file_name = "RSRP_" + rsrp_left.toFixed(0) + "_to_" + rsrp_right.toFixed(0) + ".html";
             var full_url = base_url + file_name;
 

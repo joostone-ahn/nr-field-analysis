@@ -395,8 +395,7 @@ def dist_kpis_by_site_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
             band_df = bin_df[bin_df["Band"] == band_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
-                x_min, x_max = x_range
-                bin_size = int((x_max - x_min) / bin_width)
+                bin_size = 10
 
                 for route_name, color in route_colors.items():
                     group = band_df[band_df["route"] == route_name]
@@ -473,7 +472,6 @@ def dist_kpis_by_site_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
                 fig.update_xaxes(
                     title_text=x_title,
                     gridcolor="rgba(0,0,0,0.15)",
-                    dtick=bin_width,
                     row=i, col=1,
                 )
                 fig.update_yaxes(
@@ -926,8 +924,7 @@ def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
             route_df = bin_df if route_name == "All" else bin_df[bin_df["route"] == route_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
-                x_min, x_max = x_range
-                bin_size = int((x_max - x_min) / bin_width)
+                bin_size = 10
 
                 for band in order:
                     color = band_colors[band]
@@ -1011,7 +1008,6 @@ def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
                 fig.update_xaxes(
                     title_text=x_title,
                     gridcolor="rgba(0,0,0,0.15)",
-                    dtick=bin_width,
                     row=i, col=1,
                 )
                 fig.update_yaxes(
@@ -1478,8 +1474,7 @@ def dist_kpis_by_uhd_rsrp_bin(df, out_dir, rb_min, rsrp_bin, grid_size):
             band_df = bin_df[bin_df["Band"] == band_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
-                x_min, x_max = x_range
-                bin_size = int((x_max - x_min) / bin_width)
+                bin_size = 10
 
                 for uhd_label, group in band_df.groupby(by="uhd_bin", observed=True):
                     color = uhd_colors[uhd_label]
@@ -1562,7 +1557,6 @@ def dist_kpis_by_uhd_rsrp_bin(df, out_dir, rb_min, rsrp_bin, grid_size):
                 fig.update_xaxes(
                     title_text=x_title,
                     gridcolor="rgba(0,0,0,0.15)",
-                    dtick=bin_width,
                     row=i, col=1,
                 )
                 fig.update_yaxes(
