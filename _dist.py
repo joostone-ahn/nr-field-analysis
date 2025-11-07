@@ -346,7 +346,7 @@ def dist_uhd_by_site_pdf_cdf(df, out_dir, grid_size):
     fig.write_html(out_file)
     print(f"✅ Saved: {out_file}")
 
-def dist_kpis_by_site_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
+def dist_kpis_by_site_rsrp_bin(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -395,15 +395,15 @@ def dist_kpis_by_site_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
             band_df = bin_df[bin_df["Band"] == band_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
+                x_min, x_max = x_range[0], x_range[1]
                 bin_size = 10
 
                 for route_name, color in route_colors.items():
                     group = band_df[band_df["route"] == route_name]
-                    if len(group) < 5:
-                        continue
-
                     data = group[metric].dropna().values
                     total_count = len(data)
+                    if total_count < sample_min:
+                        continue
 
                     counts, bin_edges = np.histogram(data, bins=bin_size, density=False)
                     centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -879,7 +879,7 @@ def dist_kpis_by_site_cdf(df, out_dir, rb_min):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
-def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
+def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -924,16 +924,16 @@ def dist_kpis_by_band_rsrp_bin(df, out_dir, rb_min, rsrp_bin):
             route_df = bin_df if route_name == "All" else bin_df[bin_df["route"] == route_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
+                x_min, x_max = x_range[0], x_range[1]
                 bin_size = 10
 
                 for band in order:
                     color = band_colors[band]
                     group = route_df[route_df["Band"] == band]
-                    if len(group) < 5:
-                        continue
-
                     data = group[metric].dropna().values
                     total_count = len(data)
+                    if total_count < sample_min:
+                        continue
 
                     counts, bin_edges = np.histogram(data, bins=bin_size, density=False)
                     centers = (bin_edges[:-1] + bin_edges[1:]) / 2
@@ -1416,7 +1416,7 @@ def dist_kpis_by_band_cdf(df, out_dir, rb_min):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
-def dist_kpis_by_uhd_rsrp_bin(df, out_dir, rb_min, rsrp_bin, grid_size):
+def dist_kpis_by_uhd_rsrp_bin(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -1474,15 +1474,15 @@ def dist_kpis_by_uhd_rsrp_bin(df, out_dir, rb_min, rsrp_bin, grid_size):
             band_df = bin_df[bin_df["Band"] == band_name]
 
             for i, (metric, x_title, x_range, bin_width) in enumerate(metrics, start=1):
+                x_min, x_max = x_range[0], x_range[1]
                 bin_size = 10
 
                 for uhd_label, group in band_df.groupby(by="uhd_bin", observed=True):
                     color = uhd_colors[uhd_label]
-                    if len(group) < 5:
-                        continue
-
                     data = group[metric].dropna().values
                     total_count = len(data)
+                    if total_count < sample_min:
+                        continue
 
                     counts, bin_edges = np.histogram(data, bins=bin_size, density=False)
                     centers = (bin_edges[:-1] + bin_edges[1:]) / 2

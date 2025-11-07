@@ -254,6 +254,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
                     axis=1
                 )
 
+                stats = stats[stats['count'] >= sample_min].copy()
                 fig.add_trace(
                     go.Scatter(
                         x=stats["RSRP_center"],
@@ -439,6 +440,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                         axis=1
                     )
 
+                    stats = stats[stats['count'] >= sample_min].copy()
                     fig.add_trace(
                         go.Scatter(
                             x=stats["RSRP_center"],
@@ -698,6 +700,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                     axis=1
                 )
 
+                stats = stats[stats['count'] >= sample_min].copy()
                 fig.add_trace(
                     go.Scatter(
                         x=stats["RSRP_center"],
