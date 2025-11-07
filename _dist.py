@@ -249,7 +249,6 @@ def dist_kpis_by_site(df, out_dir, rb_min):
         cols=1,
         shared_xaxes=False,
         vertical_spacing=VERTICAL_SPACING,
-        specs=[[{"secondary_y": True}] for _ in metrics],
     )
 
     for band_name in band_list:
@@ -425,7 +424,6 @@ def dist_kpis_by_band(df, out_dir, rb_min):
         cols=1,
         shared_xaxes=False,
         vertical_spacing=VERTICAL_SPACING,
-        specs=[[{"secondary_y": True}] for _ in metrics],
     )
 
     for route_name in route_list:
@@ -572,7 +570,7 @@ def dist_kpis_by_band(df, out_dir, rb_min):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
-def dist_kpis_by_uhd(df, out_dir, rb_min):
+def dist_kpis_by_uhd(df, out_dir, rb_min, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -590,26 +588,35 @@ def dist_kpis_by_uhd(df, out_dir, rb_min):
         ("RI", "Rank Indicator", [0.9, 2.1], 0.05),
     ]
 
-    route_colors = {
-        "Namsan": "#FF4500",
-        "Huam345-5": "#FFD700",
-        "Huam415-1": "#32CD32",
-    }
+    route_list = [
+        "Namsan",
+        "Huam345-5",
+        "Huam415-1",
+    ]
+
     band_list = ["n28", "n26"]
 
     df = df[df["DL_RB"] > rb_min].copy()
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
-    route_list = list(route_colors.keys())
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+
+    bins = [-float("inf"), -30, float("inf")]
+    uhd_colors = {
+        "UHD PWR < -30 dBm": "#1E90FF",  # Green
+        "UHD PWR ≥ -30 dBm": "#FF4500",  # Red
+    }
+    uhd_labels = list(uhd_colors.keys())
+    plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=bins, labels=uhd_labels)
+    # display(plot_df[['lat_bin','lon_bin','uhd_avg','uhd_bin']])
 
     fig = make_subplots(
         rows=len(metrics),
         cols=1,
         shared_xaxes=False,
         vertical_spacing=VERTICAL_SPACING,
-        specs=[[{"secondary_y": True}] for _ in metrics],
     )
 
     for band_name in band_list:
@@ -619,8 +626,8 @@ def dist_kpis_by_uhd(df, out_dir, rb_min):
             x_min, x_max = x_range
             bin_size = int((x_max-x_min) / bin_width)
 
-            for route_name, color in route_colors.items():
-                group = band_df[band_df["route"] == route_name]
+            for uhd_label, group in band_df.groupby(by="uhd_bin", observed=True):
+                color = uhd_colors[uhd_label]
                 if len(group) < 5:
                     continue
 
@@ -678,8 +685,8 @@ def dist_kpis_by_uhd(df, out_dir, rb_min):
                         x=centers,
                         y=cdf,
                         mode="lines+markers",
-                        name=f"{band_name} | {route_name}",
-                        legendgroup=f"{route_name}_cdf",
+                        name=f"{band_name} | {uhd_label}",
+                        legendgroup=f"{uhd_label}",
                         line=dict(color=color, width=1.2),
                         customdata=customdata,
                         hovertemplate=hovertemplate,
@@ -748,7 +755,7 @@ def dist_kpis_by_uhd(df, out_dir, rb_min):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f"kpis_by_site.html")
+    out_path = os.path.join(out_dir, f"kpis_by_uhd.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
