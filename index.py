@@ -73,7 +73,7 @@ table.comparison tr:nth-child(even) td {{
 <body>
 
 <div class="header">
-  <h1>NR Field Statistical Analysis (n26&n28)</h1>
+  <h1>NR Field Statistical Analysis</h1>
   <span class="updated">Updated: {updated_str}</span>
 </div>
 <hr>
