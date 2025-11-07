@@ -96,7 +96,7 @@ def dist_uhd_pwr(df, out_dir, grid_size):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"cmpr_min-avg-max.html")
+    out_file = os.path.join(out_dir, f"uhd_min-avg-max.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
 
@@ -208,7 +208,7 @@ def dist_uhd_pwr_by_site(df, out_dir, grid_size):
     )
 
     os.makedirs(out_dir, exist_ok=True)
-    out_file = os.path.join(out_dir, f"cmpr_by_site.html")
+    out_file = os.path.join(out_dir, f"uhd_by_site.html")
     fig.write_html(out_file, include_plotlyjs="cdn", full_html=True)
     print(f"✅ Saved: {out_file}")
 
@@ -390,7 +390,7 @@ def dist_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"kpis_by_site_{rsrp_bin}dB")
+        out_path = os.path.join(out_dir, f"kpis_by_site")
         os.makedirs(out_path, exist_ok=True)
         out_path = os.path.join(out_path, f"RSRP_{rsrp_min}_to_{rsrp_max}.html")
         fig.write_html(out_path)
@@ -576,7 +576,7 @@ def dist_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"kpis_by_band_{rsrp_bin}dB")
+        out_path = os.path.join(out_dir, f"kpis_by_band")
         os.makedirs(out_path, exist_ok=True)
         out_path = os.path.join(out_path, f"RSRP_{rsrp_min}_to_{rsrp_max}.html")
         fig.write_html(out_path)
