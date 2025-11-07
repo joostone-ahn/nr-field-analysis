@@ -160,8 +160,8 @@ def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
         print(f"Saved HTML: {out_path_html}")
 
-def split_band_df(df):
-    common_cols = [c for c in df.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
+def split_band_df(df_pair):
+    common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
 
     def extract_band(df, band):
         band_cols = [c for c in df.columns if c.endswith(band)]
@@ -182,12 +182,12 @@ def split_band_df(df):
         df_band["Band"] = band
         return df_band
 
-    df_n26 = extract_band(df, "n26")
-    df_n28 = extract_band(df, "n28")
+    df_n26 = extract_band(df_pair, "n26")
+    df_n28 = extract_band(df_pair, "n28")
 
-    return pd.concat([df_n26, df_n28], axis=0)
+    return df_n26, df_n28
 
-def plot_kpis_by_site(df, out_dir, rsrp_bin):
+def plot_kpis_by_site(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -213,7 +213,7 @@ def plot_kpis_by_site(df, out_dir, rsrp_bin):
     route_list = list(route_colors.keys())
     band_list = ["n28", "n26"]
 
-    df = split_band_df(df)
+    df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
@@ -359,7 +359,7 @@ def plot_kpis_by_site(df, out_dir, rsrp_bin):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_band(df, out_dir, rsrp_bin):
+def plot_kpis_by_band(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -395,7 +395,7 @@ def plot_kpis_by_band(df, out_dir, rsrp_bin):
         "Huam415-1"
     ]
 
-    df = split_band_df(df)
+    df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
@@ -615,7 +615,7 @@ def plot_kpis_by_band(df, out_dir, rsrp_bin):
 
         print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd(df, out_dir, rsrp_bin):
+def plot_kpis_by_uhd(df, out_dir, rb_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -641,11 +641,12 @@ def plot_kpis_by_uhd(df, out_dir, rsrp_bin):
 
     band_list = ["n28", "n26"]
 
-    df = split_band_df(df)
+    df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
     bins = [-float("inf"), -30, float("inf")]
     uhd_colors = {
@@ -802,7 +803,7 @@ def plot_kpis_by_uhd(df, out_dir, rsrp_bin):
 
     print(f"✅ Saved: {out_path}")
 
-def plot_kpis_by_uhd_3colors(df, out_dir, grid_size, rb_min, rsrp_bin):
+def plot_kpis_by_uhd_3colors(df, out_dir, rb_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -990,266 +991,3 @@ def plot_kpis_by_uhd_3colors(df, out_dir, grid_size, rb_min, rsrp_bin):
         f.write(js_script)
 
     print(f"✅ Saved: {out_path}")
-
-
-
-
-
-
-
-def rb_each_test(df, out_dir, rb_min):
-    metric = "DL_RB"
-    test_list = sorted(df["test_no"].unique())
-    date_list = sorted(set([t.split("_")[0] for t in test_list]))
-
-    for date in date_list:
-        date_tests = [t for t in test_list if t.startswith(date)]
-        fig, axes = plt.subplots(len(date_tests), 1, figsize=(16, 4 * len(date_tests)), sharex=False)
-
-        if len(date_tests) == 1:
-            axes = [axes]
-
-        for i, target_no in enumerate(date_tests):
-            ax = axes[i]
-            df_sub = df[df["test_no"] == target_no]
-
-            # pivot: Band별 DL_RB
-            df_pivot = (
-                df_sub.pivot_table(index="TIME", columns="Band", values=metric)
-                .dropna()
-                .reset_index()
-            )
-            df_pivot["idx"] = range(len(df_pivot))
-
-            ymin = df_pivot[["n26", "n28"]].min().min()
-            ymax = df_pivot[["n26", "n28"]].max().max()
-            if metric == 'DL_RB':
-                ymax = 50
-                ymin = rb_min
-
-            # n26 / n28 plot
-            ax.plot(df_pivot["idx"], df_pivot["n26"], label="n26", color="blue", linewidth=0.8, alpha=0.7)
-            ax.plot(df_pivot["idx"], df_pivot["n28"], label="n28", color="red", linewidth=0.8, alpha=0.7)
-
-            ax.set_ylim(ymin, ymax)
-            ax.legend(fontsize=8, loc="upper right")
-            ax.set_title(f"[{target_no}] DL_RB (n26 vs n28)", fontsize=11, pad=5)
-            ax.set_xlabel("Time Index")
-            ax.set_ylabel("DL_RB")
-            ax.grid(True, linestyle="--", alpha=0.5)
-
-        plt.tight_layout(rect=[0, 0, 1, 0.97])
-        os.makedirs(out_dir, exist_ok=True)
-        save_dir = os.path.join(out_dir, f"plot_RB_each_test")
-        os.makedirs(save_dir, exist_ok=True)
-        out_path = os.path.join(save_dir, f"{date}.png")
-        plt.savefig(out_path, dpi=150, bbox_inches="tight", pad_inches=0.3)
-        plt.close(fig)
-        # plt.show()
-        print(f"Saved: {out_path}")
-
-def plot_grid_kpi(df, out_dir, grid_size, rb_min, sample_min):
-    df_map = df[df['route'].isin(['Namsan','Huam415-1','Huam345-5'])]
-    df_pair = _common.grid_kpi(df_map, grid_size=grid_size, rb_min=rb_min, sample_min=sample_min)
-    df_n26, df_n28 = split_band_df(df_pair)
-    plot_df = pd.concat([df_n26, df_n28], axis=0)
-    plot_df = plot_df[(plot_df["RSRP"] <= -60) & (plot_df["RSRP"] >= -120)]
-
-    df_fixed = df[df["route"] == "Fixed-point"].copy()
-
-    if grid_size == 30:
-        marker_size = 15
-    elif grid_size == 5:
-        marker_size = 5
-
-    def make_hover_text(row):
-        lines = [
-            "────────────────────────",
-            f"<b>band</b> : {row['Band']}",
-            f"<b>route</b> : {row['route']}",
-            "────────────────────────",
-            f"<b>DL_Tput</b> : {row['DL_Tput']:.1f} Mbps",
-            f"<b>DL_RB</b> : {row['DL_RB']:.1f}",
-            "────────────────────────",
-            f"<b>RSRP</b> : {row['RSRP']:.1f} dBm",
-            f"<b>SINR_SSB</b> : {row['SINR_SSB']:.1f} dB",
-            f"<b>SINR_TRS</b> : {row['SINR_TRS']:.1f} dB",
-            f"<b>RSRQ</b> : {row['RSRQ']:.1f} dB",
-            "────────────────────────",
-        ]
-        if "loc_id" in row.index:
-            lines[2] = f"<b>route / loc_id</b> : {row['route']} / {row['loc_id']}"
-        return "<br>".join(lines)
-
-    plot_df["hover_text"] = plot_df.apply(make_hover_text, axis=1)
-    df_fixed["hover_text"] = df_fixed.apply(make_hover_text, axis=1)
-
-    metrics = [
-        "SINR_SSB",
-        "SINR_TRS",
-        "RSRQ",
-        "DL_Tput"
-    ]
-
-    # 색상 정의
-    band_colors = {
-        "n28": "#FF4500", # 빨강
-        "n26": "#1E90FF"  # 파랑
-    }
-    fixed_colors = {
-        "n28": "#FF8C00", # 주황
-        "n26": "#228B22"  # 초록
-    }
-    order = ["n28", "n26"]
-
-    route_list = ["All", "Namsan", "Huam345-5", "Huam415-1"]
-
-    for metric in metrics:
-        fig = go.Figure()
-
-        for route_name in route_list:
-            if route_name == "All":
-                route_df = plot_df.copy()
-            else:
-                route_df = plot_df[plot_df["route"] == route_name]
-
-            for band in order:
-                group = route_df[route_df["Band"] == band]
-                if group.empty:
-                    continue
-
-                color = band_colors.get(band, "gray")
-
-                fig.add_trace(go.Scatter(
-                    x=group["RSRP"],
-                    y=group[metric],
-                    mode="markers",
-                    name=f"{band} raw ({route_name})",
-                    legendgroup=f"{band}_{route_name}",
-                    marker= dict(size=marker_size, color=color, opacity=0.3),
-                    text=group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                    hoverlabel=dict(
-                        bgcolor="white",
-                        bordercolor=color,
-                        font=dict(color="gray")
-                    ),
-                    visible=(route_name == "All"),
-                ))
-
-                valid = group.dropna(subset=["RSRP", metric])
-                if not valid.empty:
-                    bins = np.arange(-120, -59, 5)
-                    valid["RSRP_bin"] = pd.cut(valid["RSRP"], bins=bins)
-                    mean_df = (
-                        valid.groupby("RSRP_bin", observed=True)[metric]
-                        .mean()
-                        .reset_index()
-                    )
-                    mean_df["RSRP_center"] = mean_df["RSRP_bin"].apply(lambda x: (x.left + x.right) / 2)
-
-                    fig.add_trace(go.Scatter(
-                        x=mean_df["RSRP_center"],
-                        y=mean_df[metric],
-                        mode="lines+markers",
-                        name=f"{band} avg ({route_name})",
-                        legendgroup=f"{band}_{route_name}",
-                        line= dict(color=color, width=3, dash="dot"),
-                        marker= dict(size=7, color=color),
-                        hoverinfo="skip",
-                        visible=(route_name == "All"),
-                    ))
-
-        for band in order:
-            fixed_group = df_fixed[df_fixed["Band"] == band]
-            if not fixed_group.empty:
-                fixed_color = fixed_colors[band]
-                fig.add_trace(go.Scatter(
-                    x=fixed_group["RSRP"],
-                    y=fixed_group[metric],
-                    mode="markers",
-                    name=f"{band} raw (Fixed-point)",
-                    legendgroup=f"Fixed-{band}",
-                    marker=dict(size=3, color=fixed_color, opacity=0.8),
-                    text=fixed_group["hover_text"],
-                    hovertemplate="%{text}<extra></extra>",
-                    hoverlabel=dict(
-                        bgcolor="white",
-                        bordercolor=fixed_color,
-                        font=dict(color="gray")
-                    ),
-                    visible=True,
-                ))
-
-        buttons = []
-        for route_name in route_list:
-            visible_flags = []
-            for trace in fig.data:
-                trace_name = trace.name
-                if "(Fixed-point)" in trace_name:
-                    visible_flags.append(True)
-                elif route_name == "All":
-                    visible_flags.append("(All)" in trace_name)
-                else:
-                    visible_flags.append(f"({route_name})" in trace_name)
-            buttons.append(dict(
-                label=route_name,
-                method="update",
-                args=[
-                    {"visible": visible_flags},
-                    {"title.text": f"{metric.replace('_',' ')} over RSRP ({route_name})"}
-                ]
-            ))
-
-        fig.update_layout(
-            updatemenus=[dict(
-                buttons=buttons,
-                direction="down",
-                showactive=True,
-                x=1.07, y=1.05,
-                xanchor="center",
-                yanchor="top",
-                bgcolor="white",
-                bordercolor="lightgray",
-                borderwidth=1,
-                pad=dict(r=10, t=5, b=5),
-            )],
-            title=f"{metric.replace('_',' ')} over RSRP",
-            template="plotly_white",
-            hoverlabel=dict(bgcolor="white", bordercolor="gray", font=dict(size=10)),
-            legend=dict(
-                title="<b>Field Band</b>",
-                font=dict(size=12),
-                itemsizing="constant",
-                yanchor="top",
-                y=0.98,
-                xanchor="right",
-                x=1.15,
-                # bordercolor="lightgray",
-                # borderwidth=1
-            ),
-            margin=dict(l=60, r=160, t=100, b=60),
-        )
-
-        fig.update_xaxes(
-            title="RSRP [dBm]",
-            autorange="reversed",
-            dtick=5,
-            gridwidth=1,
-            gridcolor="rgba(0,0,0,0.15)",
-        )
-
-        if metric == "SINR_TRS":
-            y_title = "SINR TRS [dB]"
-        elif metric == "SINR_SSB":
-            y_title = "SINR SSB [dB]"
-        elif metric == "DL_Tput":
-            y_title = "DL Throughput [Mbps]"
-        else:
-            y_title = metric
-        fig.update_yaxes(title=y_title, gridcolor="rgba(0,0,0,0.15)")
-
-        os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"cmpr_{metric}.html")
-        fig.write_html(out_path)
-        print(f"✅ Saved: {out_path}")
