@@ -1416,7 +1416,7 @@ def dist_kpis_by_band_cdf(df, out_dir, rb_min):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
-def dist_kpis_by_uhd_each_band_pdf(df, out_dir, rb_min, grid_size):
+def dist_kpis_by_uhd_pdf(df, out_dir, rb_min, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -1600,7 +1600,7 @@ def dist_kpis_by_uhd_each_band_pdf(df, out_dir, rb_min, grid_size):
     out_path = os.path.join(out_dir, f"kpis_by_uhd_pdf.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
-def dist_kpis_by_uhd_each_band_cdf(df, out_dir, rb_min, grid_size):
+def dist_kpis_by_uhd_cdf(df, out_dir, rb_min, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
