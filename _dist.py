@@ -241,7 +241,6 @@ def dist_kpis_pdf_rsrp_bins(df, out_dir, rb_min, sample_min, rsrp_bin):
             cols=1,
             shared_xaxes=False,
             vertical_spacing=VERTICAL_SPACING,
-            specs=[[{"secondary_y": True}] for _ in metrics],
         )
 
         for route_name in route_list:
