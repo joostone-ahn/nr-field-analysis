@@ -288,6 +288,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                 dtick=5,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
+                matches='x',
             )
             fig.update_yaxes(
                 title=y_title,
@@ -459,6 +460,7 @@ def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
                 dtick=5,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
+                matches='x',
             )
             fig.update_yaxes(
                 title=y_title,
@@ -657,6 +659,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                 dtick=5,
                 gridcolor="rgba(0,0,0,0.15)",
                 row=i, col=1,
+                matches='x',
             )
             fig.update_yaxes(
                 title=y_title,
@@ -745,7 +748,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 def plot_kpis_by_uhd_2bands(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
-    HORIZONTAL_SPACING = 0.01
+    HORIZONTAL_SPACING = 0.015
     TOP_MARGIN = 70
     LEGEND_Y = 1.02
     LEGEND_FONT_SIZE = 13
@@ -865,6 +868,7 @@ def plot_kpis_by_uhd_2bands(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size
                     dtick=5,
                     gridcolor="rgba(0,0,0,0.15)",
                     row=row, col=col,
+                    matches='x',
                 )
                 fig.update_yaxes(
                     title=y_title if col == 1 else "",
@@ -887,6 +891,7 @@ def plot_kpis_by_uhd_2bands(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size
     for trace, visible in zip(fig.data, initial_visible):
         trace.visible = visible
 
+    # fig.update_xaxes(matches='x')
     fig.update_layout(
         updatemenus=[
             dict(
