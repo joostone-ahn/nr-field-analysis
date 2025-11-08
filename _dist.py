@@ -204,7 +204,7 @@ def dist_uhd_by_site(df, out_dir, grid_size):
     fig.write_html(out_file)
     print(f"✅ Saved: {out_file}")
 
-def dist_kpis_pdf_rsrp_bins(df, out_dir, rb_min, sample_min, rsrp_bin):
+def dist_kpis_pdf_rsrp_bins(df, out_dir, rb_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -255,7 +255,7 @@ def dist_kpis_pdf_rsrp_bins(df, out_dir, rb_min, sample_min, rsrp_bin):
                     group = route_df[route_df["Band"] == band]
                     data = group[metric].dropna().values
                     total_count = len(data)
-                    if total_count < sample_min:
+                    if total_count == 0:
                         continue
 
                     counts, bin_edges = np.histogram(data, bins=bin_size, density=False)

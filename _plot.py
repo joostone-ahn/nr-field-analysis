@@ -10,6 +10,7 @@ import pandas as pd
 import _common
 import numpy as np
 import os
+import re
 
 def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
 
@@ -886,7 +887,7 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                                 f"<b>{metric.replace('_', ' ')}:</b> {mean_metric:.1f} <br><extra></extra>"
                             ),
                             hoverlabel=dict(
-                                font=dict(size=11, color="black"),
+                                font=dict(size=11, color="white"),
                                 bgcolor=fixed_colors[band]
                             ),
                         ),
@@ -952,36 +953,71 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
         print(f"✅ Saved: {out_path}")
 
 def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
+    def preprocess_apple_data(df):
+        new_cols = {}
+
+        for col in df.columns:
+            new_col = col
+
+            replacements = {
+                "Base Station": "route",
+                "Frequency": "Band",
+                "Location": "point_name",
+                "LAT": "Lat",
+                "LON": "Lon",
+                "Date": "date",
+                "Test Num": "test_no",
+            }
+            for old, new in replacements.items():
+                if old in new_col:
+                    new_col = new_col.replace(old, new)
+
+            if "PDSCH SCHED Tput" in new_col:
+                new_col = re.sub(r"PDSCH SCHED Tput", "DL_Tput", new_col, flags=re.IGNORECASE)
+            elif "PDSCH ACK Tput" in new_col:
+                new_col = re.sub(r"PDSCH ACK Tput", "DL_Tput_MAC", new_col, flags=re.IGNORECASE)
+
+            if re.search(r'\bMIN\b', new_col, re.IGNORECASE):
+                new_col = re.sub(r'\s*MIN\s*', '_min', new_col, flags=re.IGNORECASE)
+            elif re.search(r'\bMAX\b', new_col, re.IGNORECASE):
+                new_col = re.sub(r'\s*MAX\s*', '_max', new_col, flags=re.IGNORECASE)
+            elif re.search(r'\bMEAN\b', new_col, re.IGNORECASE):
+                new_col = re.sub(r'\s*MEAN\s*', '', new_col, flags=re.IGNORECASE).strip()
+
+            new_col = new_col.strip().replace(" ", "_")
+            new_cols[col] = new_col
+
+        df = df.rename(columns=new_cols)
+        df = df[['route', 'point_name', 'test_no', 'Band', 'DL_Tput', 'RSRP', 'SINR', 'RSRQ']]
+        df = df.sort_values(by="route", ascending=True).reset_index(drop=True)
+
+        return df
+
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     HORIZONTAL_SPACING = 0.015
     TOP_MARGIN = 70
-    LEGEND_Y = 1.02
+    LEGEND_Y = 1.04
     LEGEND_FONT_SIZE = 13
     RSRP_LOW = -120
     RSRP_HIGH = -50
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),
-        ("SINR_SSB", "SSB SINR [dB]", [-5, 45]),
-        ("SINR_TRS", "TRS SINR [dB]", [5, 40]),
+        ("SINR", "SINR [dB]", [-5, 45]),
         ("RSRQ", "RSRQ [dB]", [-20, -10]),
-        ("CQI", "CQI Index", [-0.1, 15.1]),
-        ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
     route_list = [
-        # "All",
         "Namsan",
         "Huam345-5",
-        # "Huam415-1"
     ]
     band_list = ['n28', 'n26']
 
     df = df[df["DL_RB"] > rb_min]
     df = df[(df["RSRP"] <= RSRP_HIGH) & (df["RSRP"] >= RSRP_LOW)]
 
-    fixed_df, non_fixed_df = _common.separate_fixed_point(df)
+    _fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
     plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
@@ -1003,7 +1039,11 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
     # display(plot_df[['lat_bin','lon_bin','uhd_avg','uhd_bin']])
 
-    fixed_routes = sorted(fixed_df["route"].unique().tolist())
+    log_path = os.path.join("logs", "IPhone16e_fixed-point.xlsx")
+    df_apple = pd.read_excel(log_path)
+    fixed_df = preprocess_apple_data(df_apple)
+    fixed_routes = fixed_df["route"].unique().tolist()
+
     fixed_colors = {
         "n28": "#FF6EC7",  # pink
         "n26": "#00B8D4",  # cyan
@@ -1082,6 +1122,12 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
                     band_fixed = fixed_df[
                         (fixed_df["Band"] == band) &
                         (fixed_df["route"] == fixed_route)
+                        ].copy()
+                    band_fixed = band_fixed[
+                        (band_fixed["RSRP"].notna()) &
+                        (band_fixed["RSRP"] != 0) &
+                        (band_fixed[metric].notna()) &
+                        (band_fixed[metric] != 0)
                         ]
 
                     fig.add_trace(
@@ -1089,41 +1135,25 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
                             x=band_fixed["RSRP"],
                             y=band_fixed[metric],
                             mode="markers",
-                            name=f"Fixed-point | {band} | raw",
-                            legendgroup=f"{fixed_route}_{band}",
-                            showlegend=False,
-                            marker=dict(size=3, color=fixed_colors[band], opacity=0.3),
-                            hoverinfo="skip",
-                        ),
-                        row=row, col=col
-                    )
-
-                    mean_rsrp = band_fixed["RSRP"].mean()
-                    n_rsrp = band_fixed["RSRP"].count()
-                    mean_metric = band_fixed[metric].mean()
-
-                    fig.add_trace(
-                        go.Scatter(
-                            x=[mean_rsrp],
-                            y=[mean_metric],
-                            mode="markers+text",
                             name=f"Fixed-point | {band}",
                             legendgroup=f"{fixed_route}_{band}",
                             showlegend=(row == 1),
                             marker=dict(
-                                size=13,
+                                size=8,
                                 color=fixed_colors[band],
                                 opacity=1,
                                 symbol="square",
                                 line=dict(width=1, color="white")
                             ),
+                            customdata=band_fixed[["point_name", "test_no"]],
                             hovertemplate=(
-                                f"<b>Samples:</b> {n_rsrp}<br>"
-                                f"<b>RSRP:</b> {mean_rsrp:.1f}<br>"
-                                f"<b>{metric.replace('_', ' ')}:</b> {mean_metric:.1f} <br><extra></extra>"
+                                "<b>Location: </b>%{customdata[0]}<br>"
+                                "<b>Test Num: </b>%{customdata[1]}<br>"
+                                "<b>RSRP: </b>%{x:.1f}<br>"
+                                f"<b>{metric.replace('_', ' ')}: </b>%{{y:.1f}}<extra></extra>"
                             ),
                             hoverlabel=dict(
-                                font=dict(size=11, color="black"),
+                                font=dict(size=11, color="white"),
                                 bgcolor=fixed_colors[band]
                             ),
                         ),
@@ -1162,7 +1192,7 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
         )
 
         os.makedirs(os.path.join(out_dir, "plot_fixed_point"), exist_ok=True)
-        out_path = os.path.join(out_dir, "plot_fixed_point", f"{fixed_route}.html")
+        out_path = os.path.join(out_dir, "plot_fixed_point", f"{fixed_route}_iPhone16e.html")
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
@@ -1187,7 +1217,6 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
             f.write(js_script)
 
         print(f"✅ Saved: {out_path}")
-
 
 def plot_kpis_by_site_1col(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
