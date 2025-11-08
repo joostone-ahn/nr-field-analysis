@@ -574,14 +574,14 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     # uhd_bins = [-float("inf"), -30, float("inf")]
     # uhd_colors = {
-    #     "UHD PWR < -30 dBm": "#0D9488",
-    #     "UHD PWR ≥ -30 dBm": "#EA580C",
+    #     f"UHD<{uhd_bins[1]}": "#0D9488",  # 청록
+    #     f"UHD≥{uhd_bins[1]}": "#EA580C",  # 주황
     # }
     uhd_bins = [-float("inf"), -30, -27, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#16A34A",
-        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
-        "UHD PWR ≥ -27 dBm": "#DC2626",
+        f"UHD<{uhd_bins[1]}": "#16A34A",
+        f"{uhd_bins[1]}≤UHD<{uhd_bins[2]}": "#FFB347",
+        f"UHD≥{uhd_bins[2]}": "#DC2626",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
@@ -779,21 +779,21 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
 
     fixed_routes = sorted(fixed_df["route"].unique().tolist())
-    # fixed_routes += ['iPhone16e']
+    fixed_routes += ['iPhone16e']
 
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
 
     # uhd_bins = [-float("inf"), -30, float("inf")]
     # uhd_colors = {
-    #     "UHD PWR < -30 dBm": "#0D9488",  # 청록
-    #     "UHD PWR ≥ -30 dBm": "#EA580C",  # 주황
+    #     f"UHD<{uhd_bins[1]}": "#0D9488",  # 청록
+    #     f"UHD≥{uhd_bins[1]}": "#EA580C",  # 주황
     # }
     uhd_bins = [-float("inf"), -30, -27, float("inf")]
     uhd_colors = {
-        "UHD PWR < -30 dBm": "#16A34A",
-        "-30 ≤ UHD PWR < -27 dBm": "#FFB347",
-        "UHD PWR ≥ -27 dBm": "#DC2626",
+        f"UHD<{uhd_bins[1]}": "#16A34A",
+        f"{uhd_bins[1]}≤UHD<{uhd_bins[2]}": "#FFB347",
+        f"UHD≥{uhd_bins[2]}": "#DC2626",
     }
     uhd_labels = list(uhd_colors.keys())
     plot_df["uhd_bin"] = pd.cut(plot_df["uhd_avg"], bins=uhd_bins, labels=uhd_labels)
@@ -914,6 +914,8 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
                     if fixed_route == 'iPhone16e':
                         fixed_iphone = pd.read_excel(os.path.join("logs", "IPhone16e_fixed-point.xlsx"))
+
+
 
                 fig.update_xaxes(
                     title="RSRP [dBm]",
