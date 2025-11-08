@@ -227,31 +227,32 @@ def separate_fixed_point(df):
     # unique_pairs = fixed_df[["route", "test_no"]].drop_duplicates().reset_index(drop=True)
     # display(unique_pairs)
 
-    LOS_groups = {
-        "345-5_01": [
+    Fixed_groups = {
+        "Huam345-5_251024_01": [
+            "251024_25_Fixed-point",
+            "251024_26_Fixed-point",
+        ],
+        'Huam345-5_251024_02': [
+            "251024_27_Fixed-point"
+        ],
+        # LOS 남산 바라보는 방향
+        "Huam345-5_251103_01": [
             "251103_01_Fixed-point",
             "251103_02_Fixed-point",
             "251103_03_Fixed-point",
             "251103_04_Fixed-point",
             "251103_05_Fixed-point",
         ],
-        "345-5_02": [
+        # LOS 남산 등지는 방향
+        "Huam345-5_251103_02": [
             "251103_06_Fixed-point",
             "251103_07_Fixed-point",
             "251103_08_Fixed-point",
             "251103_09_Fixed-point",
             "251103_10_Fixed-point",
         ],
-        # "251024_25-26": [
-        #     "251024_25_Fixed-point",
-        #     "251024_26_Fixed-point",
-        # ],
-        # '251024_27':[
-        #     "251024_27_Fixed-point"
-        # ],
-    }
-    NLOS_groups = {
-        "345-5_01": [
+        # NLOS 남산 등지는 방향
+        "Huam345-5_251103_03": [
             "251103_11_Fixed-point",
             "251103_12_Fixed-point",
             "251103_13_Fixed-point",
@@ -261,12 +262,9 @@ def separate_fixed_point(df):
     }
 
     def map_fixed_route(test_no):
-        for gid, tlist in LOS_groups.items():
+        for gid, tlist in Fixed_groups.items():
             if test_no in tlist:
-                return f"Fixed_LOS_{gid}"
-        for gid, tlist in NLOS_groups.items():
-            if test_no in tlist:
-                return f"Fixed_NLOS_{gid}"
+                return f"{gid}"
         return "Fixed-point"
 
     if not fixed_df.empty:
