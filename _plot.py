@@ -164,33 +164,6 @@ def plot_kpis_each_test(df, df_grid, out_dir, grid_size):
         pio.write_html(fig, file=out_path_html, include_plotlyjs="cdn", full_html=True)
         print(f"Saved HTML: {out_path_html}")
 
-def split_band_df(df_pair):
-    common_cols = [c for c in df_pair.columns if not any(s in c for s in ["_n26", "_n28", "_diff"])]
-
-    def extract_band(df, band):
-        band_cols = [c for c in df.columns if c.endswith(band)]
-        df_band = df[common_cols + band_cols].copy()
-
-        new_cols = []
-        for col in df_band.columns:
-            if col.endswith(f"_mean_{band}"):
-                new_cols.append(col.replace(f"_mean_{band}", ""))
-            elif col.endswith(f"_std_{band}"):
-                new_cols.append(col.replace(f"_std_{band}", "_std"))
-            elif col.endswith(f"sample_count_{band}"):
-                new_cols.append(col.replace(f"sample_count_{band}", "count"))
-            else:
-                new_cols.append(col)
-        df_band.columns = new_cols
-
-        df_band["Band"] = band
-        return df_band
-
-    df_n26 = extract_band(df_pair, "n26")
-    df_n28 = extract_band(df_pair, "n28")
-
-    return df_n26, df_n28
-
 def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
