@@ -176,7 +176,7 @@ def render_step_map(df, grid_size, lat, lon, values, metric, popup_func, band, c
                 border_color = "blue"
                 if grid_size >= 15:
                     border_weight = 2
-                if grid_size <= 5:
+                else:
                     border_weight = 1
 
         bounds = [
