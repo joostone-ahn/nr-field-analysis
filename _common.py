@@ -259,6 +259,22 @@ def separate_fixed_point(df):
             "251103_14_Fixed-point",
             "251103_15_Fixed-point",
         ],
+        # 남산 품질팀 시험 장소, 남산 바라보는 방향
+        "Namsan_251105_01":[
+            "251105_01_Fixed-point",
+            "251105_02_Fixed-point",
+            "251105_03_Fixed-point",
+            "251105_04_Fixed-point",
+            "251105_05_Fixed-point",
+        ],
+        # 남산 품질팀 시험 장소, 남산 등지는 방향
+        "Namsan_251105_02":[
+            "251105_06_Fixed-point",
+            "251105_07_Fixed-point",
+            "251105_08_Fixed-point",
+            "251105_09_Fixed-point",
+            "251105_10_Fixed-point",
+        ]
     }
 
     def map_fixed_route(test_no):
