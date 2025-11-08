@@ -856,7 +856,7 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                             name=f"Fixed-point | {band} | raw",
                             legendgroup=f"{fixed_route}_{band}",
                             showlegend=False,
-                            marker=dict(size=3, color=fixed_colors[band], opacity=0.3),
+                            marker=dict(size=4, color=fixed_colors[band], opacity=0.4),
                             hoverinfo="skip",
                         ),
                         row=row, col=col
@@ -879,7 +879,7 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                                 color=fixed_colors[band],
                                 opacity=1,
                                 symbol="square",
-                                line=dict(width=1, color="white")
+                                line=dict(width=1.2, color="white")
                             ),
                             hovertemplate=(
                                 f"<b>Samples:</b> {n_rsrp}<br>"
