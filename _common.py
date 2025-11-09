@@ -51,7 +51,7 @@ def grid_uhd(df_uhd, grid_size, sample_min):
             uhd_cnt=("value", "count"),
             uhd_std=("value", "std"),
         )
-        .reset_index()
+        .reset_index().round(2)
     )
     df_agg["uhd_ci95"] = 1.96 * df_agg["uhd_std"] / np.sqrt(df_agg["uhd_cnt"])
 
@@ -59,7 +59,6 @@ def grid_uhd(df_uhd, grid_size, sample_min):
         ["lat_bin", "lon_bin", "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95", "uhd_max", "uhd_min"]
     ]
 
-    df_agg = df_agg.round(2)
     df_agg = df_agg[df_agg['uhd_cnt']>=sample_min]
     df_agg.reset_index(drop=True, inplace=True)
 
@@ -475,10 +474,10 @@ def grid_uhd_raw(df_uhd, grid_size, sample_min):
 
     offsets = [
         (0, 0),  # center
-        (grid_size / 2 / lat_factor, 0),        # north
-        (-grid_size / 2 / lat_factor, 0),       # south
-        (0, grid_size / 2 / lon_factor),        # east
-        (0, -grid_size / 2 / lon_factor),       # west
+        (grid_size * 0.5 / lat_factor, 0),        # north
+        (-grid_size / 2 / lat_factor, 0),  # south
+        (0, grid_size * 0.5 / lon_factor),        # east
+        (0, -grid_size / 2 / lon_factor),  # west
     ]
 
     all_results = []
@@ -488,8 +487,11 @@ def grid_uhd_raw(df_uhd, grid_size, sample_min):
         df_grid["lat_bin"] = ((df_grid["lat"] + lat_offset) * lat_factor // grid_size).astype(int)
         df_grid["lon_bin"] = ((df_grid["lon"] + lon_offset) * lon_factor // grid_size).astype(int)
 
+        df_grid["lat_center"] = ((df_grid["lat_bin"] + 0.5) * grid_size / lat_factor) + lat_offset
+        df_grid["lon_center"] = ((df_grid["lon_bin"] + 0.5) * grid_size / lon_factor) + lon_offset
+
         df_agg = (
-            df_grid.groupby(["lat_bin", "lon_bin"])
+            df_grid.groupby(["lat_center", "lon_center"])
             .agg(
                 uhd_min=("value", "min"),
                 uhd_max=("value", "max"),
@@ -502,17 +504,24 @@ def grid_uhd_raw(df_uhd, grid_size, sample_min):
         df_agg["uhd_ci95"] = 1.96 * df_agg["uhd_std"] / np.sqrt(df_agg["uhd_cnt"])
         all_results.append(df_agg)
 
-    df_all = pd.concat(all_results, ignore_index=True).round(2)
-    df_all = df_all[
-        [
-            "lat_bin", "lon_bin",
-            "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95",
-            "uhd_max", "uhd_min"
-        ]
-    ]
+    df_all = pd.concat(all_results, ignore_index=True)
+    dup_count = df_all.duplicated(subset=["lat_center", "lon_center"]).sum()
+    if dup_count > 0:
+        print(f"⚠️ Overlapping shifted grids were removed: {dup_count}")
+        df_all = df_all.drop_duplicates(subset=["lat_center", "lon_center"], keep="first")
+
+    cols_to_round = [c for c in df_all.columns if c.startswith("uhd_")]
+    df_all[cols_to_round] = df_all[cols_to_round].round(2)
+
     df_all = df_all[df_all['uhd_cnt']>=sample_min]
     df_all.reset_index(drop=True, inplace=True)
 
+    df_all = df_all[
+        [
+            "lat_center", "lon_center",
+            "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95","uhd_max", "uhd_min"
+        ]
+    ]
     return df_all
 
 def assign_uhd_pwr_raw(df, grid_size, sample_min):
@@ -530,18 +539,20 @@ def assign_uhd_pwr_raw(df, grid_size, sample_min):
         df_grid = df.copy()
         df_grid["lat_bin"] = ((df_grid["Lat"] + lat_offset) * lat_factor // grid_size).astype(int)
         df_grid["lon_bin"] = ((df_grid["Lon"] + lon_offset) * lon_factor // grid_size).astype(int)
+        df_grid["lat_center"] = ((df_grid["lat_bin"] + 0.5) * grid_size / lat_factor) + lat_offset
+        df_grid["lon_center"] = ((df_grid["lon_bin"] + 0.5) * grid_size / lon_factor) + lon_offset
         all_results.append(df_grid)
-    df_all = pd.concat(all_results, ignore_index=True).round(2)
 
+    df_all = pd.concat(all_results, ignore_index=True)
     df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
     df_uhd_grid = grid_uhd_raw(df_uhd, grid_size=grid_size, sample_min=sample_min)
-    df_merged = pd.merge(df_all, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+    df_merged = pd.merge(df_all, df_uhd_grid, on=["lat_center", "lon_center"], how="left")
 
     before_drop = len(df_merged)
     df_merged = df_merged.dropna(subset=["uhd_avg"])
     after_drop = len(df_merged)
     dropped = before_drop - after_drop
-    print(f"⚠️ Locations without UHD Power measurements have been removed "
+    print(f"⚠️ Locations without UHD Power measurements were removed "
           f"(dropped: {dropped}, remaining: {after_drop}/{before_drop})")
 
     return df_merged
