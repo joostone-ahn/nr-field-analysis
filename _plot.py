@@ -1165,7 +1165,7 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
         )
 
         os.makedirs(out_dir, exist_ok=True)
-        out_path = os.path.join(out_dir, f"{fixed_route}.html")
+        out_path = os.path.join(out_dir, f"{fixed_route}_iPhone16e.html")
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
