@@ -113,9 +113,9 @@ def dist_uhd_by_site(df, out_dir, grid_size):
 
     if grid_size == 30:
         loc_ranges = {
-            "Huam345-5": (1, 82),
-            "Huam415-1": (83, 121),
-            "Namsan": (122, 145),
+            "Huam345-5": (1, 81),
+            "Huam415-1": (82, 119),
+            "Namsan": (120, 141),
         }
     else:
         raise ValueError("grid_size must be 30")
@@ -737,7 +737,7 @@ def dist_kpis_pdf_by_site(df, out_dir, rb_min):
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
 
-def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size):
+def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size, sample_min):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -767,7 +767,7 @@ def dist_kpis_pdf_by_uhd(df, out_dir, rb_min, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     # uhd_bins = [-float("inf"), -30, float("inf")]
     # uhd_colors = {
@@ -954,21 +954,14 @@ def dist_uhd_by_site_pdf_cdf(df, out_dir, grid_size):
         "Huam415-1": "#32CD32",
     }
 
-    # --- loc_id 범위 설정 ---
     if grid_size == 30:
         loc_ranges = {
-            "Huam345-5": (1, 82),
-            "Huam415-1": (83, 121),
-            "Namsan": (122, 145),
-        }
-    elif grid_size == 5:
-        loc_ranges = {
-            "Huam345-5": (1, 503),
-            "Huam415-1": (504, 726),
-            "Namsan": (727, 933),
+            "Huam345-5": (1, 81),
+            "Huam415-1": (82, 119),
+            "Namsan": (120, 141),
         }
     else:
-        raise ValueError("grid_size must be either 5 or 30")
+        raise ValueError("grid_size must be 30")
 
     # --- Subplot 생성 (PDF + CDF) ---
     fig = make_subplots(
@@ -1443,7 +1436,7 @@ def dist_kpis_cdf_by_site(df, out_dir, rb_min):
     out_path = os.path.join(out_dir, f"kpis_cdf_by_site.html")
     fig.write_html(out_path)
     print(f"✅ Saved: {out_path}")
-def dist_kpis_cdf_by_uhd(df, out_dir, rb_min, grid_size):
+def dist_kpis_cdf_by_uhd(df, out_dir, rb_min, grid_size, sample_min):
     SUBPLOT_HEIGHT = 600
     VERTICAL_SPACING = 0.035
     TOP_MARGIN = 70
@@ -1473,7 +1466,7 @@ def dist_kpis_cdf_by_uhd(df, out_dir, rb_min, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     # uhd_bins = [-float("inf"), -30, float("inf")]
     # uhd_colors = {

@@ -522,7 +522,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
@@ -722,7 +722,7 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
@@ -992,7 +992,7 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
 
     _fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
@@ -1394,7 +1394,7 @@ def plot_kpis_by_uhd_1col(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     rsrp_bins = np.arange(RSRP_LOW, RSRP_HIGH + 1, rsrp_bin)
     plot_df["RSRP_bin"] = pd.cut(plot_df["RSRP"], bins=rsrp_bins)
@@ -1603,7 +1603,7 @@ def plot_fixed_point_1col(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
 
     fixed_df, non_fixed_df = _common.separate_fixed_point(df)
     plot_df = non_fixed_df[non_fixed_df['route'].isin(route_list)].copy()
-    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size)
+    plot_df = _common.assign_uhd_pwr_raw(plot_df, grid_size=grid_size, sample_min=sample_min)
 
     fixed_routes = sorted(fixed_df["route"].unique().tolist())
     fixed_routes += ['iPhone16e']
