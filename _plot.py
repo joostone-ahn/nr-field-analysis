@@ -898,8 +898,8 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
             margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         )
 
-        os.makedirs(os.path.join(out_dir, "plot_fixed_point"), exist_ok=True)
-        out_path = os.path.join(out_dir, "plot_fixed_point", f"{fixed_route}.html")
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"{fixed_route}.html")
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
@@ -1164,8 +1164,8 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
             margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         )
 
-        os.makedirs(os.path.join(out_dir, "plot_fixed_point"), exist_ok=True)
-        out_path = os.path.join(out_dir, "plot_fixed_point", f"{fixed_route}_iPhone16e.html")
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"{fixed_route}.html")
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
@@ -1808,8 +1808,8 @@ def plot_fixed_point_1col(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
             margin=dict(l=60, r=60, t=TOP_MARGIN, b=60),
         )
 
-        os.makedirs(os.path.join(out_dir, "plot_fixed_point"), exist_ok=True)
-        out_path = os.path.join(out_dir, "plot_fixed_point", f"{fixed_route}.html")
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"{fixed_route}.html")
         fig.write_html(out_path, include_plotlyjs='cdn', full_html=True)
 
         js_script = f"""
