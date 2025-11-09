@@ -469,8 +469,8 @@ def grid_kpi(device, df, rb_min, grid_size, sample_min):
 
     return df_pair
 
-def multi_grid_uhd(df_uhd, grid_size, sample_min):
-    lat_factor, lon_factor = 111320, 88000  # 1도당 미터 환산 계수
+def grid_uhd_raw(df_uhd, grid_size, sample_min):
+    lat_factor, lon_factor = 111320, 88000
     df_uhd = df_uhd.dropna(subset=["lat", "lon"]).copy()
 
     offsets = [
@@ -510,7 +510,6 @@ def multi_grid_uhd(df_uhd, grid_size, sample_min):
             "uhd_max", "uhd_min"
         ]
     ]
-    df_all = df_all.round(2)
     df_all = df_all[df_all['uhd_cnt']>=sample_min]
     df_all.reset_index(drop=True, inplace=True)
 
@@ -518,13 +517,25 @@ def multi_grid_uhd(df_uhd, grid_size, sample_min):
 
 def assign_uhd_pwr_raw(df, grid_size, sample_min):
     lat_factor, lon_factor = 111320, 88000
-    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-    df = df.drop(columns=["Lat", "Lon"])
+    df = df.dropna(subset=["Lat", "Lon"]).copy()
+    offsets = [
+        (0, 0),  # center
+        (grid_size / 2 / lat_factor, 0),        # north
+        (-grid_size / 2 / lat_factor, 0),       # south
+        (0, grid_size / 2 / lon_factor),        # east
+        (0, -grid_size / 2 / lon_factor),       # west
+    ]
+    all_results = []
+    for lat_offset, lon_offset in offsets:
+        df_grid = df.copy()
+        df_grid["lat_bin"] = ((df_grid["Lat"] + lat_offset) * lat_factor // grid_size).astype(int)
+        df_grid["lon_bin"] = ((df_grid["Lon"] + lon_offset) * lon_factor // grid_size).astype(int)
+        all_results.append(df_grid)
+    df_all = pd.concat(all_results, ignore_index=True).round(2)
 
     df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
-    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size, sample_min=sample_min)
-    df_merged = pd.merge(df, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+    df_uhd_grid = grid_uhd_raw(df_uhd, grid_size=grid_size, sample_min=sample_min)
+    df_merged = pd.merge(df_all, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
 
     before_drop = len(df_merged)
     df_merged = df_merged.dropna(subset=["uhd_avg"])
