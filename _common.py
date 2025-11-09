@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 band_map = {
     868.85: "n26",
@@ -66,53 +65,6 @@ def grid_uhd(df_uhd, grid_size, sample_min):
 
     return df_agg
 
-def multi_grid_uhd(df_uhd, grid_size, sample_min):
-    lat_factor, lon_factor = 111320, 88000  # 1도당 미터 환산 계수
-    df_uhd = df_uhd.dropna(subset=["lat", "lon"]).copy()
-
-    offsets = [
-        (0, 0),  # center
-        (grid_size / 2 / lat_factor, 0),        # north
-        (-grid_size / 2 / lat_factor, 0),       # south
-        (0, grid_size / 2 / lon_factor),        # east
-        (0, -grid_size / 2 / lon_factor),       # west
-    ]
-
-    all_results = []
-    for lat_offset, lon_offset in offsets:
-        df_grid = df_uhd.copy()
-
-        df_grid["lat_bin"] = ((df_grid["lat"] + lat_offset) * lat_factor // grid_size).astype(int)
-        df_grid["lon_bin"] = ((df_grid["lon"] + lon_offset) * lon_factor // grid_size).astype(int)
-
-        df_agg = (
-            df_grid.groupby(["lat_bin", "lon_bin"])
-            .agg(
-                uhd_min=("value", "min"),
-                uhd_max=("value", "max"),
-                uhd_avg=("value", "mean"),
-                uhd_cnt=("value", "count"),
-                uhd_std=("value", "std"),
-            )
-            .reset_index()
-        )
-        df_agg["uhd_ci95"] = 1.96 * df_agg["uhd_std"] / np.sqrt(df_agg["uhd_cnt"])
-        all_results.append(df_agg)
-
-    df_all = pd.concat(all_results, ignore_index=True).round(2)
-    df_all = df_all[
-        [
-            "lat_bin", "lon_bin",
-            "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95",
-            "uhd_max", "uhd_min"
-        ]
-    ]
-    df_all = df_all.round(2)
-    df_all = df_all[df_all['uhd_cnt']>=sample_min]
-    df_all.reset_index(drop=True, inplace=True)
-
-    return df_all
-    
 def read_logs():
     log_dir = "logs"
     device_data = {}  
@@ -353,25 +305,6 @@ def assign_uhd_pwr(df, grid_size, sample_min):
 
     return df_merged
 
-def assign_uhd_pwr_raw(df, grid_size, sample_min):
-    lat_factor, lon_factor = 111320, 88000
-    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
-    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
-    df = df.drop(columns=["Lat", "Lon"])
-
-    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
-    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size, sample_min=sample_min)
-    df_merged = pd.merge(df, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
-
-    before_drop = len(df_merged)
-    df_merged = df_merged.dropna(subset=["uhd_avg"])
-    after_drop = len(df_merged)
-    dropped = before_drop - after_drop
-    print(f"⚠️ Locations without UHD Power measurements have been removed "
-          f"(dropped: {dropped}, remaining: {after_drop}/{before_drop})")
-
-    return df_merged
-
 def assign_loc_id(df, grid_size):
 
     df = df.sort_values(["route","lat_bin", "lon_bin",], ascending=[True, True, True])
@@ -535,3 +468,69 @@ def grid_kpi(device, df, rb_min, grid_size, sample_min):
     print(f"✅ Saved: {path}")
 
     return df_pair
+
+def multi_grid_uhd(df_uhd, grid_size, sample_min):
+    lat_factor, lon_factor = 111320, 88000  # 1도당 미터 환산 계수
+    df_uhd = df_uhd.dropna(subset=["lat", "lon"]).copy()
+
+    offsets = [
+        (0, 0),  # center
+        (grid_size / 2 / lat_factor, 0),        # north
+        (-grid_size / 2 / lat_factor, 0),       # south
+        (0, grid_size / 2 / lon_factor),        # east
+        (0, -grid_size / 2 / lon_factor),       # west
+    ]
+
+    all_results = []
+    for lat_offset, lon_offset in offsets:
+        df_grid = df_uhd.copy()
+
+        df_grid["lat_bin"] = ((df_grid["lat"] + lat_offset) * lat_factor // grid_size).astype(int)
+        df_grid["lon_bin"] = ((df_grid["lon"] + lon_offset) * lon_factor // grid_size).astype(int)
+
+        df_agg = (
+            df_grid.groupby(["lat_bin", "lon_bin"])
+            .agg(
+                uhd_min=("value", "min"),
+                uhd_max=("value", "max"),
+                uhd_avg=("value", "mean"),
+                uhd_cnt=("value", "count"),
+                uhd_std=("value", "std"),
+            )
+            .reset_index()
+        )
+        df_agg["uhd_ci95"] = 1.96 * df_agg["uhd_std"] / np.sqrt(df_agg["uhd_cnt"])
+        all_results.append(df_agg)
+
+    df_all = pd.concat(all_results, ignore_index=True).round(2)
+    df_all = df_all[
+        [
+            "lat_bin", "lon_bin",
+            "uhd_cnt", "uhd_avg", "uhd_std", "uhd_ci95",
+            "uhd_max", "uhd_min"
+        ]
+    ]
+    df_all = df_all.round(2)
+    df_all = df_all[df_all['uhd_cnt']>=sample_min]
+    df_all.reset_index(drop=True, inplace=True)
+
+    return df_all
+
+def assign_uhd_pwr_raw(df, grid_size, sample_min):
+    lat_factor, lon_factor = 111320, 88000
+    df["lat_bin"] = (df["Lat"] * lat_factor // grid_size).astype(int)
+    df["lon_bin"] = (df["Lon"] * lon_factor // grid_size).astype(int)
+    df = df.drop(columns=["Lat", "Lon"])
+
+    df_uhd = read_UHD_xlsx(uhd_dir='UHD_power')
+    df_uhd_grid = grid_uhd(df_uhd, grid_size=grid_size, sample_min=sample_min)
+    df_merged = pd.merge(df, df_uhd_grid, on=["lat_bin", "lon_bin"], how="left")
+
+    before_drop = len(df_merged)
+    df_merged = df_merged.dropna(subset=["uhd_avg"])
+    after_drop = len(df_merged)
+    dropped = before_drop - after_drop
+    print(f"⚠️ Locations without UHD Power measurements have been removed "
+          f"(dropped: {dropped}, remaining: {after_drop}/{before_drop})")
+
+    return df_merged
