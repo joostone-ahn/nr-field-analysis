@@ -134,6 +134,7 @@ def generate_list_html(root_dir, depth=0):
                 "plot",
                 "dist",
                 "results_200ms_10m",
+                "results_200ms_10m/plot",
             )
 
             html += (
