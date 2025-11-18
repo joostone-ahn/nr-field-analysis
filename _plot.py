@@ -497,7 +497,7 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
     LEGEND_Y = 1.02
     LEGEND_FONT_SIZE = 13
     RSRP_LOW = -120
-    RSRP_HIGH = -50
+    RSRP_HIGH = -70
 
     metrics = [
         ("DL_Tput", "DL Throughput [Mbps]", [0, 120]),

@@ -125,28 +125,28 @@ def add_basestation(map_name):
         (459, 37.55160578, 126.99030941),
     ]
 
-    for pci, lat, lon in lte_b5_pci_list:
-        icon = BeautifyIcon(
-            icon_shape='circle',
-            background_color='#9E9E9E',
-            text_color='white',
-            number='B5',
-            border_width=0,
-            inner_icon_style=(
-                'font-size:9px;'
-                'font-weight:bold;'
-                'position: relative;'
-                'top:50%;'
-                'transform:translateY(-47%);'
-                'text-align:center;'
-            ),
-            radius=4,
-        )
-        folium.Marker(
-            [lat, lon],
-            icon=icon,
-            popup=f"{pci}"
-        ).add_to(map_name)
+    # for pci, lat, lon in lte_b5_pci_list:
+    #     icon = BeautifyIcon(
+    #         icon_shape='circle',
+    #         background_color='#9E9E9E',
+    #         text_color='white',
+    #         number='B5',
+    #         border_width=0,
+    #         inner_icon_style=(
+    #             'font-size:9px;'
+    #             'font-weight:bold;'
+    #             'position: relative;'
+    #             'top:50%;'
+    #             'transform:translateY(-47%);'
+    #             'text-align:center;'
+    #         ),
+    #         radius=4,
+    #     )
+    #     folium.Marker(
+    #         [lat, lon],
+    #         icon=icon,
+    #         popup=f"{pci}"
+    #     ).add_to(map_name)
 
 def render_step_map(df, grid_size, lat, lon, values, metric, popup_func, band, cmap, out_file, caption):
     uhd_lat, uhd_lon = 37.551130, 126.987443
