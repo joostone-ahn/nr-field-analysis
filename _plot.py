@@ -453,9 +453,9 @@ def plot_kpis_by_site(df, out_dir, rb_min, sample_min, rsrp_bin):
 
                 stats["hover_text"] = stats.apply(
                     lambda r: (
-                        f"<b>Counts</b>: {int(r['count'])}<br>"
-                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                         f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                        f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                        f"<b>Counts</b>: {int(r['count'])}<br>"
                     ),
                     axis=1
                 )
@@ -625,10 +625,10 @@ def plot_kpis_by_uhd(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                     stats = stats.merge(uhd_stats[["RSRP_bin", "mean", "CI"]], on="RSRP_bin", suffixes=("", "_uhd"))
                     stats["hover_text"] = stats.apply(
                         lambda r: (
-                            f"<b>Counts</b>: {int(r['count'])}<br>"
-                            f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                             f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                            f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                             f"<b>UHD PWR</b>: {r['mean_uhd']:.1f} (±{r['CI_uhd']:.2f})"
+                            f"<b>Counts</b>: {int(r['count'])}<br>"
                         ),
                         axis=1
                     )
@@ -836,10 +836,10 @@ def plot_fixed_point(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size):
                         stats = stats.merge(uhd_stats[["RSRP_bin", "mean", "CI"]], on="RSRP_bin", suffixes=("", "_uhd"))
                         stats["hover_text"] = stats.apply(
                             lambda r: (
-                                f"<b>Counts</b>: {int(r['count'])}<br>"
-                                f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                                 f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                                f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                                 f"<b>UHD PWR</b>: {r['mean_uhd']:.1f} (±{r['CI_uhd']:.2f})"
+                                f"<b>Counts</b>: {int(r['count'])}<br>"
                             ),
                             axis=1
                         )
@@ -1112,10 +1112,10 @@ def plot_fixed_point_apple(df, out_dir, rb_min, sample_min, rsrp_bin, grid_size)
                         stats = stats.merge(uhd_stats[["RSRP_bin", "mean", "CI"]], on="RSRP_bin", suffixes=("", "_uhd"))
                         stats["hover_text"] = stats.apply(
                             lambda r: (
-                                f"<b>Counts</b>: {int(r['count'])}<br>"
-                                f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                                 f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                                f"<b>RSRP</b>: {r['RSRP_range']}<br>"
                                 f"<b>UHD PWR</b>: {r['mean_uhd']:.1f} (±{r['CI_uhd']:.2f})"
+                                f"<b>Counts</b>: {int(r['count'])}<br>"
                             ),
                             axis=1
                         )
