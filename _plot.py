@@ -182,6 +182,13 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
         ("RI", "Rank Indicator", [0.9, 2.1]),
     ]
 
+    row_heights = []
+    for metric, _, _ in metrics:
+        if metric == "DL_Tput":
+            row_heights.append(1.5)
+        else:
+            row_heights.append(1.0)
+
     band_colors = {
         "n28": "#FF4500",
         "n26": "#1E90FF"
@@ -206,6 +213,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
         cols=1,
         shared_xaxes=False,
         vertical_spacing=VERTICAL_SPACING,
+        row_heights=row_heights,
     )
 
     for route_name in route_list:
@@ -229,9 +237,9 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
 
                 stats["hover_text"] = stats.apply(
                     lambda r: (
-                        f"<b>Counts</b>: {int(r['count'])}<br>"
+                        f"<b>{metric.replace('_', ' ')} (BW 10M)</b>: {r['mean']:.1f}<br>"
                         f"<b>RSRP</b>: {r['RSRP_range']}<br>"
-                        f"<b>{metric.replace('_', ' ')}</b>: {r['mean']:.1f} (±{r['CI']:.2f})<br>"
+                        f"<b>Counts</b>: {int(r['count'])}<br>"
                     ),
                     axis=1
                 )
@@ -242,8 +250,8 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                         x=stats["RSRP_center"],
                         y=stats["mean"],
                         mode="lines+markers",
-                        name=f"{route_name} | {band}",
-                        legendgroup=f"{band}",
+                        name=f"{route_name} | {band} (BW 10M)",
+                        legendgroup=f"{band} BW 10M",
                         showlegend=(i == 1),
                         line=dict(color=color, width=1.3),
                         marker=dict(size=5, color=color),
@@ -257,6 +265,47 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                     ),
                     row=i, col=1
                 )
+
+                if metric == "DL_Tput" and band in ["n26", "n28"]:
+
+                    if band == "n26":
+                        scale_factor = 1.5
+                        bw_label = "(BW 15M)"
+                    elif band == "n28":
+                        scale_factor = 2.0
+                        bw_label = "(BW 20M)"
+
+                    scaled_y = stats["mean"] * scale_factor
+
+                    stats["hover_text"] = stats.apply(
+                        lambda r: (
+                            f"<b>{metric.replace('_', ' ')} {bw_label}</b>: {r['mean'] * scale_factor:.1f}<br>"
+                            f"<b>RSRP</b>: {r['RSRP_range']}<br>"
+                            f"<b>Counts</b>: {int(r['count'])}<br>"
+                        ),
+                        axis=1
+                    )
+
+                    fig.add_trace(
+                        go.Scatter(
+                            x=stats["RSRP_center"],
+                            y=scaled_y,
+                            mode="lines",
+                            name=f"{route_name} | {band} {bw_label}",
+                            legendgroup=f"{band} scaled",
+                            showlegend=(i == 1),
+                            line=dict(color=color, width=1.3, dash="dot"),
+                            # marker=dict(size=5, color=color, symbol="square"),
+                            text=stats["hover_text"],
+                            customdata=stats["RSRP_left"],
+                            hovertemplate="%{text}<extra></extra>",
+                            hoverlabel=dict(
+                                font=dict(size=11, color="white"),
+                                bgcolor=color
+                            )
+                        ),
+                        row=i, col=1
+                    )
 
             fig.update_xaxes(
                 title="RSRP [dBm]",
@@ -301,7 +350,7 @@ def plot_kpis_by_band(df, out_dir, rb_min, sample_min, rsrp_bin):
                 bordercolor="gray",
             )
         ],
-        height=SUBPLOT_HEIGHT * len(metrics),
+        height=SUBPLOT_HEIGHT * sum(row_heights),
         template="plotly_white",
         legend=dict(
             orientation="h",
