@@ -596,7 +596,7 @@ def map_coverage(df, out_dir, grid_size, band):
         vmin, vmax = m['vmin'], m['vmax']
         unit = m['unit']
 
-        n28 = df[f"{metric}_mean_n28"].astype(float)
+        df_band = df[f"{metric}_mean_{band}"].astype(float)
         cmap = make_step_cmap(vmin, vmax)
         caption = f"{band} {metric} [{unit}]" if unit != "" else f"{band} {metric}"
 
@@ -607,7 +607,7 @@ def map_coverage(df, out_dir, grid_size, band):
             grid_size=grid_size,
             lat=lat,
             lon=lon,
-            values=n28,
+            values=df_band,
             metric=metric,
             popup_func=popup_table,
             band=band,
